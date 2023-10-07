@@ -62,11 +62,10 @@ class CarteJoaillerie <<abstract>>{
   - couronne : int
 }
 
-note right of CarteRoyale :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
+note right of CarteRoyale :  point de prestige 2 ou 3
 class CarteRoyale {
   - point_de_prestige : int
   - capacite : Capacite
-  - couronne_necessaire : int
 }
 
 class SacJeton{
