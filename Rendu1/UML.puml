@@ -76,7 +76,7 @@ class SacJeton{
 
 
 class Plateau{
-  - {field} grille : List[TupleIntJeton]
+  - {field} grille : List[List[Jeton]]
 }
 
 class LigneDeCarte{
