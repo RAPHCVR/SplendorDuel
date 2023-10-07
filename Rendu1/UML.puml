@@ -9,7 +9,7 @@ enum Niveau <<enumeration >> {
   3
 }
 
-enum Jeton <<enumeration >> {
+enum Couleur <<enumeration >> {
   Blanc
   Vert
   Perle
@@ -17,6 +17,10 @@ enum Jeton <<enumeration >> {
   Or
   Rouge
   Noir
+}
+
+class Jeton {
+  couleur : Couleur
 }
 
 enum Capacite <<enumeration >> {
@@ -27,10 +31,10 @@ enum Capacite <<enumeration >> {
   Cameleon
 }
 
-struct TupleIntJeton {
-  nombre : int
-  type_jeton : Jeton
-}
+' struct TupleIntJeton {
+'   nombre : int
+'   type_jeton : Jeton
+' }
 
 class SplendorDuel {
 
@@ -42,7 +46,7 @@ class SplendorDuel {
 class Joueur {
   - nom : string
   - privilege :int 
-  - {field} jetons : List[TupleIntJeton]
+  '- {field} jetons : List[TupleIntJeton]
 
   + reserverCarte(Carte carte)
   + acheterCarte()
@@ -50,60 +54,71 @@ class Joueur {
   + depenserJeton(Jeton jeton)
   + utiliserPrivilege(privilege)
 }
-note left of Joueur : privilege entre 0 et 3
+note bottom of Joueur : privilege entre 0 et 3
 
 
 class CarteJoaillerie <<abstract>>{
   - niveau : Niveau
-  - bonus : Jeton
+  - bonus : Couleur
   - point_de_prestige : int
   - capacite : Capacite
-  - {field} cout : List[TupleIntJeton]
+  '- {field} cout : List[TupleIntJeton]
   - couronne : int
 }
-note right of CarteJoaillerie : point de prestige entre 0 et 4\ncouronne entre 0 et 2
+note bottom of CarteJoaillerie : point de prestige entre 0 et 4\ncouronne entre 0 et 2
 
 
 class CarteRoyale {
   - point_de_prestige : int
   - capacite : Capacite
+  - couronne_necessaire : int
 }
-note right of CarteRoyale :  point de prestige 2 ou 3
+note bottom of CarteRoyale :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
 
 
 class SacJeton{
-  - {field} jetons : List[TupleIntJeton]
+  '- {field} jetons : List[TupleIntJeton]
 
 }
 
 
 class Plateau{
-  - {field} grille : List[List[Jeton]]
+}
+
+class CoordonneeJeton{
+  x : int
+  y : int
 }
 
 class LigneDeCarte{
-  niveau : Niveau
+  - niveau : Niveau
 }
+
 
 
 SplendorDuel "1" -- "2" Joueur : < joue
 SplendorDuel "1" -- "1" Plateau : se joue sur >
 SplendorDuel "1" -- "1" SacJeton : se joue avec >
 SplendorDuel "1" -- "*" CarteJoaillerie : se joue avec >
+SplendorDuel "1" -- "4" CarteRoyale : se joue avec >
+SplendorDuel "1" -- "3" LigneDeCarte : se joue avec >
 
-
-SplendorDuel "1" -- "4" CarteRoyale : se joue avec 
-SplendorDuel "1" -- "3" LigneDeCarte : se joue avec
 LigneDeCarte "3" -- "*" CarteJoaillerie : < est empilée
 LigneDeCarte "3" -- "*" CarteJoaillerie : < est découverte
 
+Jeton "0..10" -- "0..1" Joueur : possède <
+Jeton "0..25" -- "0..1" SacJeton : contient <
+Jeton "0..25" -- "1" Plateau : est posé sur >
 
-Joueur "0..1" -- "0..*" CarteJoaillerie : posseder >
+CoordonneeJeton "0..25" --  "1" Plateau
+CoordonneeJeton "0..1" -- "1" Jeton
+
+Joueur "0..1" -- "0..*" CarteJoaillerie : possède >
 ' CarteJoaillerie <|-- CarteNiveau1
 ' CarteJoaillerie <|-- CarteNiveau2
 ' CarteJoaillerie <|-- CarteNiveau3
 
-Joueur "0..1" -- "0..2" CarteRoyale : posseder >
+Joueur "0..1" -- "0..2" CarteRoyale : possède >
 
 
 @enduml
