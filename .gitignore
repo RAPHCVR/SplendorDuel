@@ -1,5 +1,7 @@
 nbproject
 Makefile
+CMakeLists.txt
+cmake-build-debug
 .vs
 out
 CMakeLists.txt
