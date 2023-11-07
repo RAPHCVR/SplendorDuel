@@ -1,2 +1,6 @@
 nbproject
 Makefile
+.vs
+out
+CMakeLists.txt
+CMakePresets.json
