@@ -116,15 +116,15 @@ void Board::placePrivilege(const Privilege& privilege) {
 }
 
 void Board::showBoard(){
-    std::cout << "Plateau Jetons:" << std::endl;
+    std::cout << "Plateau:" << std::endl;
 
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
+    for (auto & token : tokens) {
+        for (auto & j : token) {
             std::string s = "";
-            if (tokens[i][j] == nullptr) s = "."; // Case vide
+            if (j == nullptr) s = "."; // Cas de la case vide
             else {
-                switch ((*tokens[i][j]).getColor()) {
-                    case TokenColor::BLANC: s = "W"; break; //White pour differencier de Bleu
+                switch (j->getColor()) {
+                    case TokenColor::BLANC: s = "W"; break;
                     case TokenColor::BLEU: s = "B"; break;
                     case TokenColor::NOIR: s = "N"; break;
                     case TokenColor::OR: s = "O"; break;
