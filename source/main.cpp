@@ -3,34 +3,32 @@
 
 int main() {
 
-        //Jetons
-
         try
         {
-            //Création du lot
-            TotalTokens lotJetons;
-            //Création du sac
-            Bag sac(lotJetons);
+            //Instanciation des Jetons
+            TotalTokens totalTokens;
+            //Instanciation du sac
+            Bag bag(totalTokens);
             //Creation du plateau
-            TotalPrivileges lotPrivileges;
-            Board board(sac, lotPrivileges);
+            TotalPrivileges totalPrivileges;
+            Board board(bag, totalPrivileges);
 
-            //Recuperation de deux jetons sur le plateau et remise dans le sac
-            const Token& jeton1 = board.takeToken(0,0);
-            std::cout << jeton1 << "\n";
-            sac.addToken(jeton1);
+            //Test takeToken
+            const Token& token1 = board.takeToken(0,0);
+            std::cout << token1 << "\n";
+            bag.addToken(token1);
 
-            const Token& jeton2 = board.takeToken(2,2);
-            std::cout << jeton2 << "\n";
-            sac.addToken(jeton2);
+            const Token& token2 = board.takeToken(4,4);
+            std::cout << token2 << "\n";
+            bag.addToken(token2);
 
-            //Remise d'un jeton du sac sur le plateau
-            board.placeToken(sac.drawToken());
+            //Test algo placement Jetons
+            board.placeToken(bag.drawToken());
             board.showBoard();
         }
-        catch (TokenException& e)
+        catch (TokenException& err)
         {
-            std::cout << e.getMessage() << "\n";
+            std::cout << err.getMessage() << "\n";
         }
     return 0;
 }
