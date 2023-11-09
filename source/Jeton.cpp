@@ -230,7 +230,7 @@ bool Board::isEmpty() const {
 }
 
 Board::Board(Bag& bag, const TotalPrivileges& totalPrivileges){
-    //On ajoute les les privilèges
+    //On ajoute les privilèges
     for (size_t i = 0; i < totalPrivileges.getNbPrivileges(); i++) {
         placePrivilege(totalPrivileges.getPrivilege(i));
     }
@@ -240,5 +240,6 @@ Board::Board(Bag& bag, const TotalPrivileges& totalPrivileges){
             j = nullptr;
         }
     }
+    //On rempli le plateau enb vidant le sac
     fillBoard(bag);
 }
