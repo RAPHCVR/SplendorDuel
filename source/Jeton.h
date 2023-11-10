@@ -65,7 +65,7 @@ class Bag {
 private :
     std::vector<const Token*> tokens;
 public :
-    explicit Bag(const TotalTokens& lot);
+    explicit Bag(const TotalTokens& total);
 
     size_t getNbTokens() const { return tokens.size(); }
     void addToken(const Token& j);
@@ -89,7 +89,7 @@ public :
     TotalPrivileges();
     ~TotalPrivileges();
 
-    //pas de duplication du lot
+    //pas de duplication du total
     TotalPrivileges(const TotalPrivileges&) = delete;
     TotalPrivileges& operator=(const TotalPrivileges&) = delete;
 };
