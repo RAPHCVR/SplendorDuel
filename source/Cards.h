@@ -6,10 +6,11 @@
 #include "Jeton.h"
 
 
-//PENSER A INCLUDE LES ENUMS POUR ABILITIES AINSI QUE BONUS
 
-enum Albilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token};
+//Enum Abilities pour les capacités
+enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token};
 
+//Classe exception
 class JewelryCardError {
 public:
     int reason;
@@ -19,6 +20,8 @@ public:
 
 class JewelryCard {
 public:
+    JewelryCard(l, c, pp, c, a, b) :
+    level(l), cost(c), prestige_points(pp), crowns(c), ability(a), bonus(b) {}
     std::string getLevel() {return level;}
     int getCost() {return cost;}
     int getPrestige() {return prestige_points;}
@@ -34,6 +37,7 @@ private:
     TokenColor bonus;
 };
 
+//Classe exception
 class RoyalCardError {
 public:
     int reason;
@@ -43,6 +47,8 @@ public:
 
 class RoyalCard {
 public:
+    RoyalCard(pp, a) :
+    prestige_points(pp), ability(a);
     int getPrestige() {return prestige_points;}
     Abilities getAbility() {return ability;}
 private:
