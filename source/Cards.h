@@ -83,7 +83,7 @@ private:
 class Pyramid_Cards{
 public:
     
-    void drawCard();
+    void drawCard(unsigned int level);
     JewelryCard takeCard(unsigned int level, unsigned int position);
     
 private:
@@ -93,9 +93,11 @@ private:
     static const unsigned int max_level_one = 5;
     static const unsigned int max_level_two = 4;
     static const unsigned int max_level_three = 3;
+    /* Pas besoin car vecteur se stack automatiquement
     unsigned int position_level_one = 0;
     unsigned int position_level_two = 0;
     unsigned int position_level_three = 0;
+     */ 
 
 
 };

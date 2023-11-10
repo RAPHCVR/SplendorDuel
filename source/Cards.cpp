@@ -46,15 +46,18 @@ void Pyramid_Cards::drawCard(unsigned int level){
             case 1 :
                 Card_Temp = Deck_level_one::pioche.begin();
                 Deck_level_one::pioche.erase(Deck_level_one::pioche.begin());
-                row_level_one[position_level_one] = Card_Temp;
+                row_level_one.push_back(Card_Temp);
+                //row_level_one[position_level_one] = Card_Temp;
             case 2 :
                 Card_Temp = Deck_level_two::pioche.begin();
                 Deck_level_two::pioche.erase(Deck_level_two::pioche.begin());
-                row_level_two[position_level_two] = Card_Temp;
+                row_level_two.push_back(Card_Temp);
+                //row_level_two[position_level_two] = Card_Temp;
             case 3 :
                 Card_Temp = Deck_level_three::pioche.begin();
                 Deck_level_three::pioche.erase(Deck_level_three::pioche.begin());
-                row_level_three[position_level_three] = Card_Temp;
+                row_level_three.push_back(Card_Temp);
+                //row_level_three[position_level_three] = Card_Temp;
             default :
                 throw std::runtime_error("Niveau non existant");
             
