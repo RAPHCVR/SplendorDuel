@@ -125,15 +125,45 @@ class Environnement{
 namespace JoueurHumainIA {
 
 class Joueur {
-  - nom : string
-  - privilege :int 
+  - name : string
+  - privilege :int
+  - type : Type
+  - nbCrown : int
+  - prestigePoints : int
+  - nbTokens : int
+  - cardsJewelry : Liste[CarteJoaillerie]
+  - reserve : Liste[CarteJoaillerie]
+  - cardsRoyal : Liste[CarteRoyale]
+  - tokens: Liste[Liste[jeton]]
+  - tokenSummary: unordered_map[CarteJoaillerie]
+  - blueSummary: SummaryCard
+  - greenSummary: SummaryCard
+  - redSummary: SummaryCard
+  - whiteSummary: SummaryCard
+  - blackSummary: SummaryCard
   '- {field} jetons : List[TupleIntJeton]
 
-  + reserverCarte(Carte carte)
-  + acheterCarte()
-  + ajouterJeton(Jeton jeton)
-  + depenserJeton(Jeton jeton)
-  + utiliserPrivilege(privilege)
+  + getName() : string
+  + getPrivilege() : int
+  + getPrestige() : int
+  + getCrowns() : int
+  + getTokens() : int
+  + getType() : Type
+  + addToken(Token token)
+  + removeToken(Token token)
+  + addCrowns()
+  + addPrestige(int nb, tokenColor couleur)
+  + addPrivilege()
+  + removePrivilege()
+  + addJewelryCard(JewelryCard card)
+  + addRoyalCard(RoyalCard card)
+  + actionAddToken()
+  + actionReserveCard()
+  + actionBuyCard()
+  + canBuyCard(const JewelryCard &card): Bool
+  + spendResources(const JewelryCard &card)
+  + usePrivilege()
+  + actionFillBoard()
 }
 note bottom of Joueur : privilege entre 0 et 3
 
