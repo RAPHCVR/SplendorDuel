@@ -56,7 +56,7 @@ struct Bonus {
 
 class JewelryCard {
 public:
-    JewelryCard(unsigned int l, std::vector<int> c, unsigned int pp, unsigned int cr, Abilities a, TokenColor b) :
+    JewelryCard(unsigned int l, std::vector<int> c, unsigned int pp, unsigned int cr, Abilities a, Bonus b) :
     level(l), cost(c), prestige_points(pp), crowns(cr), ability(a), bonus(b) {}
     unsigned int getLevel() {return level;}
     std::vector<int> getCost() {return cost;}

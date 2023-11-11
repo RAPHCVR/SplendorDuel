@@ -7,6 +7,11 @@ enum Niveau <<enumeration >> {
   3
 }
 
+struct Bonus {
+    couleur : Couleur
+    nombre : uint
+}
+
 enum Couleur <<enumeration >> {
   BLANC
   VERT
@@ -206,9 +211,12 @@ Humain --|> Joueur
 'CoordonneeJeton "0..1" -- "1" Jeton
 
 Joueur "0..1" -- "0..*" CarteJoaillerie : possède >
-' CarteJoaillerie <|-- CarteNiveau1
-' CarteJoaillerie <|-- CarteNiveau2
-' CarteJoaillerie <|-- CarteNiveau3
+CarteJoaillerie --* DeckNv1
+CarteJoaillerie --* DeckNv2
+CarteJoaillerie --* DeckNv3
+CartesPyramide *-- "1" DeckNv1
+CartesPyramide *-- "1" DeckNv2
+CartesPyramide *-- "1" DeckNv3
 
 Joueur "0..1" -- "0..2" CarteRoyale : possède >
 
