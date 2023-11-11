@@ -12,6 +12,19 @@ using namespace std;
 //Enum Abilities pour les capacités
 enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token};
 
+class SummaryCard{
+    private :
+        int privilegePoints;
+        int crownNumber;
+        int bonusNumber;
+
+    public : 
+        int getPrivilegePoints(){ return privilegePoints;}   
+        int getCrownNumber(){ return crownNumber;}
+        int getBonusNumber(){ return bonusNumber;}
+}
+
+
 //Classe exception
 class JewelryCardError {
 public:
