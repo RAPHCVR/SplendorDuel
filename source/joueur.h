@@ -27,6 +27,12 @@ private:
     vector<Token> tokens;
     unordered_map<string, int> tokenSummary;
 
+    SummaryCard blueSummary;
+    SummaryCard greenSummary;
+    SummaryCard redSummary;
+    SummaryCard whiteSummary;
+    SummaryCard blackSummary;
+
 public:
     string getName() const {return name;};
     int getPrivilege() const {return privilege;};
