@@ -24,7 +24,6 @@ private:
     vector<JewelryCard> cardsJewelry; //Pas sur de l utilisation de vector
     vector<JewelryCard> reserve;
     vector<RoyalCard> cardsRoyal;
-    vector<Token> tokens;
     unordered_map<string, int> tokenSummary;
     vector<vector<Token *>> tokens; // tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
 
