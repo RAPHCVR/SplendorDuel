@@ -15,43 +15,65 @@ enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_t
 class SummaryCard{
     private :
         int privilegePoints;
-        int crownNumber;
-        int bonusNumber;
+    int prestigePoints;
+    int crownNumber;
+    int bonusNumber;
 
-    public : 
-        int getPrivilegePoints(){ return privilegePoints;}   
-        int getCrownNumber(){ return crownNumber;}
-        int getBonusNumber(){ return bonusNumber;}
-}
+    public :
+        int getPrivilegePoints(){ return privilegePoints;}
+    int getPrestigePoints(){ return prestigePoints;}
+    int getCrownNumber(){ return crownNumber;}
+    int getBonusNumber(){ return bonusNumber;}
+};
 
 
 //Classe exception
+class JewelryCardError {
+    //Classe de gestion des exception avec les carte de gemmes
+private:
+    std::string message; //Message d'exception
+public:
+    JewelryCardError(const std::string &msg) : message(msg) {} //Constructeur d'exception
+    ~JewelryCardError() = default;
+
+    std::string getMessage() const { return message; } //Récupération du message d'exception
+};
+
+/*
+?????????
 class JewelryCardError {
 public:
     int reason;
     error(int r) : reason(r) {}
     error(const JewelryCardError &source) : reason(source.reason) {}
 };
+*/
+
+struct Bonus {
+    int bonus_number;
+    TokenColor bonus_color;
+};
 
 class JewelryCard {
 public:
     JewelryCard(unsigned int l, std::vector<int> c, unsigned int pp, unsigned int cr, Abilities a, TokenColor b) :
     level(l), cost(c), prestige_points(pp), crowns(cr), ability(a), bonus(b) {}
-    std::string getLevel() {return level;}
+    unsigned int getLevel() {return level;}
     std::vector<int> getCost() {return cost;}
     int getPrestige() {return prestige_points;}
     int getCrowns() {return crowns;}
     Abilities getAbility() {return ability;}
-    TokenColor getBonus() {return bonus;}
+    Bonus getBonus() {return bonus;}
 private:
     unsigned int level;
     std::vector<int> cost; //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR (modifiable)
     unsigned int prestige_points;
     unsigned int crowns;
     Abilities ability;
-    TokenColor bonus;
+    Bonus bonus;
 };
-
+/*
+ ?????????
 //Classe exception
 class RoyalCardError {
 public:
@@ -59,16 +81,27 @@ public:
     error(int r) : reason(r) {}
     error(const RoyalCardError &source) : reason(source.reason) {}
 };
+*/
+class RoyalCardError {
+    //Classe de gestion des exception avec les cartes royales
+private:
+    std::string message; //Message d'exception
+public:
+    RoyalCardError(const std::string &msg) : message(msg) {} //Constructeur d'exception
+    ~RoyalCardError() = default;
+
+    std::string getMessage() const { return message; } //Récupération du message d'exception
+};
 
 class RoyalCard {
 public:
     RoyalCard(unsigned int pp, Abilities a) :
     prestige_points(pp), ability(a) {}
-    int getPrestige() {return prestige_points;}
+    unsigned int getPrestige() {return prestige_points;}
     Abilities getAbility() {return ability;}
 private:
     unsigned int prestige_points;
-    Abilities ability;    
+    Abilities ability;
 };
 
 
@@ -97,7 +130,7 @@ class Pyramid_Cards{
 public:
     
     void drawCard(unsigned int level);
-    JewelryCard takeCard(unsigned int level, unsigned int position);
+    JewelryCard& takeCard(unsigned int level, unsigned int position);
     
 private:
     std::vector<JewelryCard *> row_level_one;

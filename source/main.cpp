@@ -25,6 +25,11 @@ int main() {
             //Test algo placement Jetons
             board.placeToken(bag.drawToken());
             board.showBoard();
+            int* liste[5];
+            for (int i=0; i<5; i++)
+            {
+                liste[i] = 0;
+            }
         }
         catch (TokenException& err)
         {

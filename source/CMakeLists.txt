@@ -7,4 +7,8 @@ add_executable(LO21Project main.cpp
         Jeton.cpp
         Jeton.h
         Partie.cpp
-        Partie.h)
+        Partie.h
+        Cards.h
+        Cards.cpp
+        joueur.cpp
+        joueur.h)
