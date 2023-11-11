@@ -35,17 +35,17 @@ public:
 
 class JewelryCard {
 public:
-    JewelryCard(unsigned int l, unsigned int c, unsigned int pp, unsigned int cr, Abilities a, TokenColor b) :
+    JewelryCard(unsigned int l, std::vector<int> c, unsigned int pp, unsigned int cr, Abilities a, TokenColor b) :
     level(l), cost(c), prestige_points(pp), crowns(cr), ability(a), bonus(b) {}
     std::string getLevel() {return level;}
-    int getCost() {return cost;}
+    std::vector<int> getCost() {return cost;}
     int getPrestige() {return prestige_points;}
     int getCrowns() {return crowns;}
     Abilities getAbility() {return ability;}
     TokenColor getBonus() {return bonus;}
 private:
     unsigned int level;
-    unsigned int cost;
+    std::vector<int> cost; //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR (modifiable)
     unsigned int prestige_points;
     unsigned int crowns;
     Abilities ability;
