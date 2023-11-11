@@ -41,7 +41,7 @@ public:
     void removeToken(Token token); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
     //int prestigePerColor(); // retourne le total de prestige pour une couleur du joueur
     void addCrowns(); // compter mes couronnes + prendre une carte couronne si crown = 3 ou 6 (--> appeler )
-    void addPrestige(int points, string couleur= nullptr); // compteur de tous mes prestiges (pour condition de victoire sur 20)
+    void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
     void addPrivilege(); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
     void removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
     void addJewelryCard(JewelryCard card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
@@ -51,7 +51,10 @@ public:
     // action obligatoires (acheter une carte et/ou prendre des jetons et/ou reserver une carte)
     void actionAddToken(); // prendre les jetons sur le plateau
     void actionReserveCard(); // retirer du deck; prendre un or (avec addToken);
-    void actionBuyCard(); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+
+    void actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+    bool canBuyCard(const JewelryCard &card); 
+    void spendResources(const JewelryCard &card);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
     void actionFillBoard();
