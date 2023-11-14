@@ -41,7 +41,7 @@ JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
 //VOIR SI CELA FONCTIONNE AVEC LES POINTEURS
 //PENSER A TOUJOURS UTILISER DRAW UNE FOIS UTILISE TAKE
 void Pyramid_Cards::drawCard(unsigned int level){
-    JewelryCard::JewelryCard *Card_Temp;
+    JewelryCard *Card_Temp;
     switch(level){
             case 1 :
                 Card_Temp = Deck_level_one::pioche.begin();
@@ -64,3 +64,11 @@ void Pyramid_Cards::drawCard(unsigned int level){
     }
 }
     
+
+void SummaryCard::addBonusNumber(unsigned int b){
+   this->bonusNumber += b;
+}
+
+void SummaryCard::addprestigePoints(unsigned int p){
+    this->prestigePoints += p;
+}

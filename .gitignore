@@ -6,3 +6,4 @@ cmake-build-debug
 out
 CMakeLists.txt
 CMakePresets.json
+.dep.inc

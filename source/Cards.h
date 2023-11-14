@@ -8,22 +8,27 @@
 
 using namespace std;
 
-
 //Enum Abilities pour les capacités
 enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token};
 
-class SummaryCard{
-    private :
-        int privilegePoints;
-    int prestigePoints;
-    int crownNumber;
-    int bonusNumber;
+struct Bonus {
+    int bonus_number;
+    TokenColor bonus_color;
+};
 
-    public :
-        int getPrivilegePoints(){ return privilegePoints;}
+class SummaryCard{
+    
+private :
+    unsigned int prestigePoints;
+    unsigned int bonusNumber;
+    //int crownNumber;
+
+public :
     int getPrestigePoints(){ return prestigePoints;}
-    int getCrownNumber(){ return crownNumber;}
     int getBonusNumber(){ return bonusNumber;}
+    void addBonusNumber(unsigned int b);
+    void addprestigePoints(unsigned int p);
+    //int getCrownNumber(){ return crownNumber;}
 };
 
 
@@ -39,20 +44,7 @@ public:
     std::string getMessage() const { return message; } //Récupération du message d'exception
 };
 
-/*
-?????????
-class JewelryCardError {
-public:
-    int reason;
-    error(int r) : reason(r) {}
-    error(const JewelryCardError &source) : reason(source.reason) {}
-};
-*/
 
-struct Bonus {
-    int bonus_number;
-    TokenColor bonus_color;
-};
 
 class JewelryCard {
 public:
@@ -66,22 +58,14 @@ public:
     Bonus getBonus() {return bonus;}
 private:
     unsigned int level;
-    std::vector<int> cost; //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR (modifiable)
+    std::unordered_map<TokenColor, int> cost; //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
     unsigned int prestige_points;
     unsigned int crowns;
     Abilities ability;
     Bonus bonus;
 };
-/*
- ?????????
-//Classe exception
-class RoyalCardError {
-public:
-    int reason;
-    error(int r) : reason(r) {}
-    error(const RoyalCardError &source) : reason(source.reason) {}
-};
-*/
+
+
 class RoyalCardError {
     //Classe de gestion des exception avec les cartes royales
 private:
