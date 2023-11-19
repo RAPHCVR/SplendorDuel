@@ -15,15 +15,15 @@ enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_t
 class SummaryCard{
     private :
         int privilegePoints;
-    int prestigePoints;
-    int crownNumber;
-    int bonusNumber;
+        int prestigePoints;
+        int crownNumber;
+        int bonusNumber;
 
     public :
         int getPrivilegePoints(){ return privilegePoints;}
-    int getPrestigePoints(){ return prestigePoints;}
-    int getCrownNumber(){ return crownNumber;}
-    int getBonusNumber(){ return bonusNumber;}
+        int getPrestigePoints(){ return prestigePoints;}
+        int getCrownNumber(){ return crownNumber;}
+        int getBonusNumber(){ return bonusNumber;}
 };
 
 

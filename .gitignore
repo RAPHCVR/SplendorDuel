@@ -7,3 +7,4 @@ out
 CMakeLists.txt
 CMakePresets.json
 .dep.inc
+.vscode/settings.json
