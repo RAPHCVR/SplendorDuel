@@ -39,8 +39,18 @@ public:
     int getPrivilege() const {return privilege;};
     int getPrestige() const {return prestigePoints;};
     int getCrowns() const {return nbCrown;};
-    int getTokens() const {return nbTokens;};
-    Type getType() const {return type;};
+    //int getTokens() const {return nbTokens;};
+    Type getType() const {return type;}
+    SummaryCard getBlueSummary(){return blueSummary;}
+    SummaryCard getWhiteSummary(){return whiteSummary;}
+    SummaryCard getGreenSummary(){return greenSummary;}
+    SummaryCard getBlackSummary(){return whiteSummary;}
+    SummaryCard getRedSummary(){return redSummary;}
+
+    vector<int> getBonusSummary();
+ 
+    unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
+
 
     // ostream
 
