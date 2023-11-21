@@ -1,5 +1,11 @@
 #ifndef TEST_JOUEUR_H
 #define TEST_JOUEUR_H
+#include "Jeton.cpp"
+#include "Jeton.h"
+#include "Partie.cpp"
+#include "Partie.h"
+#include "Cards.h"
+#include "Cards.cpp"
 
 #include <iostream>
 #include <map>
@@ -13,7 +19,7 @@ enum class Type {IA, Humain};
 
 
 
-class Joueur {
+class Player {
 private:
     string name;
     int privilege;
@@ -69,7 +75,7 @@ public:
     void actionAddToken(); // prendre les jetons sur le plateau
     void actionReserveCard(); // retirer du deck; prendre un or (avec addToken);
 
-    int actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+    int actionBuyCard(JewelryCard &card, int position); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
     void spendResources(unordered_map<TokenColor, int> tokensToSpend);
 

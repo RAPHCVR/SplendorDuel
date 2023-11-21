@@ -1,3 +1,9 @@
+#include "Jeton.cpp"
+#include "Jeton.h"
+#include "Partie.cpp"
+#include "Partie.h"
+#include "Cards.h"
+#include "Cards.cpp"
 #include "joueur.h"
 
 #include <algorithm>
@@ -19,14 +25,14 @@ vector<int> Player::getBonusSummary() {
     return bonus;
 }
 
-void Joueur::addToken(Token token) {
+void Player::addToken(Token token) {
     string color;
     color=token.getColor();
     tokenSummary.at(color)+=1;
     tokens.insert(tokens.begin(),token);
 }
 
-void Joueur::actionReserveCard(){ //Conditions d'activation à penser : moins de 3 cartes en réserve + au moins un or sur plateau
+void Player::actionReserveCard(){ //Conditions d'activation à penser : moins de 3 cartes en réserve + au moins un or sur plateau
     JewelryCard chosenCard;
     Token jetonOr;
     //choix d'une carte joallerie
@@ -43,15 +49,15 @@ void Joueur::actionReserveCard(){ //Conditions d'activation à penser : moins de
     addToken(jetonOr);
 };
 
-void Joueur::addPrivilege() {
+void Player::addPrivilege() {
     privilege+=1;
 }
 
-void Joueur::removePrivilege() {
+void Player::removePrivilege() {
     privilege-=1;
 }
 
-void Joueur::addCrowns() {
+void Player::addCrowns() {
     nbCrown+=1;
     RoyalCard chosenCard;
     if (nbCrown==3 || nbCrown==6){
@@ -64,7 +70,7 @@ void Joueur::addCrowns() {
     }
 }
 
-void Joueur::removeToken(Token token) {
+void Player::removeToken(Token token) {
     string tokenColor=token.getColor();
     tokenSummary.at(tokenColor)-=1; //retire dans le dico
     vector<Token>::iterator it;
@@ -94,13 +100,20 @@ void Player::actionAddToken(){
     
 }
 
-// méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
-// pour vérifier si le joueur a les ressources nécessaires (tokens, bonus)
-// retourne true si le joueur peut acheter la carte, false sinon.
-bool Player::canBuyCard(const JewelryCard &card){}
 
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
-void Player::spendResources(const JewelryCard &card) {}
+void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
+    // remove token from list token + maj token summary et tokens
+    // add token to bag
+    //bagOfTokens.push_back(tokens.back());
+    for(unsigned int i = 0; i<tokens.size(); i++){
+        for(auto cost = tokensToSpend.begin(); cost!=tokensToSpend.end(); cost++){
+            // dernier jeton de la couleur dans sac de jeton
+            Bag::getInstance().addToken(*tokens[0].back());
+
+        }
+    }
+}
 
 void Player::addPrestige(int n, TokenColor color) {
         prestigePoints += n;
@@ -157,22 +170,6 @@ bool Player::canBuyCard(JewelryCard &card){
 
 
 
-
-
-
-// méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
-void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
-    // remove token from list token + maj token summary et tokens
-    // add token to bag
-    //bagOfTokens.push_back(tokens.back());
-    for(unsigned int i = 0; i<tokens.size(); i++){
-        for(auto cost = tokensToSpend.begin(); cost!=tokensToSpend.end(); cost++){
-            // dernier jeton de la couleur dans sac de jeton
-            Bag::getInstance().addToken(*tokens[0].back());
-
-        }
-    }
-}
 
 
 // On y vérifie que le joueur a les moyens d’acheter la carte sélectionnée 
