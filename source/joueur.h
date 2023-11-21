@@ -59,21 +59,22 @@ public:
     void actionAddToken(); // prendre les jetons sur le plateau
     void actionReserveCard(); // retirer du deck; prendre un or (avec addToken);
 
-    void actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
-    bool canBuyCard(const JewelryCard &card); 
-    void spendResources(const JewelryCard &card);
+    int actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+    bool canBuyCard(JewelryCard &card); 
+    void spendResources(unordered_map<TokenColor, int> tokensToSpend);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
-    void actionFillBoard();
     void usePrivilege(); // appelé au moment d'acheter un jeton
 
-    ~Joueur(); // regarder si besoin
-    Joueur(const Joueur& j)=delete; //interdire constructeur de recopie
-    Joueur&& operator=(const Joueur& j)=delete; //interdire opérateur d'affectation
-    Joueur(string name, Type type) : name(name), type(type), nbCrown(0), prestigePoints(0), nbTokens(0),tokenSummary({{"Rouge", 0},{"Bleu", 0},
+    ~Player(); // regarder si besoin
+    Player(const Player& j)=delete; //interdire constructeur de recopie
+    Player&& operator=(const Player& j)=delete; //interdire opérateur d'affectation
+    Player(string name, Type type) : name(name), type(type), nbCrown(0), prestigePoints(0),tokenSummary({{"Rouge", 0},{"Bleu", 0},
                                                                                                                       {"Vert", 0},{"Noir", 0},{"Blanc", 0},
                                                                                                                       {"Or",0},{"Perle",0}}){}; // vector?
 
+    // voler jeton
+    //
 };
 
 #endif //TEST_JOUEUR_H
