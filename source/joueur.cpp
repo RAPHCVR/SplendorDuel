@@ -8,6 +8,17 @@
 
 using namespace std;
 
+vector<int> Player::getBonusSummary() {
+    vector<int> bonus;
+    bonus.push_back(getBlueSummary().getBonusNumber());
+    bonus.push_back(getWhiteSummary().getBonusNumber());
+    bonus.push_back(getGreenSummary().getBonusNumber());
+    bonus.push_back(getBlackSummary().getBonusNumber());
+    bonus.push_back(getRedSummary().getBonusNumber());
+
+    return bonus;
+}
+
 void Joueur::addToken(Token token) {
     string color;
     color=token.getColor();
@@ -117,12 +128,59 @@ void Player::addPrestige(int n, TokenColor color) {
         //cout << "Le joueur " << name << " a gagné " << n << " points de prestige!" << endl;
 }
 
+// méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
+bool Player::canBuyCard(JewelryCard &card){
+    // liste des bonus ordre (bleu,blanc,vert,noir,rouge)
+    vector<int> bonus = getBonusSummary();
+    int goldTokens = getTokenSummary()[TokenColor::OR];
+    unsigned int i = 0;
+    // pour chaque type de jeton, on regarde le cout
+    for(auto elt = getTokenSummary().begin(); elt!=getTokenSummary().end(); elt++){
+        // si cout > tokens du joueur + bonus (= carte trop chere)
+        int costGap = card.getCost()[i] - bonus[i] - elt->second;
+        // achat jeton+bonus pas suffisant
+        if(costGap > 0){
+            // achat de la carte avec or + jetons possible
+            if(goldTokens > costGap){
+                goldTokens = goldTokens - costGap;
+            }
+            // pas assez de gold pour acheter carte
+            else{
+                return false;
+            }
+        }
+        i++;
+    } 
+    return true;   
+}
+    
+
+
+
+
+
+
+// méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
+void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
+    // remove token from list token + maj token summary et tokens
+    // add token to bag
+    //bagOfTokens.push_back(tokens.back());
+    for(unsigned int i = 0; i<tokens.size(); i++){
+        for(auto cost = tokensToSpend.begin(); cost!=tokensToSpend.end(); cost++){
+            // dernier jeton de la couleur dans sac de jeton
+            Bag::getInstance().addToken(*tokens[0].back());
+
+        }
+    }
+}
+
+
 // On y vérifie que le joueur a les moyens d’acheter la carte sélectionnée 
 // puis retire et place dans le sac les jetons dépensés lors de l’achat, 
 // retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
-
-void Player::actionBuyCard(JewelryCard &card){
+// return int pour dire si ca a marché --> modifier si return + pertinent à faire
+int Player::actionBuyCard(JewelryCard &card, int position){
     // Vérifier si le joueur a les ressources nécessaires pour acheter la carte
         if (canBuyCard(card)) {
             // Retirer les ressources nécessaires
@@ -133,16 +191,18 @@ void Player::actionBuyCard(JewelryCard &card){
 
             // Ajouter des points de prestige si la carte a des points associés
             addPrestige(card.getPrestige(), card.getBonus());
+
             // Retirer la carte du plateau de jeu
-            card = Pyramid_Cards::takeCard(card.getLevel(), card.getPosition());
-
-
+            card = Pyramid_Cards::takeCard(card.getLevel(), position);
             //cout << "La carte a été achetée avec succès par le joueur " << name << "!" << endl;
-        } else {
+            return 1;
+        } 
+        else {
             //cout << "Le joueur " << name << " ne peut pas acheter cette carte. Ressources insuffisantes." << endl;
+            return 0;
         }
     
-
+    // idees qt
     // faire un bouton annuler l'achat dans le fichier interface
     // pour choix du paiement : 
     // avec Qt faire un bouton + / - limité au nombre de jetons max possédés pour chaque couleur du prix
@@ -152,6 +212,5 @@ void Player::actionBuyCard(JewelryCard &card){
     // on retire dans chaque tableau de jeton, le nb de jeton de la couleur qui a ete depensé
     //this->tokens[0].pop_back(); // pour chaque jeton utilisé --> dans spendRessources
 
-    
 
 }
