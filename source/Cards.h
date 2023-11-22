@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include "sqlite/sqlite3.h"
 #include "Jeton.h"
 
 using namespace std;
@@ -90,10 +91,17 @@ private:
 
 
 class Deck_level_one{ 
-    public:
-        friend class Pyramid_Cards;
-    private:
-        std::vector<JewelryCard *> pioche;
+public:
+    friend class Pyramid_Cards;
+    Deck_level_one() {}
+
+    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+  
+private:
+    std::vector<JewelryCard *> pioche;
+    void createDeckFromDataBase();
 };
 
 class Deck_level_two{
