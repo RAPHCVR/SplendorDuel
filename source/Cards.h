@@ -2,8 +2,9 @@
 #define CARDS_H
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <vector>
+#include <unordered_map>
 #include <algorithm>
 #include "sqlite/sqlite3.h"
 #include "Jeton.h"
@@ -14,48 +15,11 @@ using namespace std;
 enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
 
 namespace Utility {
-    
-   Abilities stringToAbility(const char *str) {
-        if (std::strcmp(str, "repeat_turn") == 0) {
-            return repeat_turn;
-        } else if (std::strcmp(str, "cameleon") == 0) {
-            return cameleon;
-        } else if (std::strcmp(str, "take_bonus_token") == 0) {
-            return take_bonus_token;
-        } else if (std::strcmp(str, "take_privilege") == 0) {
-            return take_privilege;
-        } else if (std::strcmp(str, "steal_token") == 0) {
-            return steal_token;
-        } 
-        else if (std::strcmp(str, "None") == 0) {
-            return None;
-        }else {
-            // Gérer le cas où la chaîne ne correspond à aucune capacité connue
-            return repeat_turn;
-        }
-    } 
-   
-    TokenColor stringToTokenColor(const char *str) {
-        if (std::strcmp(str, "BLEU") == 0) {
-            return TokenColor::BLEU;
-        } else if (std::strcmp(str, "BLANC") == 0) {
-            return TokenColor::BLANC;
-        } else if (std::strcmp(str, "VERT") == 0) {
-            return TokenColor::VERT;
-        } else if (std::strcmp(str, "NOIR") == 0) {
-            return TokenColor::NOIR;
-        } else if (std::strcmp(str, "ROUGE") == 0) {
-            return TokenColor::ROUGE;
-        } else if (std::strcmp(str, "PERLE") == 0) {
-            return TokenColor::PERLE;
-        } else if (std::strcmp(str, "OR") == 0) {
-            return TokenColor::OR;
-        } 
-        else {
-            // Gérer le cas où la chaîne ne correspond à aucune couleur connue
-            return TokenColor::BLEU;
-        }
-    }
+	
+    Abilities stringToAbility(const char *str);												    
+    TokenColor stringToTokenColor(const char *str);
+    std::string tokenColorToString(TokenColor color);
+	 
 }
 
 struct Bonus {
@@ -95,10 +59,10 @@ public:
 
 class JewelryCard {
 public:
-    JewelryCard(unsigned int l, std::vector<int> c, unsigned int pp, unsigned int cr, Abilities a, Bonus b) :
+    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a, Bonus b) :
     level(l), cost(c), prestige_points(pp), crowns(cr), ability(a), bonus(b) {}
     unsigned int getLevel() {return level;}
-    std::vector<int> getCost() {return cost;}
+    std::unordered_map<TokenColor, int> getCost() {return cost;}
     int getPrestige() {return prestige_points;}
     int getCrowns() {return crowns;}
     Abilities getAbility() {return ability;}
@@ -138,28 +102,43 @@ private:
 
 class Deck_level_one{ 
 public:
-    friend class Pyramid_Cards;
-    Deck_level_one() {}
+
+    Deck_level_one();
+    std::vector<JewelryCard *> getPioche() {return pioche;}
 
     void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        pioche.push_back(card);
+        this->pioche.push_back(card);
     }
   
 private:
     std::vector<JewelryCard *> pioche;
-    void createDeckFromDataBase();
+
 };
 
 class Deck_level_two{
 public:
-    friend class Pyramid_Cards;
+
+    Deck_level_two();
+    std::vector<JewelryCard *> getPioche() {return pioche;}
+
+    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+    
 private:
     std::vector<JewelryCard *> pioche;
 };
 
 class Deck_level_three{
 public:
-    friend class Pyramid_Cards;
+
+    Deck_level_three();
+    std::vector<JewelryCard *> getPioche() {return pioche;}
+    
+    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+    
 private:
     std::vector<JewelryCard *> pioche;
 };
