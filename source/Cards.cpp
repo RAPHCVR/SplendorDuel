@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h>
+#include <algorithm>
 #include "sqlite/sqlite3.h"
 #include "Cards.h"
 #include "Jeton.h"
@@ -8,7 +9,7 @@
 void Deck_level_one::createDeckFromDataBase(){
     
     sqlite3 *db; //On créer une variable sqlite du nom de db
-    int rc = sqlite3_open("cards.db", &db); //rc = return code, on ouvre la database 
+    int rc = sqlite3_open("Data/cards.db", &db); //rc = return code, on ouvre la database 
     
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
@@ -55,20 +56,28 @@ void Deck_level_one::createDeckFromDataBase(){
         unsigned int crowns = sqlite3_column_int(stmt, 1);
         
         //Capacité
-        const char *abi = sqlite3_column_int(stmt, 10);
-        Abilities ability = Abilities::*abi ;
+        const char *abi = sqlite3_column_text(stmt, 10);
+        Abilities ability = Utility::stringToAbility(abi);
+        
         
         //Bonus
-        const char *color = sqlite3_column_int(stmt, 8);
+        int bonus_nb = sqlite3_column_int(stmt, 11);
+        const char *color = sqlite3_column_text(stmt, 8);
         Bonus bonus;
-        bonus.bonus_color = TokenColor::*color;
-        bonus.bonus_number = sqlite3_column_int(stmt, 11);
+        bonus.bonus_color = Utility::stringToTokenColor(color);
+        bonus.bonus_number = bonus_nb;
 
         //Création et ajout de l'instance au deck
         JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability, bonus); 
-        addCardToDeck(newCard);
+        Deck_level_one::addCardToDeck(newCard);
     }    
     
+    //Mélange des cartes de la pioche.
+    //Génération d'un nombre aléatoire
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    //Mélange
+    std::shuffle(pioche.begin(), pioche.end(), rng);
     
 }
 //PENSER AU CAS OU SI MANQUE DE CARTE DANS LA PIOCHE (SEMBLE IMPOSSIBLE)

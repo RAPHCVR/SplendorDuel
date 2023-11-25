@@ -1,34 +1,24 @@
-#include <iostream>
-#include "Jeton.h"
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/qtFiles/main.cc to edit this template
+ */
 
-int main() {
+/*
+ * File:   main.cpp
+ * Author: sacha
+ *
+ * Created on 25 novembre 2023, 18:06
+ */
 
-        try
-        {
-            //Instanciation des Jetons
-            TotalTokens totalTokens;
-            //Instanciation du sac
-            Bag bag(totalTokens);
-            //Creation du plateau
-            TotalPrivileges totalPrivileges;
-            Board board(bag, totalPrivileges);
+#include <QApplication>
 
-            //Test takeToken
-            const Token& token1 = board.takeToken(0,1);
-            std::cout << token1 << "\n";
-            bag.addToken(token1);
+int main(int argc, char *argv[]) {
+    // initialize resources, if needed
+    // Q_INIT_RESOURCE(resfile);
 
-            const Token& token2 = board.takeToken(4,4);
-            std::cout << token2 << "\n";
-            bag.addToken(token2);
-            board.showBoard();
-            //Test algo placement Jetons
-            board.placeToken(bag.drawToken());
-            board.showBoard();
-        }
-        catch (TokenException& err)
-        {
-            std::cout << err.getMessage() << "\n";
-        }
-    return 0;
+    QApplication app(argc, argv);
+
+    // create and show your widgets here
+
+    return app.exec();
 }

@@ -4,13 +4,59 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <algorithm>
 #include "sqlite/sqlite3.h"
 #include "Jeton.h"
 
 using namespace std;
 
 //Enum Abilities pour les capacités
-enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token};
+enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
+
+namespace Utility {
+    
+   Abilities stringToAbility(const char *str) {
+        if (std::strcmp(str, "repeat_turn") == 0) {
+            return repeat_turn;
+        } else if (std::strcmp(str, "cameleon") == 0) {
+            return cameleon;
+        } else if (std::strcmp(str, "take_bonus_token") == 0) {
+            return take_bonus_token;
+        } else if (std::strcmp(str, "take_privilege") == 0) {
+            return take_privilege;
+        } else if (std::strcmp(str, "steal_token") == 0) {
+            return steal_token;
+        } 
+        else if (std::strcmp(str, "None") == 0) {
+            return None;
+        }else {
+            // Gérer le cas où la chaîne ne correspond à aucune capacité connue
+            return repeat_turn;
+        }
+    } 
+   
+    TokenColor stringToTokenColor(const char *str) {
+        if (std::strcmp(str, "BLEU") == 0) {
+            return TokenColor::BLEU;
+        } else if (std::strcmp(str, "BLANC") == 0) {
+            return TokenColor::BLANC;
+        } else if (std::strcmp(str, "VERT") == 0) {
+            return TokenColor::VERT;
+        } else if (std::strcmp(str, "NOIR") == 0) {
+            return TokenColor::NOIR;
+        } else if (std::strcmp(str, "ROUGE") == 0) {
+            return TokenColor::ROUGE;
+        } else if (std::strcmp(str, "PERLE") == 0) {
+            return TokenColor::PERLE;
+        } else if (std::strcmp(str, "OR") == 0) {
+            return TokenColor::OR;
+        } 
+        else {
+            // Gérer le cas où la chaîne ne correspond à aucune couleur connue
+            return TokenColor::BLEU;
+        }
+    }
+}
 
 struct Bonus {
     int bonus_number;
