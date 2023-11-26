@@ -280,16 +280,19 @@ Deck_level_three::Deck_level_three(){
         const char *abi = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 10));
         Abilities ability = Utility::stringToAbility(abi);
         
+        //Capacité2
+        const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 11));
+        Abilities ability2 = Utility::stringToAbility(abi2);
         
         //Bonus
-        int bonus_nb = sqlite3_column_int(stmt, 11);
+        int bonus_nb = sqlite3_column_int(stmt, 12);
         const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8));
         Bonus bonus;
         bonus.bonus_color = Utility::stringToTokenColor(color);
         bonus.bonus_number = bonus_nb;
 
         //Création et ajout de l'instance au deck
-        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability, bonus); 
+        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability, ability2, bonus); 
         Deck_level_three::addCardToDeck(newCard);
         free(newCard);
     }    
