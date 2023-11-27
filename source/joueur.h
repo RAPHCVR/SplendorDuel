@@ -61,15 +61,15 @@ public:
     // ostream
 
 
-    void removeToken(Token token); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
+    void removeToken(Token &token); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
     //int prestigePerColor(); // retourne le total de prestige pour une couleur du joueur
     void addCrowns(); // compter mes couronnes + prendre une carte couronne si crown = 3 ou 6 (--> appeler )
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
     void addPrivilege(); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
     void removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
-    void addJewelryCard(JewelryCard card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
-    void addRoyalCard(RoyalCard card);// ajout d'une carte royale a mon inventaire
-    void addToken(Token token); // ajout d'un jeton a mon inventaire
+    void addJewelryCard(JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
+    void addRoyalCard(RoyalCard &card);// ajout d'une carte royale a mon inventaire
+    void addToken(Token &token); // ajout d'un jeton a mon inventaire
 
     // action obligatoires (acheter une carte et/ou prendre des jetons et/ou reserver une carte)
     void actionAddToken(); // prendre les jetons sur le plateau

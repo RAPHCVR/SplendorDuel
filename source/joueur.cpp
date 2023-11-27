@@ -14,6 +14,7 @@
 
 using namespace std;
 
+//Celine
 vector<int> Player::getBonusSummary() {
     vector<int> bonus;
     bonus.push_back(getBlueSummary().getBonusNumber());
@@ -70,7 +71,7 @@ void Player::addCrowns() {
     }
 }
 
-void Player::removeToken(Token token) {
+void Player::removeToken(Token &token) {
     string tokenColor=token.getColor();
     tokenSummary.at(tokenColor)-=1; //retire dans le dico
     vector<Token>::iterator it;
@@ -100,7 +101,7 @@ void Player::actionAddToken(){
     
 }
 
-
+//Celine
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
 void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
     // remove token from list token + maj token summary et tokens
@@ -115,23 +116,24 @@ void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
     }
 }
 
+//Celine
 void Player::addPrestige(int n, TokenColor color) {
         prestigePoints += n;
         switch (color) {
         case TokenColor::BLEU:
-            blueSummary.addPrestige(n);
+            blueSummary.addprestigePoints(n);
             break;
         case TokenColor::ROUGE:
-            redSummary.addPrestige(n);
+            redSummary.addprestigePoints(n);
             break;
         case TokenColor::VERT:
-            greenSummary.addPrestige(n);
+            greenSummary.addprestigePoints(n);
             break;
         case TokenColor::BLANC:
-            whiteSummary.addPrestige(n);
+            whiteSummary.addprestigePoints(n);
             break;
         case TokenColor::NOIR:
-            blackSummary.addPrestige(n);
+            blackSummary.addprestigePoints(n);
             break;
         default:
         // pas une carte joallerie
@@ -141,6 +143,7 @@ void Player::addPrestige(int n, TokenColor color) {
         //cout << "Le joueur " << name << " a gagné " << n << " points de prestige!" << endl;
 }
 
+//Celine
 // méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
 bool Player::canBuyCard(JewelryCard &card){
     // liste des bonus ordre (bleu,blanc,vert,noir,rouge)
@@ -167,11 +170,19 @@ bool Player::canBuyCard(JewelryCard &card){
     return true;   
 }
     
+//Celine
+void addJewelryCard(JewelryCard &card){
+    
+}
+
+//Celine
+void addRoyalCard(JewelryCard &card){
+
+}
 
 
 
-
-
+//Celine
 // On y vérifie que le joueur a les moyens d’acheter la carte sélectionnée 
 // puis retire et place dans le sac les jetons dépensés lors de l’achat, 
 // retire la carte de la pyramide 
