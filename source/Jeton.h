@@ -9,7 +9,7 @@
 #define LO21PROJECT_JETON_H
 
 //Liste des couleurs possibles pour les jetons, avec l'affichage
-enum class TokenColor { BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR };
+enum class TokenColor { BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR, None };
 std::string toString(TokenColor c);
 std::ostream& operator<<(std::ostream& f, TokenColor c);
 
