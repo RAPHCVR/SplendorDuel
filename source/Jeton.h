@@ -98,9 +98,9 @@ public :
 class Board {
     //Classe plateau contenant les jetons et les privilèges en jeu
 private :
-    std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
     std::vector<const Privilege*> privileges; //Liste des privilèges
 public :
+    std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
     Board(Bag& bag, const TotalPrivileges& total); //Instanciation du plateau avec tous les jetons et le sac de jetons
     const Token& takeToken(size_t i, size_t j); //Récupération d'un jeton sur le plateau, supprimé du plateau, à l'indice i,j
     void showBoard();   //Affichage du plateau

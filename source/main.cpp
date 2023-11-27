@@ -1,8 +1,11 @@
 #include <iostream>
 #include "Jeton.h"
+#include "QTJeton.h"
+#include <QApplication>
 
-int main() {
 
+int main(int argc, char *argv[]) {
+        QApplication app(argc, argv);
         try
         {
             //Instanciation des Jetons
@@ -21,14 +24,16 @@ int main() {
             const Token& token2 = board.takeToken(4,4);
             std::cout << token2 << "\n";
             bag.addToken(token2);
-            board.showBoard();
+            MainWindow mainWindow1(board);
+            mainWindow1.show();
             //Test algo placement Jetons
             board.placeToken(bag.drawToken());
-            board.showBoard();
+            MainWindow mainWindow2(board);
+            mainWindow2.show();
+            return app.exec();
         }
         catch (TokenException& err)
         {
             std::cout << err.getMessage() << "\n";
         }
-    return 0;
 }
