@@ -32,6 +32,7 @@ private:
     vector<RoyalCard> royalCards;
     unordered_map<TokenColor, int> tokenSummary;
     //vector<vector<Token *>> tokens; //tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
+    // autre idee pour rpz de token :
     unordered_map<TokenColor, vector<Token>> tokens;
 
 
