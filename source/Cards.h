@@ -12,7 +12,9 @@
 using namespace std;
 
 //Enum Abilities pour les capacités
-enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
+enum class Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
+std::string toString(Abilities a);
+std::ostream& operator<<(std::ostream& f, Abilities a);
 
 namespace Utility {
 	
@@ -59,20 +61,22 @@ public:
 
 class JewelryCard {
 public:
-    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a, Bonus b) :
-    level(l), cost(c), prestige_points(pp), crowns(cr), ability(a), bonus(b) {}
-    unsigned int getLevel() {return level;}
+    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a1, Abilities a2, Bonus b) :
+    level(l), cost(c), prestige_points(pp), crowns(cr), ability1(a1), ability2(a2), bonus(b) {}
+    int getLevel() {return level;}
     std::unordered_map<TokenColor, int> getCost() {return cost;}
     int getPrestige() {return prestige_points;}
     int getCrowns() {return crowns;}
-    Abilities getAbility() {return ability;}
+    Abilities getAbility1() {return ability1;}
+    Abilities getAbility2() {return ability2;}
     Bonus getBonus() {return bonus;}
 private:
     unsigned int level;
     std::unordered_map<TokenColor, int> cost; //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
     unsigned int prestige_points;
     unsigned int crowns;
-    Abilities ability;
+    Abilities ability1;
+    Abilities ability2;
     Bonus bonus;
 };
 
@@ -107,7 +111,7 @@ public:
     std::vector<JewelryCard *> getPioche() {return pioche;}
 
     void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        this->pioche.push_back(card);
+        pioche.push_back(card);
     }
   
 private:

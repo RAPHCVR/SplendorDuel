@@ -13,3 +13,4 @@ dist
 .qmake.stash
 source_resource.rc
 *.bak
+build-source-Desktop_Qt_6_6_0_MinGW_64_bit-Debug
