@@ -31,7 +31,8 @@ private:
     vector<JewelryCard> reserve;
     vector<RoyalCard> royalCards;
     unordered_map<TokenColor, int> tokenSummary;
-    vector<vector<Token *>> tokens; // tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
+    //vector<vector<Token *>> tokens; //tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
+    unordered_map<TokenColor, vector<Token>> tokens;
 
 
     SummaryCard blueSummary;
@@ -85,7 +86,7 @@ public:
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
     void usePrivilege(); // appelé au moment d'acheter un jeton
 
-    ~Player(); // regarder si besoin
+    ~Player()= default; // regarder si besoin
     Player(const Player& j)=delete; //interdire constructeur de recopie
     Player&& operator=(const Player& j)=delete; //interdire opérateur d'affectation
     Player(string name, Type type) : name(name), type(type), nbCrown(0), prestigePoints(0),tokenSummary({{TokenColor::BLEU, 0},{TokenColor::ROUGE, 0},

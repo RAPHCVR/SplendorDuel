@@ -107,13 +107,24 @@ void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
     // remove token from list token + maj token summary et tokens
     // add token to bag
     //bagOfTokens.push_back(tokens.back());
-    for(unsigned int i = 0; i<tokens.size(); i++){
-        for(auto cost = tokensToSpend.begin(); cost!=tokensToSpend.end(); cost++){
-            // dernier jeton de la couleur dans sac de jeton
-            Bag::getInstance().addToken(*tokens[0].back());
+
+    // parcours le dico
+    for(auto cost = tokensToSpend.begin(); cost!=tokensToSpend.end(); cost++){
+        // depense des jetons
+        for(int i = 0; i< cost->second; i++){
+            // utilisation de std::move() pour deplacer l'instance de l'objet plutot que de le supprimer
+            auto temp = move(tokens.at(cost->first).back());
+            // on met le token dans le sac de jeton
+            Bag::getInstance.addToken(temp);
+            // on retire le jeton du dico de jeton
+            tokens.at(cost->first).pop_back();
+            // maj de tokenSummary pour la couleur en cours
+            tokenSummary.at(cost->first)--;
 
         }
     }
+
+
 }
 
 //Celine
@@ -150,12 +161,12 @@ void Player::addPrestige(int n, TokenColor color) {
 bool Player::canBuyCard(JewelryCard &card){
     // liste des bonus ordre (bleu,blanc,vert,noir,rouge)
     vector<int> bonus = getBonusSummary();
-    int goldTokens = getTokenSummary()[TokenColor::OR];
+    int goldTokens = tokenSummary[TokenColor::OR];
     unsigned int i = 0;
     // pour chaque type de jeton, on regarde le cout
     for(auto elt = getTokenSummary().begin(); elt!=getTokenSummary().end(); elt++){
         // si cout > tokens du joueur + bonus (= carte trop chere)
-        int costGap = card.getCost()[i] - bonus[i] - elt->second;
+        int costGap = card.getCost().at(elt->first) - bonus[i] - elt->second;
         // achat jeton+bonus pas suffisant
         if(costGap > 0){
             // achat de la carte avec or + jetons possible
@@ -190,7 +201,8 @@ int Player::actionBuyCard(JewelryCard &card, int position, unordered_map<TokenCo
             addJewelryCard(card);
 
             // Retirer la carte du plateau de jeu
-            card = Pyramid_Cards::takeCard(card.getLevel(), position);
+            // getInstance()
+            card = Pyramid_Cards::getInstance().takeCard(card.getLevel(), position);
             //cout << "La carte a été achetée avec succès par le joueur " << name << "!" << endl;
             return 1;
         } 
