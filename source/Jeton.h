@@ -99,10 +99,38 @@ class Board {
     //Classe plateau contenant les jetons et les privilèges en jeu
 private :
     std::vector<const Privilege*> privileges; //Liste des privilèges
-public :
     std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
+public :
     Board(Bag& bag, const TotalPrivileges& total); //Instanciation du plateau avec tous les jetons et le sac de jetons
     const Token& takeToken(size_t i, size_t j); //Récupération d'un jeton sur le plateau, supprimé du plateau, à l'indice i,j
+    class BoardIterator {
+        //Classe itérateur pour parcourir le plateau
+    private:
+        Board& board;
+        size_t row, col;
+
+    public:
+        BoardIterator(Board& board) : board(board), row(0), col(0) {}
+
+        bool hasNext() const {
+            return row < board.tokens.size() && col < board.tokens[row].size();
+        }
+
+        const Token* next() {
+            if (!hasNext()) {
+                throw std::out_of_range("No more tokens");
+            }
+            const Token* token = board.tokens[row][col];
+            if (++col >= board.tokens[row].size()) {
+                ++row;
+                col = 0;
+            }
+            return token;
+        }
+    };
+    BoardIterator iterator() {
+        return BoardIterator(*this);
+    }
     void showBoard();   //Affichage du plateau
     const Privilege& takePrivilege(); //Récupération d'un privilège
     void placeToken(const Token& token);    //Placement d'un jeton sur le plateau

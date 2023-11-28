@@ -118,25 +118,30 @@ void Board::placePrivilege(const Privilege& privilege) {
 void Board::showBoard(){
     std::cout << "Plateau:" << std::endl;
 
-    for (auto & token : tokens) {
-        for (auto & j : token) {
-            std::string s = "";
-            if (j == nullptr) s = "."; // Cas de la case vide
-            else {
-                switch (j->getColor()) {
-                    case TokenColor::BLANC: s = "W"; break;
-                    case TokenColor::BLEU: s = "B"; break;
-                    case TokenColor::NOIR: s = "N"; break;
-                    case TokenColor::OR: s = "O"; break;
-                    case TokenColor::PERLE: s = "P"; break;
-                    case TokenColor::ROUGE: s = "R"; break;
-                    case TokenColor::VERT: s = "V"; break;
-                }
-            }
-            std::cout << s << " ";
+    BoardIterator it = iterator();
+    size_t i = 0;
+    while (it.hasNext()) {
+        if (i % 5 == 0) {
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
+        const Token* token = it.next();
+        std::string s = "";
+        if (token == nullptr) s = "."; // Cas de la case vide
+        else {
+            switch (token->getColor()) {
+                case TokenColor::BLANC: s = "W"; break;
+                case TokenColor::BLEU: s = "B"; break;
+                case TokenColor::NOIR: s = "N"; break;
+                case TokenColor::OR: s = "O"; break;
+                case TokenColor::PERLE: s = "P"; break;
+                case TokenColor::ROUGE: s = "R"; break;
+                case TokenColor::VERT: s = "V"; break;
+            }
+        }
+        std::cout << s << " ";
+        i++;
     }
+    std::cout << std::endl;
 }
 
 

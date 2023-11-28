@@ -26,11 +26,12 @@ class PlateWidget : public QWidget {
 public:
     explicit PlateWidget(Board& board, QWidget* parent = nullptr) : QWidget(parent) {
         int tokenSize = 50; // The size of each token
-        for (int i = 0; i < board.tokens.size(); ++i) {
-            const auto& row = board.tokens[i];
+        Board::BoardIterator it = board.iterator();
+        unsigned int i = 0;
+        while (it.hasNext()) {
             std::vector<CircleWidget*> widgetRow;
-            for (int j = 0; j < row.size(); ++j) {
-                const auto& token = row[j];
+            for (int j = 0; j < 5; ++j) {
+                const auto& token = it.next();;
                 if (token != nullptr) {
                     CircleWidget* widget = new CircleWidget(this, *token);
                     widget->move(j * tokenSize, i * tokenSize); // Position the widget
@@ -40,10 +41,11 @@ public:
                     widgetRow.push_back(nullptr);
                 }
             }
+            ++i;
             widgets.push_back(widgetRow);
         }
         // Set the size of the PlateWidget to fit the board
-        setFixedSize(board.tokens.size() * tokenSize, board.tokens[0].size() * tokenSize);
+        setFixedSize(5 * tokenSize, 5 * tokenSize);
     }
     void paintEvent(QPaintEvent* event) override {
         Q_UNUSED(event)
