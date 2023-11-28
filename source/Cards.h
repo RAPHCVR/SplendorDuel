@@ -2,15 +2,25 @@
 #define CARDS_H
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <vector>
+#include <unordered_map>
+#include <algorithm>
 #include "sqlite/sqlite3.h"
 #include "Jeton.h"
 
 using namespace std;
 
 //Enum Abilities pour les capacités
-enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token};
+enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
+
+namespace Utility {
+	
+    Abilities stringToAbility(const char *str);												    
+    TokenColor stringToTokenColor(const char *str);
+    std::string tokenColorToString(TokenColor color);
+	 
+}
 
 struct Bonus {
     int bonus_number;
@@ -49,10 +59,10 @@ public:
 
 class JewelryCard {
 public:
-    JewelryCard(unsigned int l, std::vector<int> c, unsigned int pp, unsigned int cr, Abilities a, Bonus b) :
+    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a, Bonus b) :
     level(l), cost(c), prestige_points(pp), crowns(cr), ability(a), bonus(b) {}
     unsigned int getLevel() {return level;}
-    std::vector<int> getCost() {return cost;}
+    std::unordered_map<TokenColor, int> getCost() {return cost;}
     int getPrestige() {return prestige_points;}
     int getCrowns() {return crowns;}
     Abilities getAbility() {return ability;}
@@ -92,28 +102,43 @@ private:
 
 class Deck_level_one{ 
 public:
-    friend class Pyramid_Cards;
-    Deck_level_one() {}
+
+    Deck_level_one();
+    std::vector<JewelryCard *> getPioche() {return pioche;}
 
     void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        pioche.push_back(card);
+        this->pioche.push_back(card);
     }
   
 private:
     std::vector<JewelryCard *> pioche;
-    void createDeckFromDataBase();
+
 };
 
 class Deck_level_two{
 public:
-    friend class Pyramid_Cards;
+
+    Deck_level_two();
+    std::vector<JewelryCard *> getPioche() {return pioche;}
+
+    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+    
 private:
     std::vector<JewelryCard *> pioche;
 };
 
 class Deck_level_three{
 public:
-    friend class Pyramid_Cards;
+
+    Deck_level_three();
+    std::vector<JewelryCard *> getPioche() {return pioche;}
+    
+    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+    
 private:
     std::vector<JewelryCard *> pioche;
 };

@@ -8,3 +8,8 @@ CMakeLists.txt
 CMakePresets.json
 .dep.inc
 .vscode/settings.json
+build
+dist
+.qmake.stash
+source_resource.rc
+*.bak

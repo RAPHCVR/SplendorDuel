@@ -1,14 +1,83 @@
 #include <iostream>
-#include <string.h>
+//#include <string.h>
+#include <cstring>
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
 #include "sqlite/sqlite3.h"
 #include "Cards.h"
 #include "Jeton.h"
 
+namespace Utility{
+    Abilities stringToAbility(const char *str) {
+        if (strcmp(str, "repeat_turn") == 0) {
+            return repeat_turn;
+        } else if (strcmp(str, "cameleon") == 0) {
+            return cameleon;
+        } else if (strcmp(str, "take_bonus_token") == 0) {
+            return take_bonus_token;
+        } else if (strcmp(str, "take_privilege") == 0) {
+            return take_privilege;
+        } else if (strcmp(str, "steal_token") == 0) {
+            return steal_token;
+        } 
+        else if (strcmp(str, "None") == 0) {
+            return None;
+        }else {
+            // Gérer le cas où la chaîne ne correspond à aucune capacité connue
+            return repeat_turn;
+        }
+    } 
+   
+    TokenColor stringToTokenColor(const char *str) {
+        if (std::strcmp(str, "BLEU") == 0) {
+            return TokenColor::BLEU;
+        } else if (std::strcmp(str, "BLANC") == 0) {
+            return TokenColor::BLANC;
+        } else if (std::strcmp(str, "VERT") == 0) {
+            return TokenColor::VERT;
+        } else if (std::strcmp(str, "NOIR") == 0) {
+            return TokenColor::NOIR;
+        } else if (std::strcmp(str, "ROUGE") == 0) {
+            return TokenColor::ROUGE;
+        } else if (std::strcmp(str, "PERLE") == 0) {
+            return TokenColor::PERLE;
+        } else if (std::strcmp(str, "OR") == 0) {
+            return TokenColor::OR;
+        } else if (std::strcmp(str, "RIEN") == 0){
+            return TokenColor::None;
+        }
+        else {
+            // Gérer le cas où la chaîne ne correspond à aucune couleur connue
+            return TokenColor::BLEU;
+        }
+    }
 
-void Deck_level_one::createDeckFromDataBase(){
+    std::string tokenColorToString(TokenColor color) {
+        switch (color) {
+            case TokenColor::BLEU:
+                return "BLEU";
+            case TokenColor::BLANC:
+                return "BLANC";
+            case TokenColor::VERT:
+                return "VERT";
+            case TokenColor::NOIR:
+                return "NOIR";
+            case TokenColor::ROUGE:
+                return "ROUGE";
+            case TokenColor::PERLE:
+                return "PERLE";
+            // Ajoutez d'autres cas au besoin
+            default:
+                return "UNKNOWN";
+        }
+    }
+}
+Deck_level_one::Deck_level_one() : pioche() {
     
+            
     sqlite3 *db; //On créer une variable sqlite du nom de db
-    int rc = sqlite3_open("cards.db", &db); //rc = return code, on ouvre la database 
+    int rc = sqlite3_open("C:/Users/sacha/Desktop/TESTSPLENDOR/Data/cards.db", &db); //rc = return code, on ouvre la database 
     
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
@@ -17,6 +86,84 @@ void Deck_level_one::createDeckFromDataBase(){
     }
     
     const char *query = "SELECT * FROM JewelryCards WHERE level = 1"; //requete pour chercher carte lvl 1
+    // Préparer la requête
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        
+        //Niveau
+        unsigned int level = sqlite3_column_int(stmt, 9); //Level dans la 9ème colonne
+        cout << level << endl;
+  
+        //Coûts
+        unsigned int cost_w = sqlite3_column_int(stmt, 2);
+        unsigned int cost_v = sqlite3_column_int(stmt, 3);
+        unsigned int cost_n = sqlite3_column_int(stmt, 4);
+        unsigned int cost_p = sqlite3_column_int(stmt, 5);
+        unsigned int cost_r = sqlite3_column_int(stmt, 6);
+        unsigned int cost_b = sqlite3_column_int(stmt, 7);
+        std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+            {TokenColor::BLEU, cost_b},
+            {TokenColor::BLANC, cost_w},
+            {TokenColor::VERT, cost_v},
+            {TokenColor::NOIR, cost_n},
+            {TokenColor::ROUGE, cost_r},
+            {TokenColor::PERLE, cost_p}        
+        };
+
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmt, 0);
+      
+        //Couronnes
+        unsigned int crowns = sqlite3_column_int(stmt, 1);
+      
+        //Capacité
+        const char *abi = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 10));
+        Abilities ability = Utility::stringToAbility(abi);
+     
+        //Bonus
+        int bonus_nb = sqlite3_column_int(stmt, 11);
+        const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8));  
+        Bonus bonus;      
+        bonus.bonus_color = Utility::stringToTokenColor(color);   
+        bonus.bonus_number = bonus_nb;
+    
+
+        //Création et ajout de l'instance au deck
+        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability, bonus); 
+        Deck_level_one::addCardToDeck(newCard);
+        delete(newCard);
+    }    
+    
+
+    //Mélange des cartes de la pioche.
+    //Génération d'un nombre aléatoire
+    //std::random_device rd;
+    //std::mt19937 rng(rd());
+    //Mélange
+    //std::shuffle(pioche.begin(), pioche.end(), rng);
+    
+}
+
+Deck_level_two::Deck_level_two(){
+    
+    sqlite3 *db; //On créer une variable sqlite du nom de db
+    int rc = sqlite3_open("Data/cards.db", &db); //rc = return code, on ouvre la database 
+    
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+    
+    const char *query = "SELECT * FROM JewelryCards WHERE level = 2"; //requete pour chercher carte lvl 2
     // Préparer la requête
     sqlite3_stmt *stmt;
     rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
@@ -55,20 +202,107 @@ void Deck_level_one::createDeckFromDataBase(){
         unsigned int crowns = sqlite3_column_int(stmt, 1);
         
         //Capacité
-        const char *abi = sqlite3_column_int(stmt, 10);
-        Abilities ability = Abilities::*abi ;
+        const char *abi = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 10));
+        Abilities ability = Utility::stringToAbility(abi);
+        
         
         //Bonus
-        const char *color = sqlite3_column_int(stmt, 8);
+        int bonus_nb = sqlite3_column_int(stmt, 11);
+        const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8));
         Bonus bonus;
-        bonus.bonus_color = TokenColor::*color;
-        bonus.bonus_number = sqlite3_column_int(stmt, 11);
+        bonus.bonus_color = Utility::stringToTokenColor(color);
+        bonus.bonus_number = bonus_nb;
 
         //Création et ajout de l'instance au deck
         JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability, bonus); 
-        addCardToDeck(newCard);
+        Deck_level_two::addCardToDeck(newCard);
+        free(newCard);
     }    
     
+    //Mélange des cartes de la pioche.
+    //Génération d'un nombre aléatoire
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    //Mélange
+    std::shuffle(pioche.begin(), pioche.end(), rng);
+    
+}
+Deck_level_three::Deck_level_three(){
+    
+    sqlite3 *db; //On créer une variable sqlite du nom de db
+    int rc = sqlite3_open("Data/cards.db", &db); //rc = return code, on ouvre la database 
+    
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+    
+    const char *query = "SELECT * FROM JewelryCards WHERE level = 3"; //requete pour chercher carte lvl 3
+    // Préparer la requête
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        
+        //Niveau
+        unsigned int level = sqlite3_column_int(stmt, 9); //Level dans la 9ème colonne
+        
+        //Coûts
+        unsigned int cost_w = sqlite3_column_int(stmt, 2);
+        unsigned int cost_v = sqlite3_column_int(stmt, 3);
+        unsigned int cost_n = sqlite3_column_int(stmt, 4);
+        unsigned int cost_p = sqlite3_column_int(stmt, 5);
+        unsigned int cost_r = sqlite3_column_int(stmt, 6);
+        unsigned int cost_b = sqlite3_column_int(stmt, 7);
+        std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+            {TokenColor::BLEU, cost_b},
+            {TokenColor::BLANC, cost_w},
+            {TokenColor::VERT, cost_v},
+            {TokenColor::NOIR, cost_n},
+            {TokenColor::ROUGE, cost_r},
+            {TokenColor::PERLE, cost_p}        
+        };
+        
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmt, 0);
+        
+        //Couronnes
+        unsigned int crowns = sqlite3_column_int(stmt, 1);
+        
+        //Capacité
+        const char *abi = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 10));
+        Abilities ability = Utility::stringToAbility(abi);
+        
+        //Capacité2
+        const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 11));
+        Abilities ability2 = Utility::stringToAbility(abi2);
+        
+        //Bonus
+        int bonus_nb = sqlite3_column_int(stmt, 12);
+        const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8));
+        Bonus bonus;
+        bonus.bonus_color = Utility::stringToTokenColor(color);
+        bonus.bonus_number = bonus_nb;
+
+        //Création et ajout de l'instance au deck
+        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability, ability2, bonus); 
+        Deck_level_three::addCardToDeck(newCard);
+        free(newCard);
+    }    
+    
+    //Mélange des cartes de la pioche.
+    //Génération d'un nombre aléatoire
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    //Mélange
+    std::shuffle(pioche.begin(), pioche.end(), rng);
     
 }
 //PENSER AU CAS OU SI MANQUE DE CARTE DANS LA PIOCHE (SEMBLE IMPOSSIBLE)
@@ -110,30 +344,43 @@ JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
 //Idee de code, à modif impérativement
 //VOIR SI CELA FONCTIONNE AVEC LES POINTEURS
 //PENSER A TOUJOURS UTILISER DRAW UNE FOIS UTILISE TAKE
-void Pyramid_Cards::drawCard(unsigned int level){
+/*
+void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three) {
     JewelryCard *Card_Temp;
-    switch(level){
-            case 1 :
-                Card_Temp = Deck_level_one::pioche.begin();
-                Deck_level_one::pioche.erase(Deck_level_one::pioche.begin());
+    switch (level) {
+        case 1:
+            if (!Deck_one.getPioche().empty()) {
+                Card_Temp = Deck_one.getPioche().front();
+                Deck_one.getPioche().erase(Deck_one.getPioche().begin());
                 row_level_one.push_back(Card_Temp);
-                //row_level_one[position_level_one] = Card_Temp;
-            case 2 :
-                Card_Temp = Deck_level_two::pioche.begin();
-                Deck_level_two::pioche.erase(Deck_level_two::pioche.begin());
+            } else {
+                throw std::runtime_error("Le deck niveau 1 est vide");
+            }
+            break;
+        case 2:
+            if (!Deck_two.getPioche().empty()) {
+                Card_Temp = Deck_two.getPioche().front();
+                Deck_two.getPioche().erase(Deck_two.getPioche().begin());
                 row_level_two.push_back(Card_Temp);
-                //row_level_two[position_level_two] = Card_Temp;
-            case 3 :
-                Card_Temp = Deck_level_three::pioche.begin();
-                Deck_level_three::pioche.erase(Deck_level_three::pioche.begin());
+            } else {
+                throw std::runtime_error("Le deck niveau 2 est vide");
+            }
+            break;
+        case 3:
+            if (!Deck_three.getPioche().empty()) {
+                Card_Temp = Deck_three.getPioche().front();
+                Deck_three.getPioche().erase(Deck_three.getPioche().begin());
                 row_level_three.push_back(Card_Temp);
-                //row_level_three[position_level_three] = Card_Temp;
-            default :
-                throw std::runtime_error("Niveau non existant");
-            
+            } else {
+                throw std::runtime_error("Le deck niveau 3 est vide");
+            }
+            break;
+        default:
+            throw std::runtime_error("Niveau non existant");
+			
     }
 }
-    
+ */   
 
 void SummaryCard::addBonusNumber(unsigned int b){
    this->bonusNumber += b;

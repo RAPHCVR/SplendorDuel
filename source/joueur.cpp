@@ -14,6 +14,7 @@
 
 using namespace std;
 
+//Celine
 vector<int> Player::getBonusSummary() {
     vector<int> bonus;
     bonus.push_back(getBlueSummary().getBonusNumber());
@@ -57,7 +58,7 @@ void Player::removePrivilege() {
     privilege-=1;
 }
 
-void Player::addCrowns() {
+void Player::addCrowns(int nbCrowns) {
     nbCrown+=1;
     RoyalCard chosenCard;
     if (nbCrown==3 || nbCrown==6){
@@ -70,7 +71,7 @@ void Player::addCrowns() {
     }
 }
 
-void Player::removeToken(Token token) {
+void Player::removeToken(Token &token) {
     string tokenColor=token.getColor();
     tokenSummary.at(tokenColor)-=1; //retire dans le dico
     vector<Token>::iterator it;
@@ -100,7 +101,7 @@ void Player::actionAddToken(){
     
 }
 
-
+//Celine
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
 void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
     // remove token from list token + maj token summary et tokens
@@ -115,32 +116,36 @@ void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
     }
 }
 
+//Celine
+// ajout 'n' points de prestiges de couleur 'color' 
 void Player::addPrestige(int n, TokenColor color) {
+    //if color not in TokenColor, n < 0 ==> exception 
         prestigePoints += n;
         switch (color) {
         case TokenColor::BLEU:
-            blueSummary.addPrestige(n);
+            blueSummary.addprestigePoints(n);
             break;
         case TokenColor::ROUGE:
-            redSummary.addPrestige(n);
+            redSummary.addprestigePoints(n);
             break;
         case TokenColor::VERT:
-            greenSummary.addPrestige(n);
+            greenSummary.addprestigePoints(n);
             break;
         case TokenColor::BLANC:
-            whiteSummary.addPrestige(n);
+            whiteSummary.addprestigePoints(n);
             break;
         case TokenColor::NOIR:
-            blackSummary.addPrestige(n);
+            blackSummary.addprestigePoints(n);
             break;
         default:
         // pas une carte joallerie
 
-    }
+        }
         
         //cout << "Le joueur " << name << " a gagné " << n << " points de prestige!" << endl;
 }
 
+//Celine
 // méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
 bool Player::canBuyCard(JewelryCard &card){
     // liste des bonus ordre (bleu,blanc,vert,noir,rouge)
@@ -166,28 +171,23 @@ bool Player::canBuyCard(JewelryCard &card){
     } 
     return true;   
 }
-    
 
 
 
-
-
+//Celine
 // On y vérifie que le joueur a les moyens d’acheter la carte sélectionnée 
 // puis retire et place dans le sac les jetons dépensés lors de l’achat, 
 // retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
 // return int pour dire si ca a marché --> modifier si return + pertinent à faire
-int Player::actionBuyCard(JewelryCard &card, int position){
+int Player::actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend){
     // Vérifier si le joueur a les ressources nécessaires pour acheter la carte
         if (canBuyCard(card)) {
             // Retirer les ressources nécessaires
-            spendResources(card);
+            spendResources(tokensToSpend);
 
             // Ajouter la carte au joueur
             addJewelryCard(card);
-
-            // Ajouter des points de prestige si la carte a des points associés
-            addPrestige(card.getPrestige(), card.getBonus());
 
             // Retirer la carte du plateau de jeu
             card = Pyramid_Cards::takeCard(card.getLevel(), position);
@@ -208,6 +208,31 @@ int Player::actionBuyCard(JewelryCard &card, int position){
     // si oui : 
     // on retire dans chaque tableau de jeton, le nb de jeton de la couleur qui a ete depensé
     //this->tokens[0].pop_back(); // pour chaque jeton utilisé --> dans spendRessources
+
+
+}
+
+
+//Celine
+// ajout de la carte dans jewelryCards + modif de la carte resumé correspondant (couleur)
+void Player::addJewelryCard(JewelryCard &card){
+    // ajout de la carte dans la liste de cartes joailleries
+    getJewelryCards().push_back(card);
+
+    //ajout des points de prestiges dans summary carte + dans attribut prestigePoints de Player
+    addPrestige(card.getPrestige(), card.getBonus().bonus_color);
+    
+
+}
+
+//Celine
+// ajout de la carte dans royalCards 
+void Player::addRoyalCard(RoyalCard &card){
+    // ajout de la carte dans la liste de cartes royales
+    getRoyalCards().push_back(card);
+
+    // pas de couleur, juste ajout du nb de prestiges
+    addPrestige(card.getPrestige(), TokenColor::None);
 
 
 }
