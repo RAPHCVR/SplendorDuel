@@ -335,7 +335,7 @@ JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
         default:
             throw std::runtime_error("Niveau de carte non existant");
             
- 
+
     }
 }
 
