@@ -48,15 +48,16 @@ private :
     const size_t max_bleu = 4;
     const size_t max_blanc = 4;
     const size_t max_vert = 4;
+    //design pattern singleton
+    TotalTokens(); //Constructeur de jetons
+    ~TotalTokens(); //Destructeur de jetons
+    //Le total initial est unique, pas de duplication
+    TotalTokens& operator=(const TotalTokens&) = delete;
+    TotalTokens(const TotalTokens&) = delete;
 public:
     size_t getNbTokens() const { return tokens.size(); } //Récupération du nombre de jetons
     const Token& getToken(size_t i) const; //Récupération d'un jeton
-    TotalTokens();
-    ~TotalTokens();
-
-    //Le total initial est unique, pas de duplication
-    TotalTokens(const TotalTokens&) = delete;
-    TotalTokens& operator=(const TotalTokens&) = delete;
+    const static TotalTokens& getInstance(); //Récupération de l'instance unique
 };
 
 class Bag {
@@ -103,6 +104,7 @@ private :
 public :
     Board(Bag& bag, const TotalPrivileges& total); //Instanciation du plateau avec tous les jetons et le sac de jetons
     const Token& takeToken(size_t i, size_t j); //Récupération d'un jeton sur le plateau, supprimé du plateau, à l'indice i,j
+
     class BoardIterator {
         //Classe itérateur pour parcourir le plateau
     private:
@@ -111,26 +113,16 @@ public :
 
     public:
         BoardIterator(Board& board) : board(board), row(0), col(0) {}
-
         bool hasNext() const {
             return row < board.tokens.size() && col < board.tokens[row].size();
         }
-
-        const Token* next() {
-            if (!hasNext()) {
-                throw std::out_of_range("No more tokens");
-            }
-            const Token* token = board.tokens[row][col];
-            if (++col >= board.tokens[row].size()) {
-                ++row;
-                col = 0;
-            }
-            return token;
-        }
+        const Token* next();
     };
+
     BoardIterator iterator() {
         return BoardIterator(*this);
     }
+
     void showBoard();   //Affichage du plateau
     const Privilege& takePrivilege(); //Récupération d'un privilège
     void placeToken(const Token& token);    //Placement d'un jeton sur le plateau

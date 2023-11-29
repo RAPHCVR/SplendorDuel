@@ -57,6 +57,11 @@ TotalTokens::~TotalTokens() {
     }
 }
 
+const TotalTokens& TotalTokens::getInstance() {
+    static TotalTokens instance;
+    return instance;
+}
+
 const Token& TotalTokens::getToken(size_t i) const {
     if (i >= tokens.size()) {
         throw TokenException("Indice de jeton incorrect");
@@ -247,4 +252,17 @@ Board::Board(Bag& bag, const TotalPrivileges& totalPrivileges){
     }
     //On rempli le plateau enb vidant le sac
     fillBoard(bag);
+}
+
+const Token* Board::BoardIterator::next() {
+    if (!hasNext()) {
+        throw TokenException("Il n'y a plus de jeton");
+    }
+    const Token* token = board.tokens[row][col];
+    col++;
+    if (col >= board.tokens[row].size()) {
+        col = 0;
+        row++;
+    }
+    return token;
 }

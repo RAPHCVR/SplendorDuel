@@ -32,7 +32,8 @@ QColor CircleWidget::convertColor(const Token &token) {
     } else if (token.getColor() == TokenColor::ROUGE) {
         return QColor::fromRgb(255, 0, 0);
     } else if (token.getColor() == TokenColor::PERLE) {
-        return QColor::fromRgb(255, 255, 0);
+        //rgb color purple brillant
+        return QColor::fromRgb(153, 51, 255);
     } else if (token.getColor() == TokenColor::OR) {
         return QColor::fromRgb(255, 215, 0);
     }

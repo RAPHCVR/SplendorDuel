@@ -9,10 +9,8 @@ int main(int argc, char *argv[]) {
         QApplication app(argc, argv);
         try
         {
-            //Instanciation des Jetons
-            TotalTokens totalTokens;
             //Instanciation du sac
-            Bag bag(totalTokens);
+            Bag bag(TotalTokens::getInstance());
             //Creation du plateau
             TotalPrivileges totalPrivileges;
             Board board(bag, totalPrivileges);
