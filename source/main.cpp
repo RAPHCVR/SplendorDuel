@@ -9,18 +9,14 @@ int main(int argc, char *argv[]) {
         QApplication app(argc, argv);
         try
         {
-            //Instanciation du sac
-            Bag bag(TotalTokens::getInstance());
             //Creation du plateau
-            TotalPrivileges totalPrivileges;
-            Board board(bag, totalPrivileges);
-            //Test affichage du plateau
-            board.showBoard();
+            Board& board = Board::getInstance();
             //Test prendre un jeton
-            Token t = board.takeToken(0,0);
+            const Token t = board.takeToken(0,0);
             board.showBoard();
+            Board& board2 = Board::getInstance();
             std::cout << t << std::endl;
-            MainWindow mainWindow1(board);
+            MainWindow mainWindow1(board2);
             mainWindow1.show();
             return app.exec();
         }

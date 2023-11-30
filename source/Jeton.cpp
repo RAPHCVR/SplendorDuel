@@ -76,6 +76,12 @@ Bag::Bag(const TotalTokens& total) {
     }
 }
 
+Bag& Bag::getInstance() {
+    static Bag instance(TotalTokens::getInstance());
+    return instance;
+}
+
+
 void Bag::addToken(const Token &j) {
     tokens.push_back(&j);
 }
@@ -84,6 +90,7 @@ const Token& Bag::drawToken() {
     if (tokens.empty()) {
         throw TokenException("Le sac est vide");
     }
+    srand(time(0));
     size_t i = rand() % tokens.size();
     const Token& j = *tokens[i];
     tokens.erase(tokens.begin() + i);
@@ -103,8 +110,13 @@ const Privilege& TotalPrivileges::getPrivilege(size_t i) const {
 
 TotalPrivileges::TotalPrivileges() {
     for (size_t i = 0; i < 3; i++) {
-        privileges.push_back(new Privilege());
+        privileges[i]=new Privilege();
     }
+}
+
+const TotalPrivileges& TotalPrivileges::getInstance() {
+    static TotalPrivileges instance;
+    return instance;
 }
 
 TotalPrivileges::~TotalPrivileges() {
@@ -114,10 +126,15 @@ TotalPrivileges::~TotalPrivileges() {
 }
 
 void Board::placePrivilege(const Privilege& privilege) {
-    if (privileges.size() >= 3) {
-        throw TokenException("Il y a déjà 3 privilèges sur le plateau");
+    //place le privilege au bon endroit dans le tableau de privileges sur un array
+    for (size_t i = 0; i < privileges.size(); i++) {
+        if (privileges[i] == nullptr) {
+            privileges[i] = &privilege;
+            return;
+        }
     }
-    privileges.push_back(&privilege);
+    throw TokenException("Il n'y a plus de place pour un privilège");
+
 }
 
 void Board::showBoard(){
@@ -224,7 +241,7 @@ const Privilege& Board::takePrivilege() {
         throw TokenException("Il n'y a pas de privilège sur le plateau");
     }
     const Privilege& privilege = *privileges.back();
-    privileges.pop_back();
+    privileges.back() = nullptr;
     return privilege;
 }
 
@@ -239,10 +256,10 @@ bool Board::isEmpty() const {
     return true;
 }
 
-Board::Board(Bag& bag, const TotalPrivileges& totalPrivileges){
+Board::Board(){
     //On ajoute les privilèges
-    for (size_t i = 0; i < totalPrivileges.getNbPrivileges(); i++) {
-        placePrivilege(totalPrivileges.getPrivilege(i));
+    for (size_t i = 0; i < TotalPrivileges::getInstance().getNbPrivileges(); i++) {
+        placePrivilege(TotalPrivileges::getInstance().getPrivilege(i));
     }
     //On initialise plateau
     for (auto & token : tokens) {
@@ -251,7 +268,7 @@ Board::Board(Bag& bag, const TotalPrivileges& totalPrivileges){
         }
     }
     //On rempli le plateau enb vidant le sac
-    fillBoard(bag);
+    fillBoard(Bag::getInstance());
 }
 
 const Token* Board::BoardIterator::next() {
@@ -265,4 +282,9 @@ const Token* Board::BoardIterator::next() {
         row++;
     }
     return token;
+}
+
+Board& Board::getInstance() {
+    static Board instance;
+    return instance;
 }

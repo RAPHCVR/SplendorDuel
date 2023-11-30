@@ -49,12 +49,13 @@ private :
     const size_t max_blanc = 4;
     const size_t max_vert = 4;
     //design pattern singleton
-    TotalTokens(); //Constructeur de jetons
-    ~TotalTokens(); //Destructeur de jetons
+    TotalTokens(); //Constructeur du total
+    ~TotalTokens(); //Destructeur du total
+public:
     //Le total initial est unique, pas de duplication
     TotalTokens& operator=(const TotalTokens&) = delete;
     TotalTokens(const TotalTokens&) = delete;
-public:
+
     size_t getNbTokens() const { return tokens.size(); } //Récupération du nombre de jetons
     const Token& getToken(size_t i) const; //Récupération d'un jeton
     const static TotalTokens& getInstance(); //Récupération de l'instance unique
@@ -65,45 +66,58 @@ class Bag {
     //Lorsque la partie commence, le sac est vide car tous les jetons sont sur le plateau
 private :
     std::vector<const Token*> tokens; //Liste des jetons
-public :
+    //design pattern singleton
     explicit Bag(const TotalTokens& total); //Constructeur de sac avec tous les jetons
+public :
+    //Le sac de jeton est unique, pas de duplication
+    Bag(const Bag&) = delete;
+    Bag& operator=(const Bag&) = delete;
 
+    static Bag& getInstance(); //Récupération de l'instance unique
     size_t getNbTokens() const { return tokens.size(); } //Récupération du nombre de jetons
     void addToken(const Token& j); //Ajout d'un jeton dans le sac
     const Token& drawToken(); //Pioche d'un jeton dans le sac
     bool isEmpty() const { return tokens.empty(); } //Vérification si le sac est vide
-
-    //Le sac de jeton est unique, pas de duplication
-    Bag(const Bag&) = delete;
-    Bag& operator=(const Bag&) = delete;
 };
+
 //Les privilèges sont 3 objets indépendants entre eux, mais identiques
 class Privilege {
 };
 
 class TotalPrivileges {
+    //On définit initialement le maximum de privilèges dans une partie
 private :
-    std::vector<const Privilege*> privileges; //3 privilièges dans la liste
-public :
-    size_t getNbPrivileges() const { return privileges.size(); } //Récupération du nombre de privilèges
-    const Privilege& getPrivilege(size_t i) const; //Récupération d'un privilège
-    TotalPrivileges();
-    ~TotalPrivileges();
+    std::array<const Privilege*, 3> privileges; //3 privilièges dans la liste
+    //design pattern singleton
+    TotalPrivileges(); //Constructeur du total
+    ~TotalPrivileges(); //Destructeur du total
 
+public :
     //pas de duplication du total
     TotalPrivileges(const TotalPrivileges&) = delete;
     TotalPrivileges& operator=(const TotalPrivileges&) = delete;
+
+    size_t getNbPrivileges() const { return privileges.size(); } //Récupération du nombre de privilèges
+    const Privilege& getPrivilege(size_t i) const; //Récupération d'un privilège
+    const static TotalPrivileges& getInstance(); //Récupération de l'instance unique
 };
 
 
 class Board {
     //Classe plateau contenant les jetons et les privilèges en jeu
 private :
-    std::vector<const Privilege*> privileges; //Liste des privilèges
+    std::array<const Privilege*, 3> privileges{}; //Liste des privilèges
     std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
+    //design pattern singleton
+    Board(); //Instanciation du plateau avec tous les jetons et le sac de jetons (Constructeur)
 public :
-    Board(Bag& bag, const TotalPrivileges& total); //Instanciation du plateau avec tous les jetons et le sac de jetons
+    //pas de duplication du plateau
+    Board(const Board&) = delete;
+    Board& operator=(const Board&) = delete;
+
     const Token& takeToken(size_t i, size_t j); //Récupération d'un jeton sur le plateau, supprimé du plateau, à l'indice i,j
+
+    static Board& getInstance(); //Récupération de l'instance unique
 
     class BoardIterator {
         //Classe itérateur pour parcourir le plateau
@@ -112,14 +126,14 @@ public :
         size_t row, col;
 
     public:
-        BoardIterator(Board& board) : board(board), row(0), col(0) {}
+        explicit BoardIterator(Board& board) : board(board), row(0), col(0) {} //Constructeur de l'itérateur
         bool hasNext() const {
-            return row < board.tokens.size() && col < board.tokens[row].size();
+            return row < board.tokens.size() && col < board.tokens[row].size(); //Vérification si il y a un jeton suivant
         }
-        const Token* next();
+        const Token* next(); //Récupération du jeton suivant
     };
 
-    BoardIterator iterator() {
+    BoardIterator iterator() { //Récupération de l'itérateur du plateau
         return BoardIterator(*this);
     }
 
@@ -129,10 +143,6 @@ public :
     void placePrivilege(const Privilege& privilege); //Placement d'un privilège sur le plateau
     void fillBoard(Bag& bag); //Remplissage du plateau avec les jetons du sac
     bool isEmpty() const; //Vérification si le plateau est vide
-
-    //pas de duplication du plateau
-    Board(const Board&) = delete;
-    Board& operator=(const Board&) = delete;
 };
 
 #endif //LO21PROJECT_JETON_H
