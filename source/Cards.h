@@ -94,16 +94,35 @@ public:
 
 class RoyalCard {
 public:
-    RoyalCard(unsigned int pp, Abilities a) :
-    prestige_points(pp), ability(a) {}
+    RoyalCard(unsigned int pp, Abilities a, unsigned int i) :
+    prestige_points(pp), ability(a), id(i) {}
     unsigned int getPrestige() {return prestige_points;}
     Abilities getAbility() {return ability;}
+    unsigned int getId() {return id;}									 
 private:
     unsigned int prestige_points;
     Abilities ability;
+    unsigned int id;					
 };
 
+class Deck_Royal {
+public:
+    Deck_Royal();
 
+    std::vector<RoyalCard *> getCards() {return cards;}
+
+    void addCardToDeck(RoyalCard * card){
+        cards.push_back(card);
+    }
+
+    void deleteCard(int pos) { 
+        cards.erase(cards.begin() + pos); 
+    }
+
+
+private:
+    std::vector<RoyalCard *> cards;
+};				  
 class Deck_level_one{ 
 public:
 
@@ -113,6 +132,7 @@ public:
     void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
         pioche.push_back(card);
     }
+void deleteFirstItem() {pioche.erase(pioche.begin());}														  
   
 private:
     std::vector<JewelryCard *> pioche;
@@ -129,6 +149,7 @@ public:
         pioche.push_back(card);
     }
     
+void deleteFirstItem() {pioche.erase(pioche.begin());}														  
 private:
     std::vector<JewelryCard *> pioche;
 };
@@ -143,6 +164,7 @@ public:
         pioche.push_back(card);
     }
     
+void deleteFirstItem() {pioche.erase(pioche.begin());}														  
 private:
     std::vector<JewelryCard *> pioche;
 };
@@ -150,7 +172,8 @@ private:
 class Pyramid_Cards{
 public:
     
-    void drawCard(unsigned int level);
+    Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
+    void drawCard(unsigned int level, Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
     
 private:

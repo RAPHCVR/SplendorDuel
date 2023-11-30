@@ -172,7 +172,7 @@ Deck_level_one::Deck_level_one() : pioche() {
     
 }
 
-Deck_level_two::Deck_level_two(){
+Deck_level_two::Deck_level_two() : pioche() {
     
             
     sqlite3 *db; //On créer une variable sqlite du nom de db
@@ -251,7 +251,7 @@ Deck_level_two::Deck_level_two(){
     std::shuffle(pioche.begin(), pioche.end(), rng);
     
 }
-Deck_level_three::Deck_level_three(){
+Deck_level_three::Deck_level_three() : pioche() {
     
             
     sqlite3 *db; //On créer une variable sqlite du nom de db
@@ -278,7 +278,6 @@ Deck_level_three::Deck_level_three(){
         
         //Niveau
         int level = sqlite3_column_int(stmt, 9); //Level dans la 9ème colonne
-        cout << level << endl;
   
         //Coûts
         unsigned int cost_w = sqlite3_column_int(stmt, 2);
@@ -333,6 +332,46 @@ Deck_level_three::Deck_level_three(){
     std::shuffle(pioche.begin(), pioche.end(), rng);
     
 }
+Deck_Royal::Deck_Royal() : cards() {
+
+    sqlite3 *db; //On créer une variable sqlite du nom de db
+    int rc = sqlite3_open("C:/Users/sacha/Desktop/TESTSPLENDOR/Data/cards.db", &db); //rc = return code, on ouvre la database 
+    
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+    
+    const char *query = "SELECT * FROM RoyalCards"; //requete pour chercher cartes royales
+    // Préparer la requête
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        
+        //Identifiant
+        unsigned int id = sqlite3_column_int(stmt, 0);
+
+        // Capacité
+        const char *abi = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        Abilities ability = Utility::stringToAbility(abi);
+
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmt, 2);
+
+        //Création et ajout de l'instance au deck
+        RoyalCard *newCard = new RoyalCard(prestige_points, ability, id); 
+        Deck_Royal::addCardToDeck(newCard);
+    }
+
+}
 //PENSER AU CAS OU SI MANQUE DE CARTE DANS LA PIOCHE (SEMBLE IMPOSSIBLE)
 JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
     switch(level){
@@ -372,43 +411,68 @@ JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
 //Idee de code, à modif impérativement
 //VOIR SI CELA FONCTIONNE AVEC LES POINTEURS
 //PENSER A TOUJOURS UTILISER DRAW UNE FOIS UTILISE TAKE
-/*
+Pyramid_Cards::Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three)  : row_level_one(), row_level_two(), row_level_three() {
+
+    //Ligne niveau 1
+    for(int i=0; i<5; i++)
+    {
+        row_level_one.push_back(move(Deck_one.getPioche()[0]));
+        Deck_one.deleteFirstItem();
+    }
+
+    //Ligne cartes niveau 2
+    for(int i=0; i<4; i++)
+    {
+        row_level_two.push_back(move(Deck_two.getPioche()[0]));
+        Deck_two.deleteFirstItem();        
+    }
+
+    // Ligne cartes niveau 3
+    for (int i = 0; i<3; i++)
+    {
+        row_level_three.push_back(move(Deck_three.getPioche()[0]));
+        Deck_three.deleteFirstItem();        
+    }
+    
+}
+
 void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three) {
-    JewelryCard *Card_Temp;
+						   
     switch (level) {
         case 1:
-            if (!Deck_one.getPioche().empty()) {
-                Card_Temp = Deck_one.getPioche().front();
-                Deck_one.getPioche().erase(Deck_one.getPioche().begin());
-                row_level_one.push_back(Card_Temp);
-            } else {
+            if (!Deck_one.getPioche().empty())
+            {
+                row_level_one.push_back(move(Deck_one.getPioche()[0]));
+                Deck_one.deleteFirstItem();
+            }
+            else
+            {
                 throw std::runtime_error("Le deck niveau 1 est vide");
             }
             break;
         case 2:
             if (!Deck_two.getPioche().empty()) {
-                Card_Temp = Deck_two.getPioche().front();
-                Deck_two.getPioche().erase(Deck_two.getPioche().begin());
-                row_level_two.push_back(Card_Temp);
+														 
+                row_level_two.push_back(move(Deck_two.getPioche()[0]));
+                Deck_two.deleteFirstItem();
             } else {
                 throw std::runtime_error("Le deck niveau 2 est vide");
             }
             break;
         case 3:
             if (!Deck_three.getPioche().empty()) {
-                Card_Temp = Deck_three.getPioche().front();
-                Deck_three.getPioche().erase(Deck_three.getPioche().begin());
-                row_level_three.push_back(Card_Temp);
+														   
+                row_level_three.push_back(move(Deck_three.getPioche()[0]));
+                Deck_three.deleteFirstItem();
             } else {
                 throw std::runtime_error("Le deck niveau 3 est vide");
             }
             break;
         default:
             throw std::runtime_error("Niveau non existant");
-			
+   
     }
-}
- */   
+}  
 
 void SummaryCard::addBonusNumber(unsigned int b){
    this->bonusNumber += b;
