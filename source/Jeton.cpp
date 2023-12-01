@@ -14,6 +14,7 @@ std::string toString(TokenColor c) {
         case TokenColor::PERLE: return "Perle";
         case TokenColor::ROUGE: return "Rouge";
         case TokenColor::VERT: return "Vert";
+        case TokenColor::None: return "Vide";
         default: throw std::invalid_argument("Couleur inconnue");
     }
 }

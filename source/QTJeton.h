@@ -7,8 +7,6 @@
 
 #include <QtWidgets>
 #include <QColor>
-#include <QPainter>
-#include <QRandomGenerator>
 #include <QPalette>
 #include "Jeton.h"
 
@@ -24,42 +22,8 @@ private:
 
 class PlateWidget : public QWidget {
 public:
-    explicit PlateWidget(Board& board, QWidget* parent = nullptr) : QWidget(parent) {
-        int tokenSize = 50; // The size of each token
-        Board::BoardIterator it = board.iterator();
-        unsigned int i = 0;
-        while (it.hasNext()) {
-            std::vector<CircleWidget*> widgetRow;
-            for (int j = 0; j < 5; ++j) {
-                const auto& token = it.next();;
-                if (token != nullptr) {
-                    CircleWidget* widget = new CircleWidget(this, *token);
-                    widget->move(j * tokenSize, i * tokenSize); // Position the widget
-                    widgetRow.push_back(widget);
-                    std::cout << "Created CircleWidget for token\n";
-                } else {
-                    widgetRow.push_back(nullptr);
-                }
-            }
-            ++i;
-            widgets.push_back(widgetRow);
-        }
-        // Set the size of the PlateWidget to fit the board
-        setFixedSize(5 * tokenSize, 5 * tokenSize);
-    }
-    void paintEvent(QPaintEvent* event) override {
-        Q_UNUSED(event)
-
-        QPainter painter(this);
-        for (const auto& row : widgets) {
-            for (const auto& widget : row) {
-                if (widget != nullptr) {
-                    widget->update();
-                    std::cout << "Updated CircleWidget\n";
-                }
-            }
-        }
-    }
+    explicit PlateWidget(Board& board, QWidget* parent = nullptr);
+    void paintEvent(QPaintEvent* event) override;
 
 private:
     std::vector<std::vector<CircleWidget*>> widgets;
@@ -68,7 +32,7 @@ private:
 class MainWindow : public QWidget {
 public:
     explicit MainWindow(Board& board, QWidget* parent = nullptr) : QWidget(parent) {
-        PlateWidget* plateWidget = new PlateWidget(board, this);
+        auto* plateWidget = new PlateWidget(board, this);
         plateWidget->move(0, 0);
 
         // Set the size of the MainWindow to fit the PlateWidget

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
             std::cout << t << std::endl;
             MainWindow mainWindow1(board2);
             mainWindow1.show();
-            return app.exec();
+            return QApplication::exec();
         }
         catch (TokenException& err)
         {

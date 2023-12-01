@@ -18,8 +18,15 @@ add_executable(LO21Project
         main.cpp
         Jeton.h
         Jeton.cpp
+        Cards.h
+        Cards.cpp
         QTJeton.cpp
         QTJeton.h
+        sqlite/shell.c
+        sqlite/sqlite3.c
+        sqlite/sqlite3.h
+        sqlite/sqlite3ext.h
+        Partie.h
 )
 target_link_libraries(LO21Project
         Qt::Core

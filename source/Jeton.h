@@ -1,12 +1,12 @@
 //
 // Fichier de gestion des jetons, et du sac de jetons
 //
+#ifndef LO21PROJECT_JETON_H
+#define LO21PROJECT_JETON_H
+
 #include <iostream>
 #include <vector>
 #include <array>
-
-#ifndef LO21PROJECT_JETON_H
-#define LO21PROJECT_JETON_H
 
 //Liste des couleurs possibles pour les jetons, avec l'affichage
 enum class TokenColor { BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR, None };
@@ -19,7 +19,7 @@ class TokenException {
 private:
     std::string message; //Message d'exception
 public:
-    TokenException(const std::string &msg) : message(msg) {} //Constructeur d'exception
+    explicit TokenException(const std::string &msg) : message(msg) {} //Constructeur d'exception
 
     ~TokenException() = default;
 
