@@ -107,79 +107,145 @@ private:
 
 class Deck_Royal {
 public:
-    Deck_Royal();
+				 
 
-    std::vector<RoyalCard *> getCards() {return cards;}
+    // Transformation en singleton
+    static Deck_Royal* getInstance() {
+        if (instance == nullptr) {
+            instance = new Deck_Royal();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+    //Deck_Royal();
 
-    void addCardToDeck(RoyalCard * card){
+    std::vector<RoyalCard*> getCards() { return cards; }
+
+    void addCardToDeck(RoyalCard* card) {
         cards.push_back(card);
     }
 
-    void deleteCard(int pos) { 
-        cards.erase(cards.begin() + pos); 
+    void deleteCard(int pos) {
+        cards.erase(cards.begin() + pos);
     }
 
 
 private:
-    std::vector<RoyalCard *> cards;
-};				  
-class Deck_level_one{ 
+
+    Deck_Royal();
+    
+    static Deck_Royal* instance;
+
+    std::vector<RoyalCard*> cards;
+};
+
+class Deck_level_one {
 public:
+
+    // Transformation en singleton
+    static Deck_level_one* getInstance() {
+    if (instance == nullptr) {
+        instance = new Deck_level_one();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+
+    //Deck_level_one();
+    std::vector<JewelryCard*> getPioche() { return pioche; }
+
+    void addCardToDeck(JewelryCard* card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+    void deleteFirstItem() { pioche.erase(pioche.begin()); }
+
+private:
 
     Deck_level_one();
-    std::vector<JewelryCard *> getPioche() {return pioche;}
+    
+    static Deck_level_one* instance;
 
-    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        pioche.push_back(card);
-    }
-void deleteFirstItem() {pioche.erase(pioche.begin());}														  
-  
-private:
-    std::vector<JewelryCard *> pioche;
-
+    std::vector<JewelryCard*> pioche;
 };
 
-class Deck_level_two{
+class Deck_level_two {
 public:
+
+    // Transformation en singleton
+    static Deck_level_two* getInstance() {
+        if (instance == nullptr) {
+            instance = new Deck_level_two();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+
+    //Deck_level_two();
+    std::vector<JewelryCard*> getPioche() { return pioche; }
+
+    void addCardToDeck(JewelryCard* card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+
+    void deleteFirstItem() { pioche.erase(pioche.begin()); }
+private:
 
     Deck_level_two();
-    std::vector<JewelryCard *> getPioche() {return pioche;}
 
-    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        pioche.push_back(card);
-    }
+    static Deck_level_two* instance;
     
-void deleteFirstItem() {pioche.erase(pioche.begin());}														  
-private:
-    std::vector<JewelryCard *> pioche;
+    std::vector<JewelryCard*> pioche;
 };
 
-class Deck_level_three{
+class Deck_level_three {
 public:
+
+    // Transformation en singleton
+    static Deck_level_three* getInstance() {
+    if (instance == nullptr) {
+        instance = new Deck_level_three();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+
+    //Deck_level_three();
+    std::vector<JewelryCard*> getPioche() { return pioche; }
+
+    void addCardToDeck(JewelryCard* card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+
+    void deleteFirstItem() { pioche.erase(pioche.begin()); }
+private:
 
     Deck_level_three();
-    std::vector<JewelryCard *> getPioche() {return pioche;}
-    
-    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        pioche.push_back(card);
-    }
-    
-void deleteFirstItem() {pioche.erase(pioche.begin());}														  
-private:
-    std::vector<JewelryCard *> pioche;
+
+    static Deck_level_three* instance;
+
+    std::vector<JewelryCard*> pioche;
 };
 
-class Pyramid_Cards{
+class Pyramid_Cards {
 public:
-    
-    Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
-    void drawCard(unsigned int level, Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
+
+    // Transformation en singleton
+    static Pyramid_Cards* getInstance(Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three) {
+        if (instance == nullptr) {
+            instance = new Pyramid_Cards(Deck_one, Deck_two, Deck_three);  // Crée l'instance si elle n'existe pas encore
+            }
+        return instance;
+    }
+
+    //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
+    void drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
-    
+
 private:
-    std::vector<JewelryCard *> row_level_one;
-    std::vector<JewelryCard *> row_level_two;
-    std::vector<JewelryCard *> row_level_three;
+
+    Pyramid_Cards(Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three);
+
+    static Pyramid_Cards *instance;
+
+    std::vector<JewelryCard*> row_level_one;
+    std::vector<JewelryCard*> row_level_two;
+    std::vector<JewelryCard*> row_level_three;
     static const unsigned int max_level_one = 5;
     static const unsigned int max_level_two = 4;
     static const unsigned int max_level_three = 3;
@@ -187,7 +253,7 @@ private:
     unsigned int position_level_one = 0;
     unsigned int position_level_two = 0;
     unsigned int position_level_three = 0;
-     */ 
+     */
 
 
 };

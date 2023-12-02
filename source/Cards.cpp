@@ -91,6 +91,7 @@ std::ostream& operator<<(std::ostream& f, Abilities a){
     return f << toString(a);
 }
 	
+Deck_level_one* Deck_level_one::instance = nullptr;
 Deck_level_one::Deck_level_one() : pioche() {
     
             
@@ -172,6 +173,7 @@ Deck_level_one::Deck_level_one() : pioche() {
     
 }
 
+Deck_level_two* Deck_level_two::instance = nullptr;												   
 Deck_level_two::Deck_level_two() : pioche() {
     
             
@@ -251,6 +253,7 @@ Deck_level_two::Deck_level_two() : pioche() {
     std::shuffle(pioche.begin(), pioche.end(), rng);
     
 }
+Deck_level_three *Deck_level_three::instance = nullptr;													   
 Deck_level_three::Deck_level_three() : pioche() {
     
             
@@ -332,6 +335,7 @@ Deck_level_three::Deck_level_three() : pioche() {
     std::shuffle(pioche.begin(), pioche.end(), rng);
     
 }
+Deck_Royal *Deck_Royal::instance = nullptr;										   
 Deck_Royal::Deck_Royal() : cards() {
 
     sqlite3 *db; //On créer une variable sqlite du nom de db
@@ -411,39 +415,40 @@ JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
 //Idee de code, à modif impérativement
 //VOIR SI CELA FONCTIONNE AVEC LES POINTEURS
 //PENSER A TOUJOURS UTILISER DRAW UNE FOIS UTILISE TAKE
-Pyramid_Cards::Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three)  : row_level_one(), row_level_two(), row_level_three() {
+Pyramid_Cards *Pyramid_Cards::instance = nullptr;
+Pyramid_Cards::Pyramid_Cards(Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three)  : row_level_one(), row_level_two(), row_level_three() {
 
     //Ligne niveau 1
     for(int i=0; i<5; i++)
     {
-        row_level_one.push_back(move(Deck_one.getPioche()[0]));
-        Deck_one.deleteFirstItem();
+        row_level_one.push_back(move(Deck_one->getPioche()[0]));
+        Deck_one->deleteFirstItem();
     }
 
     //Ligne cartes niveau 2
     for(int i=0; i<4; i++)
     {
-        row_level_two.push_back(move(Deck_two.getPioche()[0]));
-        Deck_two.deleteFirstItem();        
+        row_level_two.push_back(move(Deck_two->getPioche()[0]));
+        Deck_two->deleteFirstItem();        
     }
 
     // Ligne cartes niveau 3
     for (int i = 0; i<3; i++)
     {
-        row_level_three.push_back(move(Deck_three.getPioche()[0]));
-        Deck_three.deleteFirstItem();        
+        row_level_three.push_back(move(Deck_three->getPioche()[0]));
+        Deck_three->deleteFirstItem();        
     }
     
 }
 
-void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three) {
-						   
+void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three) {
+		 
     switch (level) {
         case 1:
-            if (!Deck_one.getPioche().empty())
+            if (!Deck_one->getPioche().empty())
             {
-                row_level_one.push_back(move(Deck_one.getPioche()[0]));
-                Deck_one.deleteFirstItem();
+                row_level_one.push_back(move(Deck_one->getPioche()[0]));
+                Deck_one->deleteFirstItem();
             }
             else
             {
@@ -451,19 +456,19 @@ void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one Deck_one, Deck_l
             }
             break;
         case 2:
-            if (!Deck_two.getPioche().empty()) {
-														 
-                row_level_two.push_back(move(Deck_two.getPioche()[0]));
-                Deck_two.deleteFirstItem();
+            if (!Deck_two->getPioche().empty()) {
+			   
+                row_level_two.push_back(move(Deck_two->getPioche()[0]));
+                Deck_two->deleteFirstItem();
             } else {
                 throw std::runtime_error("Le deck niveau 2 est vide");
             }
             break;
         case 3:
-            if (!Deck_three.getPioche().empty()) {
-														   
-                row_level_three.push_back(move(Deck_three.getPioche()[0]));
-                Deck_three.deleteFirstItem();
+            if (!Deck_three->getPioche().empty()) {
+				 
+                row_level_three.push_back(move(Deck_three->getPioche()[0]));
+                Deck_three->deleteFirstItem();
             } else {
                 throw std::runtime_error("Le deck niveau 3 est vide");
             }
@@ -472,7 +477,7 @@ void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one Deck_one, Deck_l
             throw std::runtime_error("Niveau non existant");
    
     }
-}  
+}
 
 void SummaryCard::addBonusNumber(unsigned int b){
    this->bonusNumber += b;
