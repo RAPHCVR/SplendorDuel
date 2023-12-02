@@ -27,6 +27,7 @@ add_executable(LO21Project
         sqlite/sqlite3.h
         sqlite/sqlite3ext.h
         Partie.h
+        Partie.cpp
 )
 target_link_libraries(LO21Project
         Qt::Core

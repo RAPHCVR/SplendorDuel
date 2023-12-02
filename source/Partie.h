@@ -10,9 +10,23 @@
 #include <vector>
 #include "Jeton.h"
 #include "Cards.h"
+#include "joueur.h"
+
+class GameException {
+    //Classe de gestion des exception avec la partie
+private:
+    std::string message; //Message d'exception
+public:
+    explicit GameException(const std::string &msg) : message(msg) {} //Constructeur d'exception
+
+    ~GameException() = default;
+
+    std::string getMessage() const { return message; } //Récupération du message d'exception
+};
+
 
 class GameTable {
-    friend class Partie;
+    friend class Game;
     private:
         // Partie Cartes
         Deck_Royal *deckroyal;
@@ -36,9 +50,61 @@ class GameTable {
         GameTable(const GameTable&) = delete;
         GameTable& operator=(const GameTable&) = delete;
 
-
 };
 
+//On implémente la classe partie, qui va contenir les éléments essentiels au déroulement du jeu: GameTable, les Joueurs, et le nombre de tour en cours
+class Game {
+private:
+    unsigned int round;
+    Player *players[2];
+    GameTable *gametable;
+public:
+    Game();
+    ~Game() {
+        delete gametable;
+        delete players[0];
+        delete players[1];
+    }
 
-//A faire: Partie, PartieException, Builder, Sauvegarde...
+    unsigned int getRound() const {
+        return round;
+    }
+    GameTable& getGameTable() const {
+        return *gametable;
+    }
+    Player* getPlayer(size_t i) const {
+        return players[i];
+    }
+    Player* getPlayer1() const {
+        return players[0];
+    }
+    Player* getPlayer2() const {
+        return players[1];
+    }
+
+
+    //Setter
+    void setPlayer1(Player & j);
+    void setPlayer2(Player & j);
+    void setRound(unsigned int n) {
+        round = n;
+    }
+
+    void roundIncrement() {
+        round++;
+    }
+};
+
+//Classe abstraite Builder pour construire nouvelle partie
+class GameBuilder {
+public: virtual ~GameBuilder() {};
+    virtual void setPlayers(string pseudo1, type t1, string pseudo2, type t2) const = 0;
+    virtual void setPlayers() const = 0;
+    virtual void setPlayersCards() const = 0;
+    virtual void setPlayersToken() const = 0;
+    virtual void updateGameTable() const = 0;
+    virtual void setGameInfos() const = 0;
+    friend class Game;
+};
+//A faire: Builder, Memento(Sauvegarde)...
 #endif //PARTIE_H
