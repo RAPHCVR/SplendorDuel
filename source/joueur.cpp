@@ -187,42 +187,19 @@ bool Player::canBuyCard(JewelryCard &card){
 
 
 //Celine
-// On y vérifie que le joueur a les moyens d’acheter la carte sélectionnée 
-// puis retire et place dans le sac les jetons dépensés lors de l’achat, 
+// retire et place dans le sac les jetons dépensés lors de l’achat, 
 // retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
-// return int pour dire si ca a marché --> modifier si return + pertinent à faire
-int Player::actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend){
-    // Vérifier si le joueur a les ressources nécessaires pour acheter la carte
-        if (canBuyCard(card)) {
-            // Retirer les ressources nécessaires
-            spendResources(tokensToSpend);
+void Player::actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend){
+    // Retirer les ressources nécessaires
+    spendResources(tokensToSpend);
 
-            // Ajouter la carte au joueur
-            addJewelryCard(card);
+    // Ajouter la carte au joueur
+    addJewelryCard(card);
 
-            // Retirer la carte du plateau de jeu
-            // getInstance()
-            card = Pyramid_Cards::getInstance().takeCard(card.getLevel(), position);
-            //cout << "La carte a été achetée avec succès par le joueur " << name << "!" << endl;
-            return 1;
-        } 
-        else {
-            //cout << "Le joueur " << name << " ne peut pas acheter cette carte. Ressources insuffisantes." << endl;
-            return 0;
-        }
-    
-    // idees qt
-    // faire un bouton annuler l'achat dans le fichier interface
-    // pour choix du paiement : 
-    // avec Qt faire un bouton + / - limité au nombre de jetons max possédés pour chaque couleur du prix
-    // avec Qt faire un bouton + / - limité au nombre de bonus max possédés pour chaque couleur du prix
-    // au moment du clic sur le bouton acheter, on compte si les jetons+bonus = cout de la carte --> si non on en informe le joueur
-    // si oui : 
-    // on retire dans chaque tableau de jeton, le nb de jeton de la couleur qui a ete depensé
-    //this->tokens[0].pop_back(); // pour chaque jeton utilisé --> dans spendRessources
-
-
+    // Retirer la carte du plateau de jeu
+    // getInstance()
+    card = Pyramid_Cards::getInstance().takeCard(card.getLevel(), position);
 }
 
 
@@ -248,3 +225,7 @@ void Player::addRoyalCard(RoyalCard &card){
 
 
 }
+
+ void actionBuyReservedCard(JewelryCard &card){
+
+ }

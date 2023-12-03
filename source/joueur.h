@@ -76,10 +76,9 @@ public:
     void actionAddToken(); // prendre les jetons sur le plateau
     void actionReserveCard(); // retirer du deck; prendre un or (avec addToken);
 
-    int actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+    void actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
     void spendResources(unordered_map<TokenColor, int> tokensToSpend);
-    // methode acheter carte reservee !!!!!!!!
     void actionBuyReservedCard(JewelryCard &card);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
