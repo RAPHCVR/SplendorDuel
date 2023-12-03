@@ -12,7 +12,7 @@
 
 class PrivilegeCounter : public QLabel {
 public:
-    explicit PrivilegeCounter(Board& board, QWidget* parent = nullptr) : QLabel(parent), board(board) {
+    explicit PrivilegeCounter(QWidget* parent = nullptr) : QLabel(parent) {
         // Set the stylesheet
         setStyleSheet("QLabel {"
                       "background-color : black;"
@@ -27,27 +27,28 @@ public:
     }
 
     void updateCounter() {
-        setText(QString::number(board.getNbPrivileges()));
+        setText(QString::number(Board::getInstance().getNbPrivileges()));
     }
-
-private:
-    Board& board;
 };
 
 class CircleWidget : public QWidget {
 public:
-    CircleWidget(QWidget* parent,const Token& token);
+    CircleWidget(QWidget* parent,const Token* token);
 
     void paintEvent(QPaintEvent* event) override;
 
+    void updateToken(const Token* newToken);
+
 private:
     QColor convertColor(const Token &token);
+    const Token* token;
 };
 
 class PlateWidget : public QWidget {
 public:
-    explicit PlateWidget(Board& board, QWidget* parent = nullptr);
+    explicit PlateWidget(QWidget* parent = nullptr);
     void paintEvent(QPaintEvent* event) override;
+    void updateTokens();
 
 private:
     std::vector<std::vector<CircleWidget*>> widgets;
@@ -55,14 +56,14 @@ private:
 
 class MainWindow : public QWidget, public Observer {
 public:
-    explicit MainWindow(Board& board, QWidget* parent = nullptr) : QWidget(parent), board(board) {
-        auto* plateWidget = new PlateWidget(board, this);
+    explicit MainWindow(QWidget* parent = nullptr) : QWidget(parent) {
+        plateWidget = new PlateWidget(this);
         plateWidget->move(0, 0);
 
-        privilegeCounter = new PrivilegeCounter(board, this);
+        privilegeCounter = new PrivilegeCounter(this);
         privilegeCounter->move(plateWidget->width() + 10, 0); // Position on the right side
 
-        board.registerObserver(this);
+        Board::getInstance().registerObserver(this);
 
         // Set the size of the MainWindow to fit the PlateWidget and PrivilegeCounter
         setFixedSize(plateWidget->width() + privilegeCounter->width(), plateWidget->height());
@@ -78,13 +79,18 @@ public:
         privilegeCounter->updateCounter();
     }
 
+    void updatePlateWidget() {
+        plateWidget->updateTokens();
+    }
+
     void update() override {
+        updatePlateWidget();
         updatePrivilegeCounter();
     }
 
 
 private:
-    Board& board;
     PrivilegeCounter* privilegeCounter;
+    PlateWidget* plateWidget;
 };
 #endif //LO21PROJECT_QTJETON_H

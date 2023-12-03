@@ -30,6 +30,7 @@ add_executable(projet-lo21-splendor-duel
         Partie.cpp
         Controller.h
         Controller.cpp
+        joueur.h
 )
 target_link_libraries(projet-lo21-splendor-duel
         Qt::Core

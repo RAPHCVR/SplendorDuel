@@ -10,11 +10,10 @@
 #include <QPalette>
 
 
-CircleWidget::CircleWidget(QWidget* parent,const Token& token) : QWidget(parent) {
+CircleWidget::CircleWidget(QWidget* parent,const Token* t) : QWidget(parent), token(t) {
     setFixedSize(50, 50);
-
     QPalette palette;
-    QColor randomColor = convertColor(token);
+    QColor randomColor = convertColor(*token);
     palette.setColor(QPalette::Base, randomColor);
     setAutoFillBackground(true);
     setPalette(palette);
@@ -39,16 +38,16 @@ QColor CircleWidget::convertColor(const Token &token) {
     }
 }
 
-PlateWidget::PlateWidget(Board& board, QWidget* parent) : QWidget(parent) {
+PlateWidget::PlateWidget(QWidget* parent) : QWidget(parent) {
     int tokenSize = 50; // The size of each token
-    Board::BoardIterator it = board.iterator();
+    Board::BoardIterator it = Board::getInstance().iterator();
     unsigned int i = 0;
     while (it.hasNext()) {
         std::vector<CircleWidget*> widgetRow;
         for (int j = 0; j < 5; ++j) {
             const auto& token = it.next();;
             if (token != nullptr) {
-                CircleWidget* widget = new CircleWidget(this, *token);
+                CircleWidget* widget = new CircleWidget(this, token);
                 widget->move(j * tokenSize, i * tokenSize); // Position the widget
                 widgetRow.push_back(widget);
                 std::cout << "Created CircleWidget for token\n";
@@ -86,4 +85,31 @@ void CircleWidget::paintEvent(QPaintEvent* event) {
     painter.setPen(Qt::NoPen);
     painter.setBrush(palette().base());
     painter.drawEllipse(rect().adjusted(2, 2, -2, -2));
+}
+void CircleWidget::updateToken(const Token* newToken) {
+        token = newToken;
+        QColor newColor = convertColor(*token);
+        QPalette palette;
+        palette.setColor(QPalette::Base, newColor);
+        setAutoFillBackground(true);
+        setPalette(palette);
+        QWidget::update();  // Call the base class update to redraw the widget
+}
+
+void PlateWidget::updateTokens() {
+    auto tokenIterator = Board::getInstance().iterator();
+    for (auto& row : widgets) {
+        for (auto& widget : row) {
+            if (widget != nullptr) {
+                const Token* token = tokenIterator.next();
+                if (token==nullptr) {
+                    delete widget;
+                    widget = nullptr;
+                }
+                else {
+                    widget->updateToken(token);
+                }
+            }
+        }
+    }
 }

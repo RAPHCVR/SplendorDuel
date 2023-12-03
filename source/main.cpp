@@ -31,10 +31,11 @@ int main(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     Controller* controller = new Controller();
-    MainWindow mainWindow1(controller->getGame().getGameTable().getBoard());
-    mainWindow1.show();
+    MainWindow *mainWindow1 = new MainWindow();
+    mainWindow1->show();
+    app.processEvents();
     std::cin.get();
-    controller->getGame().getGameTable().getBoard().takePrivilege();
-    unsigned int a =controller->getGame().getGameTable().getBoard().getNbPrivileges();
+    controller->getGame().getGameTable().getBoard().takeToken(0,0);
+    controller->getGame().getGameTable().getBoard().showBoard();
     return QApplication::exec();
 }

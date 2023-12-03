@@ -240,6 +240,7 @@ const Token& Board::takeToken(const size_t i, const size_t j) {
     }
     const Token& token = *tokens[i][j];
     tokens[i][j] = nullptr;
+    actionPerformed();
     return token;
 }
 
