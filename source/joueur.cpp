@@ -47,6 +47,16 @@ void Player::actionReserveCard(){ //Conditions d'activation à penser : moins de
     addToken(jetonOr);
 };
 
+//verifie que le joueur a moins de 3 cartes dans sa reserve et qu'il y a au moins un or sur le plateau
+bool Player::canReserveCard(Board &board){
+    if (reserve.size()<3){
+        if (board.hasTokenOfColor(TokenColor::OR)){
+            return true;
+        }
+    }
+    return false;
+}
+
 void Player::addPrivilege() {
     privilege+=1;
 }
