@@ -43,7 +43,6 @@ public:
     int getPrivilege() const {return privilege;};
     int getPrestige() const {return prestigePoints;};
     int getCrowns() const {return nbCrown;};
-    //int getTokens() const {return nbTokens;};
     Type getType() const {return type;}
     SummaryCard getBlueSummary(){return blueSummary;}
     SummaryCard getWhiteSummary(){return whiteSummary;}
@@ -56,7 +55,7 @@ public:
     std::unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
     std::vector<JewelryCard> getJewelryCards(){ return jewelryCards;}
     std::vector<RoyalCard> getRoyalCards(){ return royalCards;}
-
+    std::vector<JewelryCard> getReserve(){ return reserve;}
 
     // ostream
 
@@ -67,7 +66,7 @@ public:
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
     void addPrivilege(); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
     void removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
-    void addJewelryCard(JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
+    void addJewelryCard( JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
     void addRoyalCard(RoyalCard &card);// ajout d'une carte royale a mon inventaire
     void addToken(Token &token); // ajout d'un jeton a mon inventaire
 
@@ -78,7 +77,7 @@ public:
     void actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
     void spendResources(std::unordered_map<TokenColor, int> tokensToSpend);
-    void actionBuyReservedCard(JewelryCard &card);
+    void actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenColor, int> tokensToSpend);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
     void usePrivilege(); // appelé au moment d'acheter un jeton

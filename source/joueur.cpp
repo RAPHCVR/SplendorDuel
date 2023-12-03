@@ -24,6 +24,7 @@ std::vector<int> Player::getBonusSummary() {
     return bonus;
 }
 
+//celine
 void Player::addToken(Token &token) {
     tokenSummary.at(token.getColor())+=1;
     tokens.at(token.getColor()).push_back(token);
@@ -110,11 +111,11 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
         // depense des jetons
         for(int i = 0; i< cost->second; i++){
             // utilisation de std::move() pour deplacer l'instance de l'objet plutot que de le supprimer
-            auto temp = move(tokens.at(cost->first).back());
-            // on met le token dans le sac de jeton
-            Bag::getInstance().addToken(temp);
+            auto temp = std::move(tokens.at(cost->first).back());
             // on retire le jeton du dico de jeton
             tokens.at(cost->first).pop_back();
+            // on met le token dans le sac de jeton
+            Bag::getInstance().addToken(temp);
             // maj de tokenSummary pour la couleur en cours
             tokenSummary.at(cost->first)--;
 
@@ -194,8 +195,7 @@ void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<T
     addJewelryCard(card);
 
     // Retirer la carte du plateau de jeu
-    // getInstance()
-    card = Pyramid_Cards::getInstance().takeCard(card.getLevel(), position);
+    Pyramid_Cards::getInstance(Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance()).takeCard(card.getLevel(), position);
 }
 
 
@@ -206,8 +206,14 @@ void Player::addJewelryCard(JewelryCard &card){
     getJewelryCards().push_back(card);
 
     //ajout des points de prestiges dans summary carte + dans attribut prestigePoints de Player
-    addPrestige(card.getPrestige(), card.getBonus().bonus_color);
+    if(int nbPrestiges = card.getPrestige()){
+        addPrestige(nbPrestiges, card.getBonus().bonus_color);  
+    }
 
+    //ajout des couronnes
+    if(int nbCrowns = card.getCrowns()){
+        addCrowns(nbCrowns);
+    }
 }
 
 //Celine
@@ -222,6 +228,15 @@ void Player::addRoyalCard(RoyalCard &card){
 
 }
 
- void actionBuyReservedCard(JewelryCard &card){
-
- }
+// Celine 
+void Player::actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenColor, int> tokensToSpend){
+    auto it = std::find(getReserve().begin(), getReserve().end(), card);
+    if (it != getReserve().end()) {
+        // achat de la carte
+        spendResources(tokensToSpend);
+        // on met la carte dans jewelryCards
+        addJewelryCard(*it);
+        // on retire la carte de la reserve
+        getReserve().erase(it);
+        
+}
