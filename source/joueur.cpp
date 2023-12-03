@@ -116,7 +116,7 @@ void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
             // utilisation de std::move() pour deplacer l'instance de l'objet plutot que de le supprimer
             auto temp = move(tokens.at(cost->first).back());
             // on met le token dans le sac de jeton
-            Bag::getInstance.addToken(temp);
+            Bag::getInstance().addToken(temp);
             // on retire le jeton du dico de jeton
             tokens.at(cost->first).pop_back();
             // maj de tokenSummary pour la couleur en cours
