@@ -26,6 +26,7 @@ vector<int> Player::getBonusSummary() {
     return bonus;
 }
 
+// modif pour fit tokens
 void Player::addToken(Token token) {
     string color;
     color=token.getColor();
@@ -33,6 +34,7 @@ void Player::addToken(Token token) {
     tokens.insert(tokens.begin(),token);
 }
 
+// lise
 void Player::actionReserveCard(){ //Conditions d'activation à penser : moins de 3 cartes en réserve + au moins un or sur plateau
     JewelryCard chosenCard;
     Token jetonOr;
@@ -233,7 +235,6 @@ void Player::addJewelryCard(JewelryCard &card){
 
     //ajout des points de prestiges dans summary carte + dans attribut prestigePoints de Player
     addPrestige(card.getPrestige(), card.getBonus().bonus_color);
-    
 
 }
 
