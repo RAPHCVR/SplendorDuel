@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 //Celine
+// recapitule les bonus totaux pour chaque couleur de carte
 std::vector<int> Player::getBonusSummary() {
     std::vector<int> bonus;
     bonus.push_back(getBlueSummary().getBonusNumber());
@@ -30,28 +31,36 @@ void Player::addToken(Token &token) {
     tokens.at(token.getColor()).push_back(token);
 }
 
-// lise
-void Player::actionReserveCard(){ //Conditions d'activation à penser : moins de 3 cartes en réserve + au moins un or sur plateau
-    JewelryCard chosenCard;
-    Token jetonOr;
-    //choix d'une carte joallerie
-    //chosenCard=carte choisie
-    reserve.insert(reserve.begin(),chosenCard);
-    //afficher "Veuillez choisir un jeton Or"
-    //afficher le plateau
-    //jetonOr=jeton choisi
-    while (jetonOr.getColor()!="Or"){
-        //afficher "Ceci n'est pas un jeton Or, veuillez en selectionner un"
-        //afficher le plateau
-        //jetonOr=jeton choisi
-    }
-    addToken(jetonOr);
-};
+// // lise --> plus besoin car on a tout dans Player::buyReservedCard()
+// void Player::actionReserveCard(){ //Conditions d'activation à penser : moins de 3 cartes en réserve + au moins un or sur plateau
+//     JewelryCard chosenCard;
+//     Token jetonOr;
+//     //choix d'une carte joallerie
+//     //chosenCard=carte choisie
+//     reserve.insert(reserve.begin(),chosenCard);
+//     //afficher "Veuillez choisir un jeton Or"
+//     //afficher le plateau
+//     //jetonOr=jeton choisi
+//     while (jetonOr.getColor()!="Or"){
+//         //afficher "Ceci n'est pas un jeton Or, veuillez en selectionner un"
+//         //afficher le plateau
+//         //jetonOr=jeton choisi
+//     }
+//     addToken(jetonOr);
+// };
+
+// Celine
+// ajout d'une carte dans la reserve
+void Player::reserveOneCard(JewelryCard& card, Token& goldToken){
+    addToken(goldToken);
+    getReserve().push_back(card);
+}
+
 
 //verifie que le joueur a moins de 3 cartes dans sa reserve et qu'il y a au moins un or sur le plateau
-bool Player::canReserveCard(Board &board){
+bool Player::canReserveCard(){
     if (reserve.size()<3){
-        if (board.hasTokenOfColor(TokenColor::OR)){
+        if (Board::getInstance().hasTokenOfColor(TokenColor::OR)){
             return true;
         }
     }
