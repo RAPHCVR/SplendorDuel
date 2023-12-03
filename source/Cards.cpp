@@ -97,7 +97,7 @@ Deck_level_one::Deck_level_one() : pioche() {
             
     sqlite3 *db; //On créer une variable sqlite du nom de db
     //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("C:/Users/world/CLionProjects/projet-lo21-splendor-duel/source/Data/cards.db", &db); //rc = return code, on ouvre la database
+    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
 
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
@@ -180,7 +180,7 @@ Deck_level_two::Deck_level_two() : pioche() {
             
     sqlite3 *db; //On créer une variable sqlite du nom de db
     //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("C:/Users/world/CLionProjects/projet-lo21-splendor-duel/source/Data/cards.db", &db); //rc = return code, on ouvre la database
+    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
     
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
@@ -261,7 +261,7 @@ Deck_level_three::Deck_level_three() : pioche() {
             
     sqlite3 *db; //On créer une variable sqlite du nom de db
     //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("C:/Users/world/CLionProjects/projet-lo21-splendor-duel/source/Data/cards.db", &db); //rc = return code, on ouvre la database
+    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
     
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
@@ -343,7 +343,7 @@ Deck_Royal::Deck_Royal() : cards() {
 
     sqlite3 *db; //On créer une variable sqlite du nom de db
     //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("C:/Users/world/CLionProjects/projet-lo21-splendor-duel/source/Data/cards.db", &db); //rc = return code, on ouvre la database
+    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
     
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;

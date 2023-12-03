@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
     MainWindow *mainWindow1 = new MainWindow();
     mainWindow1->show();
     app.processEvents();
+    std::cout<<"Appuyez sur une touche et entree pour continuer"<<std::endl;
     std::cin.get();
     controller->getGame().getGameTable().getBoard().takeToken(0,0);
     controller->getGame().getGameTable().getBoard().showBoard();
