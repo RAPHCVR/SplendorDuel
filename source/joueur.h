@@ -73,6 +73,7 @@ public:
     // action obligatoires (acheter une carte et/ou prendre des jetons et/ou reserver une carte)
     void actionAddToken(); // prendre les jetons sur le plateau
     void actionReserveCard(); // retirer du deck; prendre un or (avec addToken);
+    bool canReserveCard(Board &board);//verifie qu'on peut reserver une carte
 
     void actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 

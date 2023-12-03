@@ -296,3 +296,14 @@ Board& Board::getInstance() {
     static Board instance;
     return instance;
 }
+
+bool Board::hasTokenOfColor(TokenColor color) const {
+    for (const auto& row : tokens) {
+        for (const auto& token : row) {
+            if (token && token->getColor() == color) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
