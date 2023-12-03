@@ -26,12 +26,11 @@ vector<int> Player::getBonusSummary() {
     return bonus;
 }
 
+// celine
 // modif pour fit tokens
-void Player::addToken(Token token) {
-    string color;
-    color=token.getColor();
-    tokenSummary.at(color)+=1;
-    tokens.insert(tokens.begin(),token);
+void Player::addToken(Token &token) {
+    tokenSummary.at(token.getColor())+=1;
+    tokens.at(token.getColor()).push_back(token);
 }
 
 // lise
@@ -80,7 +79,7 @@ void Player::removeToken(Token &token) {
     //it = remove(tokens.begin(), tokens.end(), token); ne marche pas encore
 }
 
-
+// lise
 // prendre les jetons sur le plateau (demander la rpz des jetons sur le plateau)
 void Player::actionAddToken(){
         int nb_jetons = 0;

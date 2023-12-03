@@ -80,6 +80,7 @@ public:
     bool canBuyCard(JewelryCard &card); 
     void spendResources(unordered_map<TokenColor, int> tokensToSpend);
     // methode acheter carte reservee !!!!!!!!
+    void actionBuyReservedCard(JewelryCard &card);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
     void usePrivilege(); // appelé au moment d'acheter un jeton
