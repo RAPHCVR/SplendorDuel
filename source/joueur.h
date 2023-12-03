@@ -1,11 +1,7 @@
 #ifndef TEST_JOUEUR_H
 #define TEST_JOUEUR_H
-#include "Jeton.cpp"
 #include "Jeton.h"
-#include "Partie.cpp"
-#include "Partie.h"
 #include "Cards.h"
-#include "Cards.cpp"
 
 #include <iostream>
 #include <map>
