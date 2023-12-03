@@ -248,5 +248,7 @@ void Player::actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenCo
         addJewelryCard(*it);
         // on retire la carte de la reserve
         getReserve().erase(it);
+
+    }
         
 }
