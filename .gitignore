@@ -13,3 +13,4 @@ dist
 .qmake.stash
 source_resource.rc
 *.bak
+.DS_Store
