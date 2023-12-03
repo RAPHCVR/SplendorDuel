@@ -425,21 +425,21 @@ Pyramid_Cards::Pyramid_Cards(Deck_level_one* Deck_one, Deck_level_two* Deck_two,
     //Ligne niveau 1
     for(int i=0; i<5; i++)
     {
-        row_level_one.push_back(move(Deck_one->getPioche()[0]));
+        row_level_one.push_back(std::move(Deck_one->getPioche()[0]));
         Deck_one->deleteFirstItem();
     }
 
     //Ligne cartes niveau 2
     for(int i=0; i<4; i++)
     {
-        row_level_two.push_back(move(Deck_two->getPioche()[0]));
+        row_level_two.push_back(std::move(Deck_two->getPioche()[0]));
         Deck_two->deleteFirstItem();        
     }
 
     // Ligne cartes niveau 3
     for (int i = 0; i<3; i++)
     {
-        row_level_three.push_back(move(Deck_three->getPioche()[0]));
+        row_level_three.push_back(std::move(Deck_three->getPioche()[0]));
         Deck_three->deleteFirstItem();        
     }
     
@@ -451,7 +451,7 @@ void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_
         case 1:
             if (!Deck_one->getPioche().empty())
             {
-                row_level_one.push_back(move(Deck_one->getPioche()[0]));
+                row_level_one.push_back(std::move(Deck_one->getPioche()[0]));
                 Deck_one->deleteFirstItem();
             }
             else
@@ -462,7 +462,7 @@ void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_
         case 2:
             if (!Deck_two->getPioche().empty()) {
 			   
-                row_level_two.push_back(move(Deck_two->getPioche()[0]));
+                row_level_two.push_back(std::move(Deck_two->getPioche()[0]));
                 Deck_two->deleteFirstItem();
             } else {
                 throw std::runtime_error("Le deck niveau 2 est vide");
@@ -471,7 +471,7 @@ void Pyramid_Cards::drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_
         case 3:
             if (!Deck_three->getPioche().empty()) {
 				 
-                row_level_three.push_back(move(Deck_three->getPioche()[0]));
+                row_level_three.push_back(std::move(Deck_three->getPioche()[0]));
                 Deck_three->deleteFirstItem();
             } else {
                 throw std::runtime_error("Le deck niveau 3 est vide");

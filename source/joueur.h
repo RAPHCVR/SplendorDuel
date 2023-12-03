@@ -9,7 +9,6 @@
 #include <unordered_map>
 //#include les fichiers qui appelent les autres classes
 
-using namespace std;
 
 enum class Type {IA, Humain};
 
@@ -17,19 +16,19 @@ enum class Type {IA, Humain};
 
 class Player {
 private:
-    string name;
+    std::string name;
     int privilege;
     Type type;
     int nbCrown;
     int prestigePoints;
     int nbTokens;
-    vector<JewelryCard> jewelryCards; //Pas sur de l utilisation de vector
-    vector<JewelryCard> reserve;
-    vector<RoyalCard> royalCards;
-    unordered_map<TokenColor, int> tokenSummary;
+    std::vector<JewelryCard> jewelryCards; //Pas sur de l utilisation de vector
+    std::vector<JewelryCard> reserve;
+    std::vector<RoyalCard> royalCards;
+    std::unordered_map<TokenColor, int> tokenSummary;
     //vector<vector<Token *>> tokens; //tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
     // autre idee pour rpz de token :
-    unordered_map<TokenColor, vector<Token>> tokens;
+    std::unordered_map<TokenColor, std::vector<Token>> tokens;
 
 
     SummaryCard blueSummary;
@@ -40,7 +39,7 @@ private:
 
 
 public:
-    string getName() const {return name;};
+    std::string getName() const {return name;};
     int getPrivilege() const {return privilege;};
     int getPrestige() const {return prestigePoints;};
     int getCrowns() const {return nbCrown;};
@@ -52,11 +51,11 @@ public:
     SummaryCard getBlackSummary(){return whiteSummary;}
     SummaryCard getRedSummary(){return redSummary;}
 
-    vector<int> getBonusSummary();
+    std::vector<int> getBonusSummary();
  
-    unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
-    vector<JewelryCard> getJewelryCards(){ return jewelryCards;}
-    vector<RoyalCard> getRoyalCards(){ return royalCards;}
+    std::unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
+    std::vector<JewelryCard> getJewelryCards(){ return jewelryCards;}
+    std::vector<RoyalCard> getRoyalCards(){ return royalCards;}
 
 
     // ostream
@@ -76,9 +75,9 @@ public:
     void actionAddToken(); // prendre les jetons sur le plateau
     void actionReserveCard(); // retirer du deck; prendre un or (avec addToken);
 
-    void actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+    void actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
-    void spendResources(unordered_map<TokenColor, int> tokensToSpend);
+    void spendResources(std::unordered_map<TokenColor, int> tokensToSpend);
     void actionBuyReservedCard(JewelryCard &card);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
@@ -87,7 +86,7 @@ public:
     ~Player()= default; // regarder si besoin
     Player(const Player& j)=delete; //interdire constructeur de recopie
     Player&& operator=(const Player& j)=delete; //interdire opérateur d'affectation
-    Player(string name, Type type) : name(name), type(type), nbCrown(0), prestigePoints(0),tokenSummary({{TokenColor::BLEU, 0},{TokenColor::ROUGE, 0},
+    Player(std::string name, Type type) : name(name), type(type), nbCrown(0), prestigePoints(0),tokenSummary({{TokenColor::BLEU, 0},{TokenColor::ROUGE, 0},
                                                                                                                       {TokenColor::VERT, 0},{TokenColor::BLANC, 0},{TokenColor::NOIR, 0},
                                                                                                                       {TokenColor::OR,0},{TokenColor::PERLE,0}}){}; // vector?
 

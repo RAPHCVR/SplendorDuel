@@ -9,8 +9,6 @@
 #include "sqlite/sqlite3.h"
 #include "Jeton.h"
 
-using namespace std;
-
 //Enum Abilities pour les capacités
 enum class Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
 std::string toString(Abilities a);

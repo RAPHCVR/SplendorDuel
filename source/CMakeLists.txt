@@ -26,10 +26,10 @@ add_executable(projet-lo21-splendor-duel
         sqlite/sqlite3.c
         sqlite/sqlite3.h
         sqlite/sqlite3ext.h
-        joueur.h
         Partie.h
         Partie.cpp
         Controller.h
+        Controller.cpp
 )
 target_link_libraries(projet-lo21-splendor-duel
         Qt::Core

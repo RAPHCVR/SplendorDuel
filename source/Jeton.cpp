@@ -125,17 +125,23 @@ TotalPrivileges::~TotalPrivileges() {
         delete privilege;
     }
 }
-
-void Board::placePrivilege(const Privilege& privilege) {
-    //place le privilege au bon endroit dans le tableau de privileges sur un array
+unsigned int Board::getNbPrivileges() const {
+    unsigned int nb = privileges.size();
     for (size_t i = 0; i < privileges.size(); i++) {
         if (privileges[i] == nullptr) {
-            privileges[i] = &privilege;
-            return;
+            nb--;
         }
     }
+    return nb;
+}
+void Board::placePrivilege(const Privilege& privilege) {
+    //place le privilege au bon endroit dans le tableau de privileges sur un array
+    unsigned int nb = getNbPrivileges();
+    if (nb < 3) {
+        privileges[nb]=&privilege;
+    }
+    else
     throw TokenException("Il n'y a plus de place pour un privilège");
-
 }
 
 void Board::showBoard(){
@@ -243,6 +249,7 @@ const Privilege& Board::takePrivilege() {
     }
     const Privilege& privilege = *privileges.back();
     privileges.back() = nullptr;
+    actionPerformed();
     return privilege;
 }
 

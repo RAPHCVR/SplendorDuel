@@ -12,11 +12,9 @@
 #include <vector>
 #include <unordered_map>
 
-using namespace std;
-
 //Celine
-vector<int> Player::getBonusSummary() {
-    vector<int> bonus;
+std::vector<int> Player::getBonusSummary() {
+    std::vector<int> bonus;
     bonus.push_back(getBlueSummary().getBonusNumber());
     bonus.push_back(getWhiteSummary().getBonusNumber());
     bonus.push_back(getGreenSummary().getBonusNumber());
@@ -26,8 +24,6 @@ vector<int> Player::getBonusSummary() {
     return bonus;
 }
 
-// celine
-// modif pour fit tokens
 void Player::addToken(Token &token) {
     tokenSummary.at(token.getColor())+=1;
     tokens.at(token.getColor()).push_back(token);
@@ -73,9 +69,9 @@ void Player::addCrowns(int nbCrowns) {
 }
 
 void Player::removeToken(Token &token) {
-    string tokenColor=token.getColor();
+    std::string tokenColor=token.getColor();
     tokenSummary.at(tokenColor)-=1; //retire dans le dico
-    vector<Token>::iterator it;
+    std::vector<Token>::iterator it;
     //it = remove(tokens.begin(), tokens.end(), token); ne marche pas encore
 }
 
@@ -104,7 +100,7 @@ void Player::actionAddToken(){
 
 //Celine
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
-void Player::spendResources(unordered_map<TokenColor, int> tokensToSpend){
+void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
     // remove token from list token + maj token summary et tokens
     // add token to bag
     //bagOfTokens.push_back(tokens.back());
@@ -161,7 +157,7 @@ void Player::addPrestige(int n, TokenColor color) {
 // méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
 bool Player::canBuyCard(JewelryCard &card){
     // liste des bonus ordre (bleu,blanc,vert,noir,rouge)
-    vector<int> bonus = getBonusSummary();
+    std::vector<int> bonus = getBonusSummary();
     int goldTokens = tokenSummary[TokenColor::OR];
     unsigned int i = 0;
     // pour chaque type de jeton, on regarde le cout
@@ -187,10 +183,10 @@ bool Player::canBuyCard(JewelryCard &card){
 
 
 //Celine
-// retire et place dans le sac les jetons dépensés lors de l’achat, 
+// retire et place dans le sac les jetons dépensés lors de l’achat,
 // retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
-void Player::actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend){
+void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
     // Retirer les ressources nécessaires
     spendResources(tokensToSpend);
 
