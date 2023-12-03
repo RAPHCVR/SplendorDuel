@@ -32,11 +32,51 @@ QColor CircleWidget::convertColor(const Token &token) {
     } else if (token.getColor() == TokenColor::ROUGE) {
         return QColor::fromRgb(255, 0, 0);
     } else if (token.getColor() == TokenColor::PERLE) {
-        return QColor::fromRgb(255, 255, 0);
+        //rgb color purple brillant
+        return QColor::fromRgb(153, 51, 255);
     } else if (token.getColor() == TokenColor::OR) {
         return QColor::fromRgb(255, 215, 0);
     }
 }
+
+PlateWidget::PlateWidget(Board& board, QWidget* parent) : QWidget(parent) {
+    int tokenSize = 50; // The size of each token
+    Board::BoardIterator it = board.iterator();
+    unsigned int i = 0;
+    while (it.hasNext()) {
+        std::vector<CircleWidget*> widgetRow;
+        for (int j = 0; j < 5; ++j) {
+            const auto& token = it.next();;
+            if (token != nullptr) {
+                CircleWidget* widget = new CircleWidget(this, *token);
+                widget->move(j * tokenSize, i * tokenSize); // Position the widget
+                widgetRow.push_back(widget);
+                std::cout << "Created CircleWidget for token\n";
+            } else {
+                widgetRow.push_back(nullptr);
+            }
+        }
+        ++i;
+        widgets.push_back(widgetRow);
+    }
+    // Set the size of the PlateWidget to fit the board
+    setFixedSize(5 * tokenSize, 5 * tokenSize);
+}
+
+void PlateWidget::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event)
+
+    QPainter painter(this);
+    for (const auto& row : widgets) {
+        for (const auto& widget : row) {
+            if (widget != nullptr) {
+                widget->update();
+                std::cout << "Updated CircleWidget\n";
+            }
+        }
+    }
+}
+
 
 void CircleWidget::paintEvent(QPaintEvent* event) {
     Q_UNUSED(event)

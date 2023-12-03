@@ -1,39 +1,50 @@
 #include <iostream>
 #include "Jeton.h"
-#include "QTJeton.h"
+#include "Partie.h"
+//#include "QTJeton.h"
 #include <QApplication>
 
-
+/*
 int main(int argc, char *argv[]) {
         QApplication app(argc, argv);
         try
         {
-            //Instanciation des Jetons
-            TotalTokens totalTokens;
-            //Instanciation du sac
-            Bag bag(totalTokens);
             //Creation du plateau
-            TotalPrivileges totalPrivileges;
-            Board board(bag, totalPrivileges);
-
-            //Test takeToken
-            const Token& token1 = board.takeToken(0,1);
-            std::cout << token1 << "\n";
-            bag.addToken(token1);
-
-            const Token& token2 = board.takeToken(4,4);
-            std::cout << token2 << "\n";
-            bag.addToken(token2);
-            MainWindow mainWindow1(board);
+            Board& board = Board::getInstance();
+            //Test prendre un jeton
+            const Token t = board.takeToken(0,0);
+            board.showBoard();
+            Board& board2 = Board::getInstance();
+            std::cout << t << std::endl;
+            MainWindow mainWindow1(board2);
             mainWindow1.show();
-            //Test algo placement Jetons
-            board.placeToken(bag.drawToken());
-            MainWindow mainWindow2(board);
-            mainWindow2.show();
-            return app.exec();
+            return QApplication::exec();
         }
         catch (TokenException& err)
         {
             std::cout << err.getMessage() << "\n";
         }
+}
+*/
+
+int main() {
+    auto* director = new Director();
+    string statut_partie="New";
+
+    if (statut_partie == "New") {
+        GameBuilder* builder = new GameBuilder();
+        director->set_builder(builder);
+        cout<<"HUMAIN vs HUMAIN"<<std::endl;
+        cout<<"Veuillez saisir le pseudo du joueur 1"<<std::endl;
+        string pseudo1;
+        cin>>pseudo1;
+        std::cout<<"Veuillez saisir le pseudo du joueur 2"<<std::endl;
+        string pseudo2;
+        cin>>pseudo2;
+        director->BuildGame(pseudo1, Type::Humain, pseudo2, Type::Humain);
+        Game* p = builder->GetProduct();
+        delete director;
+        p -> gametable -> getBag().addToken( p -> gametable -> getBoard().takeToken(0,0));
+        p -> gametable -> getBoard().showBoard();
+    }
 }

@@ -14,6 +14,7 @@ std::string toString(TokenColor c) {
         case TokenColor::PERLE: return "Perle";
         case TokenColor::ROUGE: return "Rouge";
         case TokenColor::VERT: return "Vert";
+        case TokenColor::None: return "Vide";
         default: throw std::invalid_argument("Couleur inconnue");
     }
 }
@@ -57,6 +58,11 @@ TotalTokens::~TotalTokens() {
     }
 }
 
+const TotalTokens& TotalTokens::getInstance() {
+    static TotalTokens instance;
+    return instance;
+}
+
 const Token& TotalTokens::getToken(size_t i) const {
     if (i >= tokens.size()) {
         throw TokenException("Indice de jeton incorrect");
@@ -71,6 +77,12 @@ Bag::Bag(const TotalTokens& total) {
     }
 }
 
+Bag& Bag::getInstance() {
+    static Bag instance(TotalTokens::getInstance());
+    return instance;
+}
+
+
 void Bag::addToken(const Token &j) {
     tokens.push_back(&j);
 }
@@ -79,6 +91,7 @@ const Token& Bag::drawToken() {
     if (tokens.empty()) {
         throw TokenException("Le sac est vide");
     }
+    srand(time(0));
     size_t i = rand() % tokens.size();
     const Token& j = *tokens[i];
     tokens.erase(tokens.begin() + i);
@@ -98,8 +111,13 @@ const Privilege& TotalPrivileges::getPrivilege(size_t i) const {
 
 TotalPrivileges::TotalPrivileges() {
     for (size_t i = 0; i < 3; i++) {
-        privileges.push_back(new Privilege());
+        privileges[i]=new Privilege();
     }
+}
+
+const TotalPrivileges& TotalPrivileges::getInstance() {
+    static TotalPrivileges instance;
+    return instance;
 }
 
 TotalPrivileges::~TotalPrivileges() {
@@ -109,34 +127,44 @@ TotalPrivileges::~TotalPrivileges() {
 }
 
 void Board::placePrivilege(const Privilege& privilege) {
-    if (privileges.size() >= 3) {
-        throw TokenException("Il y a déjà 3 privilèges sur le plateau");
+    //place le privilege au bon endroit dans le tableau de privileges sur un array
+    for (size_t i = 0; i < privileges.size(); i++) {
+        if (privileges[i] == nullptr) {
+            privileges[i] = &privilege;
+            return;
+        }
     }
-    privileges.push_back(&privilege);
+    throw TokenException("Il n'y a plus de place pour un privilège");
+
 }
 
 void Board::showBoard(){
     std::cout << "Plateau:" << std::endl;
 
-    for (auto & token : tokens) {
-        for (auto & j : token) {
-            std::string s = "";
-            if (j == nullptr) s = "."; // Cas de la case vide
-            else {
-                switch (j->getColor()) {
-                    case TokenColor::BLANC: s = "W"; break;
-                    case TokenColor::BLEU: s = "B"; break;
-                    case TokenColor::NOIR: s = "N"; break;
-                    case TokenColor::OR: s = "O"; break;
-                    case TokenColor::PERLE: s = "P"; break;
-                    case TokenColor::ROUGE: s = "R"; break;
-                    case TokenColor::VERT: s = "V"; break;
-                }
-            }
-            std::cout << s << " ";
+    BoardIterator it = iterator();
+    size_t i = 0;
+    while (it.hasNext()) {
+        if (i % 5 == 0) {
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
+        const Token* token = it.next();
+        std::string s = "";
+        if (token == nullptr) s = "."; // Cas de la case vide
+        else {
+            switch (token->getColor()) {
+                case TokenColor::BLANC: s = "W"; break;
+                case TokenColor::BLEU: s = "B"; break;
+                case TokenColor::NOIR: s = "N"; break;
+                case TokenColor::OR: s = "O"; break;
+                case TokenColor::PERLE: s = "P"; break;
+                case TokenColor::ROUGE: s = "R"; break;
+                case TokenColor::VERT: s = "V"; break;
+            }
+        }
+        std::cout << s << " ";
+        i++;
     }
+    std::cout << std::endl;
 }
 
 
@@ -214,7 +242,7 @@ const Privilege& Board::takePrivilege() {
         throw TokenException("Il n'y a pas de privilège sur le plateau");
     }
     const Privilege& privilege = *privileges.back();
-    privileges.pop_back();
+    privileges.back() = nullptr;
     return privilege;
 }
 
@@ -229,10 +257,10 @@ bool Board::isEmpty() const {
     return true;
 }
 
-Board::Board(Bag& bag, const TotalPrivileges& totalPrivileges){
+Board::Board(){
     //On ajoute les privilèges
-    for (size_t i = 0; i < totalPrivileges.getNbPrivileges(); i++) {
-        placePrivilege(totalPrivileges.getPrivilege(i));
+    for (size_t i = 0; i < TotalPrivileges::getInstance().getNbPrivileges(); i++) {
+        placePrivilege(TotalPrivileges::getInstance().getPrivilege(i));
     }
     //On initialise plateau
     for (auto & token : tokens) {
@@ -241,5 +269,23 @@ Board::Board(Bag& bag, const TotalPrivileges& totalPrivileges){
         }
     }
     //On rempli le plateau enb vidant le sac
-    fillBoard(bag);
+    fillBoard(Bag::getInstance());
+}
+
+const Token* Board::BoardIterator::next() {
+    if (!hasNext()) {
+        throw TokenException("Il n'y a plus de jeton");
+    }
+    const Token* token = board.tokens[row][col];
+    col++;
+    if (col >= board.tokens[row].size()) {
+        col = 0;
+        row++;
+    }
+    return token;
+}
+
+Board& Board::getInstance() {
+    static Board instance;
+    return instance;
 }

@@ -12,7 +12,9 @@
 using namespace std;
 
 //Enum Abilities pour les capacités
-enum Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
+enum class Abilities {repeat_turn, cameleon, take_bonus_token, take_privilege, steal_token, None};
+std::string toString(Abilities a);
+std::ostream& operator<<(std::ostream& f, Abilities a);
 
 namespace Utility {
 	
@@ -59,20 +61,22 @@ public:
 
 class JewelryCard {
 public:
-    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a, Bonus b) :
-    level(l), cost(c), prestige_points(pp), crowns(cr), ability(a), bonus(b) {}
-    unsigned int getLevel() {return level;}
+    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a1, Abilities a2, Bonus b) :
+    level(l), cost(c), prestige_points(pp), crowns(cr), ability1(a1), ability2(a2), bonus(b) {}
+    int getLevel() {return level;}
     std::unordered_map<TokenColor, int> getCost() {return cost;}
     int getPrestige() {return prestige_points;}
     int getCrowns() {return crowns;}
-    Abilities getAbility() {return ability;}
+    Abilities getAbility1() {return ability1;}
+    Abilities getAbility2() {return ability2;}
     Bonus getBonus() {return bonus;}
 private:
     unsigned int level;
     std::unordered_map<TokenColor, int> cost; //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
     unsigned int prestige_points;
     unsigned int crowns;
-    Abilities ability;
+    Abilities ability1;
+    Abilities ability2;
     Bonus bonus;
 };
 
@@ -90,69 +94,158 @@ public:
 
 class RoyalCard {
 public:
-    RoyalCard(unsigned int pp, Abilities a) :
-    prestige_points(pp), ability(a) {}
+    RoyalCard(unsigned int pp, Abilities a, unsigned int i) :
+    prestige_points(pp), ability(a), id(i) {}
     unsigned int getPrestige() {return prestige_points;}
     Abilities getAbility() {return ability;}
+    unsigned int getId() {return id;}									 
 private:
     unsigned int prestige_points;
     Abilities ability;
+    unsigned int id;					
 };
 
-
-class Deck_level_one{ 
+class Deck_Royal {
 public:
+				 
+
+    // Transformation en singleton
+    static Deck_Royal* getInstance() {
+        if (instance == nullptr) {
+            instance = new Deck_Royal();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+    //Deck_Royal();
+
+    std::vector<RoyalCard*> getCards() { return cards; }
+
+    void addCardToDeck(RoyalCard* card) {
+        cards.push_back(card);
+    }
+
+    void deleteCard(int pos) {
+        cards.erase(cards.begin() + pos);
+    }
+
+
+private:
+
+    Deck_Royal();
+    
+    static Deck_Royal* instance;
+
+    std::vector<RoyalCard*> cards;
+};
+
+class Deck_level_one {
+public:
+
+    // Transformation en singleton
+    static Deck_level_one* getInstance() {
+    if (instance == nullptr) {
+        instance = new Deck_level_one();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+
+    //Deck_level_one();
+    std::vector<JewelryCard*> getPioche() { return pioche; }
+
+    void addCardToDeck(JewelryCard* card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+    void deleteFirstItem() { pioche.erase(pioche.begin()); }
+
+private:
 
     Deck_level_one();
-    std::vector<JewelryCard *> getPioche() {return pioche;}
+    
+    static Deck_level_one* instance;
 
-    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        this->pioche.push_back(card);
-    }
-  
-private:
-    std::vector<JewelryCard *> pioche;
-
+    std::vector<JewelryCard*> pioche;
 };
 
-class Deck_level_two{
+class Deck_level_two {
 public:
+
+    // Transformation en singleton
+    static Deck_level_two* getInstance() {
+        if (instance == nullptr) {
+            instance = new Deck_level_two();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+
+    //Deck_level_two();
+    std::vector<JewelryCard*> getPioche() { return pioche; }
+
+    void addCardToDeck(JewelryCard* card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+
+    void deleteFirstItem() { pioche.erase(pioche.begin()); }
+private:
 
     Deck_level_two();
-    std::vector<JewelryCard *> getPioche() {return pioche;}
 
-    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        pioche.push_back(card);
-    }
+    static Deck_level_two* instance;
     
-private:
-    std::vector<JewelryCard *> pioche;
+    std::vector<JewelryCard*> pioche;
 };
 
-class Deck_level_three{
+class Deck_level_three {
 public:
+
+    // Transformation en singleton
+    static Deck_level_three* getInstance() {
+    if (instance == nullptr) {
+        instance = new Deck_level_three();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+
+    //Deck_level_three();
+    std::vector<JewelryCard*> getPioche() { return pioche; }
+
+    void addCardToDeck(JewelryCard* card) { //ajouter une carte au deck
+        pioche.push_back(card);
+    }
+
+    void deleteFirstItem() { pioche.erase(pioche.begin()); }
+private:
 
     Deck_level_three();
-    std::vector<JewelryCard *> getPioche() {return pioche;}
-    
-    void addCardToDeck(JewelryCard *card) { //ajouter une carte au deck
-        pioche.push_back(card);
-    }
-    
-private:
-    std::vector<JewelryCard *> pioche;
+
+    static Deck_level_three* instance;
+
+    std::vector<JewelryCard*> pioche;
 };
 
-class Pyramid_Cards{
+class Pyramid_Cards {
 public:
-    
-    void drawCard(unsigned int level);
+
+    // Transformation en singleton
+    static Pyramid_Cards* getInstance(Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three) {
+        if (instance == nullptr) {
+            instance = new Pyramid_Cards(Deck_one, Deck_two, Deck_three);  // Crée l'instance si elle n'existe pas encore
+            }
+        return instance;
+    }
+
+    //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
+    void drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
-    
+
 private:
-    std::vector<JewelryCard *> row_level_one;
-    std::vector<JewelryCard *> row_level_two;
-    std::vector<JewelryCard *> row_level_three;
+
+    Pyramid_Cards(Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three);
+
+    static Pyramid_Cards *instance;
+
+    std::vector<JewelryCard*> row_level_one;
+    std::vector<JewelryCard*> row_level_two;
+    std::vector<JewelryCard*> row_level_three;
     static const unsigned int max_level_one = 5;
     static const unsigned int max_level_two = 4;
     static const unsigned int max_level_three = 3;
@@ -160,7 +253,7 @@ private:
     unsigned int position_level_one = 0;
     unsigned int position_level_two = 0;
     unsigned int position_level_three = 0;
-     */ 
+     */
 
 
 };
