@@ -150,6 +150,7 @@ public :
     void fillBoard(Bag& bag); //Remplissage du plateau avec les jetons du sac
     bool isEmpty() const; //Vérification si le plateau est vide
     unsigned int getNbPrivileges() const; //Récupération du nombre de privilèges
+    bool hasTokenOfColor(TokenColor color) const; //verification de la presence d'une couleur sur le plateau
 
     //Observer
     void registerObserver(Observer* observer) {
