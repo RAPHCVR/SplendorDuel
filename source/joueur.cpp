@@ -95,28 +95,28 @@ Token& Player::removeToken(TokenColor color) {
     return token; 
 }
 
-// lise
-// prendre les jetons sur le plateau (demander la rpz des jetons sur le plateau)
-void Player::actionAddToken(){
-        int nb_jetons = 0;
-        Token token1, token2, token3; // token est recopiable
-        int ok; 
-    while(!ok){
-        // affiche les jetons dispo sur le plateau + demander lequel (clique sur le jeton) [griser + non cliquable les cases pas cliquables]
-        // if(nb_jetons == O), else if nb_jeton ==1, 2
-        // a chaque clic --> incrementer nb_jeton + remplir les info du jeton selectionné + demander si ok ==1 ou 0 pour ajout definitif
+// // lise
+// // prendre les jetons sur le plateau (demander la rpz des jetons sur le plateau)
+// void Player::actionAddToken(){
+//         int nb_jetons = 0;
+//         Token token1, token2, token3; // token est recopiable
+//         int ok; 
+//     while(!ok){
+//         // affiche les jetons dispo sur le plateau + demander lequel (clique sur le jeton) [griser + non cliquable les cases pas cliquables]
+//         // if(nb_jetons == O), else if nb_jeton ==1, 2
+//         // a chaque clic --> incrementer nb_jeton + remplir les info du jeton selectionné + demander si ok ==1 ou 0 pour ajout definitif
 
 
-        // 
-    }
-    // ok = 1 --> ajout
-    tab_token_to_add
-    for(int i =0; i< nb_jeton; i++){
-        addToken(tab_token_to_add[i]);
-        // retirer le jeton du plateau (methode plateau)
-    }
+//         // 
+//     }
+//     // ok = 1 --> ajout
+//     tab_token_to_add
+//     for(int i =0; i< nb_jeton; i++){
+//         addToken(tab_token_to_add[i]);
+//         // retirer le jeton du plateau (methode plateau)
+//     }
     
-}
+// }
 
 //Celine
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
