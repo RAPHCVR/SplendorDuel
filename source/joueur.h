@@ -60,7 +60,7 @@ public:
     // ostream
 
 
-    void removeToken(Token &token); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
+    Token& removeToken(TokenColor color); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
     //int prestigePerColor(); // retourne le total de prestige pour une couleur du joueur
     void addCrowns(int nbCrowns); // compter mes couronnes + prendre une carte couronne si crown = 3 ou 6 (--> appeler )
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)

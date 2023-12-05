@@ -79,11 +79,20 @@ void Player::addCrowns(int nbCrowns) {
     nbCrown+=1;
 }
 
-void Player::removeToken(Token &token) {
-    std::string tokenColor=token.getColor();
-    tokenSummary.at(tokenColor)-=1; //retire dans le dico
-    std::vector<Token>::iterator it;
-    //it = remove(tokens.begin(), tokens.end(), token); ne marche pas encore
+// celine
+// retire un jeton de couleur "color"
+// retourne un token pour permettre de le remettre dans le sac si 11 eme jeton 
+// ou le donner a un autre joueur si vol
+Token& Player::removeToken(TokenColor color) {
+    //retire dans le resume de jetons
+    tokenSummary.at(color)-=1; 
+
+    // retire jeton dans inventaire
+    // utilisation de std::move() pour deplacer l'instance de l'objet plutot que de le supprimer
+    auto token = std::move(tokens.at(color).back());
+    // on retire le jeton du dico de jeton
+    tokens.at(color).pop_back();
+    return token; 
 }
 
 // lise
@@ -197,6 +206,7 @@ bool Player::canBuyCard(JewelryCard &card){
 // retire et place dans le sac les jetons dépensés lors de l’achat,
 // retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
+//void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
 void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
     // Retirer les ressources nécessaires
     spendResources(tokensToSpend);
