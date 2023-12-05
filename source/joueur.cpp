@@ -205,7 +205,14 @@ void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<T
     addJewelryCard(card);
 
     // Retirer la carte du plateau de jeu
-    Pyramid_Cards::getInstance(Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance()).takeCard(card.getLevel(), position);
+    
+    // recup decks
+    //Deck_level_one* Deck1 = Deck_level_one::getInstance();
+    //Deck_level_two* Deck2 = Deck_level_two::getInstance();
+    //Deck_level_three* Deck3 = Deck_level_three::getInstance();
+    //Pyramid_Cards* pyramide = Pyramid_Cards::getInstance(Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance()).takeCard(card.getLevel(), position);
+    //Pyramid_Cards* pyramide = Pyramid_Cards::getInstance(Deck1, Deck2, Deck3);
+    //pyramide.takeCard(card.getLevel(), position);
 }
 
 
