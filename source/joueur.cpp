@@ -77,15 +77,6 @@ void Player::removePrivilege() {
 
 void Player::addCrowns(int nbCrowns) {
     nbCrown+=1;
-    RoyalCard chosenCard;
-    if (nbCrown==3 || nbCrown==6){
-        //afficher les carte royales disponibles
-        //en choisir une
-        //chosenCard=carte choisie
-        prestigePoints+=chosenCard.getPrestige();
-        cardsRoyal.insert(cardsRoyal.begin(),chosenCard);
-        chosenCard.useAbility();
-    }
 }
 
 void Player::removeToken(Token &token) {
