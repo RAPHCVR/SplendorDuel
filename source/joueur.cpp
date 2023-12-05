@@ -1,9 +1,5 @@
-#include "Jeton.cpp"
 #include "Jeton.h"
-#include "Partie.cpp"
-#include "Partie.h"
 #include "Cards.h"
-#include "Cards.cpp"
 #include "joueur.h"
 
 #include <algorithm>
@@ -173,6 +169,8 @@ void Player::addPrestige(int n, TokenColor color) {
         //cout << "Le joueur " << name << " a gagné " << n << " points de prestige!" << endl;
 }
 
+
+// VERIFIER SI CARTE COLOR NONE (cameleon) SI A DEJA
 //Celine
 // méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
 bool Player::canBuyCard(JewelryCard &card){
