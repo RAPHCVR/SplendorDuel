@@ -80,7 +80,7 @@ void Player::addCrowns(int nbCrowns) {
 }
 
 void Player::removeToken(Token &token) {
-    std::string tokenColor=token.getColor();
+    TokenColor tokenColor=token.getColor();
     tokenSummary.at(tokenColor)-=1; //retire dans le dico
     std::vector<Token>::iterator it;
     //it = remove(tokens.begin(), tokens.end(), token); ne marche pas encore
