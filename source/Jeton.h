@@ -78,6 +78,7 @@ public :
     void addToken(const Token& j); //Ajout d'un jeton dans le sac
     const Token& drawToken(); //Pioche d'un jeton dans le sac
     bool isEmpty() const { return tokens.empty(); } //Vérification si le sac est vide
+    bool containsOnly(TokenColor color) const; //Vérification si le sac ne contient que des jetons d'une couleur
 };
 
 //Les privilèges sont 3 objets indépendants entre eux, mais identiques
@@ -151,6 +152,7 @@ public :
     bool isEmpty() const; //Vérification si le plateau est vide
     unsigned int getNbPrivileges() const; //Récupération du nombre de privilèges
     bool hasTokenOfColor(TokenColor color) const; //verification de la presence d'une couleur sur le plateau
+    bool containsOnly(TokenColor color) const; //verification de la presence d'une couleur uniquement sur le plateau
 
     //Observer
     void registerObserver(Observer* observer) {
