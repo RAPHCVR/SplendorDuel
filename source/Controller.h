@@ -33,6 +33,8 @@ public:
     void playTurn();
     void changeCurrentPlayer();
 
+    std::vector<OptionalActions> getOptionalActions(const Game& game, Player& player) const;
+    std::vector<CompulsoryActions> getCompulsoryActions(const Game& game, Player& player) const;
     void applyOptionalAction(Game& game, Player& player,  OptionalActions action);
     void applyCompulsoryAction(Game& game, Player& player,  CompulsoryActions action);
     bool applyCardSkills(Game& game, Player& cardOwner, Player& opponent, JewelryCard& card);

@@ -32,7 +32,7 @@ private:
     Board *board;
 
 public:
-    GameTable() : bag(&Bag::getInstance()), board(&Board::getInstance()),  deckroyal(Deck_Royal::getInstance()), decklv1(Deck_level_one::getInstance()), decklv2(Deck_level_two::getInstance()), decklv3(Deck_level_three::getInstance()), pyramid(Pyramid_Cards::getInstance(decklv1, decklv2, decklv3)) {}
+    GameTable() : bag(&Bag::getInstance()), board(&Board::getInstance()),  deckroyal(Deck_Royal::getInstance()), decklv1(Deck_level_one::getInstance()), decklv2(Deck_level_two::getInstance()), decklv3(Deck_level_three::getInstance()), pyramid(Pyramid_Cards::getInstance()) {}
 
     ~GameTable() { delete pyramid; delete decklv1; delete decklv2; delete decklv3; delete bag; delete board; };
 
