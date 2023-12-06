@@ -47,8 +47,7 @@ void Player::addToken(const Token &token) {
 
 // Celine
 // ajout d'une carte dans la reserve
-void Player::reserveOneCard(JewelryCard& card, const Token& goldToken){
-    addToken(goldToken);
+void Player::reserveOneCard(JewelryCard& card){
     getReserve().push_back(card);
 }
 
@@ -68,9 +67,20 @@ void Player::addPrivilege(const Privilege& privilege) {
     privileges[nb]=&privilege;
 }
 
+unsigned int Player::getPrivilege() const {
+    unsigned int nb = privileges.size();
+    for (auto privilege : privileges) {
+        if (privilege == nullptr) {
+            nb--;
+        }
+    }
+    return nb;
+}
+
 const Privilege& Player::removePrivilege() {
-    const Privilege& privilege = *privileges.back();
-    privileges.back() = nullptr;
+    unsigned int size = getPrivilege()-1;
+    const Privilege& privilege = *privileges[size];
+    privileges[size] = nullptr;
     return privilege;
 }
 
@@ -175,28 +185,26 @@ void Player::addPrestige(int n, TokenColor color) {
 //Celine
 // méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
 bool Player::canBuyCard(JewelryCard &card){
-    // liste des bonus ordre (bleu,blanc,vert,noir,rouge)
     std::vector<int> bonus = getBonusSummary();
     int goldTokens = tokenSummary[TokenColor::OR];
     unsigned int i = 0;
-    // pour chaque type de jeton, on regarde le cout
     for(auto elt = getTokenSummary().begin(); elt!=getTokenSummary().end(); elt++){
-        // si cout > tokens du joueur + bonus (= carte trop chere)
-        int costGap = card.getCost().at(elt->first) - bonus[i] - elt->second;
-        // achat jeton+bonus pas suffisant
+        int cost = 0;
+        if (card.getCost().find(elt->first) != card.getCost().end()) {
+            cost = card.getCost().at(elt->first);
+        }
+        int costGap = cost - bonus[i] - elt->second;
         if(costGap > 0){
-            // achat de la carte avec or + jetons possible
             if(goldTokens > costGap){
                 goldTokens = goldTokens - costGap;
             }
-            // pas assez de gold pour acheter carte
             else{
                 return false;
             }
         }
         i++;
-    } 
-    return true;   
+    }
+    return true;
 }
 
 
@@ -206,8 +214,9 @@ bool Player::canBuyCard(JewelryCard &card){
 // retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
 //void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
-void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
+void Player::actionBuyCard(JewelryCard &card){
     // Retirer les ressources nécessaires
+    std::unordered_map<TokenColor, int> tokensToSpend = card.getCost();
     spendResources(tokensToSpend);
 
     // Ajouter la carte au joueur
@@ -267,4 +276,19 @@ void Player::actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenCo
 
     }
 
+}
+
+Player::Player(std::string& n, Type t) {
+    name = n;
+    type = t;
+    prestigePoints = 0;
+    nbCrown = 0;
+    nbTokens = 0;
+    tokenSummary = {{TokenColor::BLEU, 0}, {TokenColor::BLANC, 0}, {TokenColor::VERT, 0}, {TokenColor::NOIR, 0}, {TokenColor::ROUGE, 0}, {TokenColor::OR, 0}, {TokenColor::PERLE, 0}};
+    tokens = {{TokenColor::BLEU, std::vector<const Token*>()}, {TokenColor::BLANC, std::vector<const Token*>()}, {TokenColor::VERT, std::vector<const Token*>()}, {TokenColor::NOIR, std::vector<const Token*>()}, {TokenColor::ROUGE, std::vector<const Token*>()}, {TokenColor::OR, std::vector<const Token*>()}, {TokenColor::PERLE, std::vector<const Token*>()}};
+    blackSummary = SummaryCard(0, 0);
+    blueSummary = SummaryCard(0, 0);
+    greenSummary = SummaryCard(0, 0);
+    redSummary = SummaryCard(0, 0);
+    whiteSummary = SummaryCard(0, 0);
 }

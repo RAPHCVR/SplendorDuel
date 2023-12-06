@@ -41,7 +41,7 @@ private:
 
 public:
     std::string getName() const {return name;};
-    unsigned int getPrivilege() const { return privileges.size();}
+    unsigned int getPrivilege() const;
     unsigned int getPrestige() const {return prestigePoints;};
     unsigned int getCrowns() const {return nbCrown;};
     Type getType() const {return type;}
@@ -50,6 +50,7 @@ public:
     SummaryCard getGreenSummary(){return greenSummary;}
     SummaryCard getBlackSummary(){return whiteSummary;}
     SummaryCard getRedSummary(){return redSummary;}
+    unsigned int getMaxPrestigeColor(){return std::max({blueSummary.getPrestigePoints(),whiteSummary.getPrestigePoints(),greenSummary.getPrestigePoints(),blackSummary.getPrestigePoints(),redSummary.getPrestigePoints()});}
 
     std::vector<int> getBonusSummary();
  
@@ -73,23 +74,22 @@ public:
 
     // action obligatoires (acheter une carte et/ou prendre des jetons et/ou reserver une carte)
     void actionAddToken(); // prendre les jetons sur le plateau
-    void reserveOneCard(JewelryCard& card, const Token& goldToken); // ajout d'une carte dans la reserve
+    void reserveOneCard(JewelryCard& card); // ajout d'une carte dans la reserve
     bool canReserveCard();//verifie qu'on peut reserver une carte
 
-    void actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+    void actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
     void spendResources(std::unordered_map<TokenColor, int> tokensToSpend);
     void actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenColor, int> tokensToSpend);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
-    void usePrivilege(); // appelé au moment d'acheter un jeton
+    //void usePrivilege(); Impmémenté dans controller
 
     ~Player()= default; // regarder si besoin
     Player(const Player& j)=delete; //interdire constructeur de recopie
     Player&& operator=(const Player& j)=delete; //interdire opérateur d'affectation
-    Player(std::string& name, Type type) : name(name), type(type), nbCrown(0), nbTokens(0),blackSummary(SummaryCard()),blueSummary(SummaryCard()),whiteSummary(SummaryCard()),greenSummary(SummaryCard()),redSummary(SummaryCard()), prestigePoints(0),tokenSummary({{TokenColor::BLEU, 0},{TokenColor::ROUGE, 0},
-                                                                                                                      {TokenColor::VERT, 0},{TokenColor::BLANC, 0},{TokenColor::NOIR, 0},
-                                                                                                                      {TokenColor::OR,0},{TokenColor::PERLE,0}}){}; // vector?
+    Player(std::string& n, Type t);
+
 
     // voler jeton
     //

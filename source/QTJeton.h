@@ -8,7 +8,7 @@
 #include <QtWidgets>
 #include <QColor>
 #include <QPalette>
-#include "Jeton.h"
+#include "Controller.h"
 
 class PrivilegeCounter : public QLabel {
 public:
@@ -57,6 +57,7 @@ private:
 class MainWindow : public QWidget, public Observer {
 public:
     explicit MainWindow(QWidget* parent = nullptr) : QWidget(parent) {
+        Controller* controller = new Controller();
         plateWidget = new PlateWidget(this);
         plateWidget->move(0, 0);
 
@@ -73,6 +74,7 @@ public:
         palette.setColor(QPalette::Window, QColor::fromRgb(100, 100, 100)); // Change to your desired color
         setAutoFillBackground(true);
         setPalette(palette);
+        controller->play();
     }
 
     void updatePrivilegeCounter() {

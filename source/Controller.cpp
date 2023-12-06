@@ -23,7 +23,10 @@ Controller::Controller() {
         Game* p = builder->GetProduct();
         delete director;
         game = p;
-        currentPlayer= game->getPlayer(0);
+        srand(time(0));
+        unsigned int i = rand() % 2;
+        currentPlayer= game->getPlayer(i);
+        getopposingPlayer().addPrivilege(game->getGameTable().getBoard().takePrivilege());
     }
 }
 
@@ -41,12 +44,14 @@ void Controller::changeCurrentPlayer() {
 
 std::vector<OptionalActions> Controller::getOptionalActions(const Game &game, Player &player) const {
     std::vector<OptionalActions> result;
-    result.push_back(OptionalActions::Empty);
-    if (player.getPrivilege() > 0){
+    if (player.getPrivilege() > 0 && not (game.getGameTable().getBoard().isEmpty())){
         result.push_back(OptionalActions::UsePrivileges);
     }
     if (not (game.getGameTable().getBag().isEmpty())){
         result.push_back(OptionalActions::FillBoard);
+    }
+    if (result.empty()){
+        result.push_back(OptionalActions::Empty);
     }
     return result;
 }
@@ -60,7 +65,7 @@ std::vector<CompulsoryActions> Controller::getCompulsoryActions(const Game &game
 
     // On verifie si on peut reserver : on verifie si on a au moins un jeton or et que les paquets ne sont pas vides
     if (game.getGameTable().getBoard().hasTokenOfColor(TokenColor::OR)){
-        if ((not (game.getGameTable().getPyramid().isEmpty(1))) || (not (game.getGameTable().getPyramid().isEmpty(2))) || (not (game.getGameTable().getPyramid().isEmpty(3)))){
+        if (((not (game.getGameTable().getPyramid().isEmpty(1))) || (not (game.getGameTable().getPyramid().isEmpty(2))) || (not (game.getGameTable().getPyramid().isEmpty(3)))) && (player.canReserveCard())){
             result.push_back(CompulsoryActions::ReserveCard);
         }
     }
@@ -96,3 +101,162 @@ std::vector<CompulsoryActions> Controller::getCompulsoryActions(const Game &game
     return result;
 }
 
+void Controller::applyOptionalAction(Game &game, Player &player, OptionalActions action) {
+    switch (action) {
+        case OptionalActions::UsePrivileges:
+            usePriviledge(game.getGameTable().getBoard());
+            break;
+        case OptionalActions::FillBoard:
+            fillBoard(game.getGameTable().getBoard(), game.getGameTable().getBag());
+            break;
+        case OptionalActions::Empty:
+            break;
+    }
+}
+
+void Controller::applyCompulsoryAction(Game &game, Player &player, CompulsoryActions action) {
+    switch (action) {
+        case CompulsoryActions::TakeCoins:
+            for (unsigned int i = 0; i < 3; i++) {
+                chooseToken(game.getGameTable().getBoard(), player);
+            }
+            break;
+        case CompulsoryActions::ReserveCard:
+            bookCard(game.getGameTable().getPyramid(), game.getGameTable());
+            break;
+        case CompulsoryActions::BuyCard:
+            buyJewelryCard(game.getGameTable());
+            break;
+    }
+}
+
+void Controller::usePriviledge(Board& board) {
+    unsigned int nbp = currentPlayer->getPrivilege();
+    unsigned int nbt = board.getNbTokens();
+    unsigned int nb = std::min(nbp,nbt);
+    std::cout << "Combien de privileges voulez vous utiliser ? Vous pouvez en utiliser " << nb << std::endl;
+    unsigned int nbPrivilege = choiceMaker(0, nb);
+    for (unsigned int i = 0; i < nbPrivilege; i++) {
+        board.placePrivilege(currentPlayer->removePrivilege());
+        chooseToken(board, *currentPlayer);
+    }
+}
+
+void Controller::chooseToken(Board&board, Player&player) {
+    std::cout << "Veuillez choisir un jeton" << std::endl;
+    board.showBoard();
+    unsigned int x = choiceMaker(1, 5);
+    unsigned int y = choiceMaker(1, 5);
+    if(game->gametable->getBoard().isCellEmpty(x-1,y-1))
+        throw TokenException("L'emplacement ne contient pas de jeton\n");
+    if(game->gametable->getBoard().CellColor(x-1, y-1,TokenColor::OR))
+        throw TokenException("Impossible de prendre un jeton or\n");
+    const Token& token = board.takeToken(x-1, y-1);
+    player.addToken(token);
+}
+
+void Controller::chooseGoldenToken(Board&board, Player&player) {
+    std::cout << "Veuillez choisir un jeton" << std::endl;
+    board.showBoard();
+    unsigned int x = choiceMaker(1, 5);
+    unsigned int y = choiceMaker(1, 5);
+    if(game->gametable->getBoard().isCellEmpty(x-1,y-1))
+        throw TokenException("L'emplacement ne contient pas de jeton\n");
+    if(not(game->gametable->getBoard().CellColor(x-1, y-1,TokenColor::OR)))
+        throw TokenException("Vous devez choisir un jeton or\n");
+    const Token& token = board.takeToken(x-1, y-1);
+    player.addToken(token);
+}
+
+
+void Controller::fillBoard(Board&board, Bag&bag) {
+    currentPlayer->addPrivilege(board.takePrivilege());
+    board.fillBoard(bag);
+}
+
+void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
+    unsigned int level = choiceMaker(1, 3);
+    unsigned int nb = pyramid.getLevelCards(level).size();
+    unsigned int nbCard = choiceMaker(1, nb);
+    JewelryCard& card = *pyramid.getLevelCards(level)[nbCard-1];
+    chooseGoldenToken(gametable.getBoard(), *currentPlayer);
+    currentPlayer->reserveOneCard(pyramid.takeCard(level,nbCard-1));
+}
+
+void Controller::buyJewelryCard(GameTable& gametable) {
+    unsigned int level = choiceMaker(1, 3);
+    unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
+    unsigned int nbCard = choiceMaker(1, nb);
+    JewelryCard& card = gametable.getPyramid().takeCard(level, nbCard - 1);
+    if (currentPlayer->canBuyCard(card)) {
+        currentPlayer->actionBuyCard(card);
+    }
+}
+
+unsigned choiceMaker(unsigned a, unsigned b) {
+    unsigned int choice;
+    std::cout << "Veuillez choisir entre " << a << " et " << b << std::endl;
+    std::cin >> choice;
+    while (choice < a || choice > b){
+        std::cout << "Veuillez choisir entre " << a << " et " << b << std::endl;
+        std::cin >> choice;
+    }
+    return choice;
+}
+
+void Controller::play() {
+    while (not checkIfPlayerWins(*game, *currentPlayer)) {
+        playTurn();
+        changeCurrentPlayer();
+    }
+    std::cout << "Le joueur " << currentPlayer->getName() << " a gagné" << std::endl;
+}
+
+void Controller::playTurn() {
+    std::cout << "C'est au tour de " << currentPlayer->getName() << std::endl;
+    std::vector<OptionalActions> optionalActions = getOptionalActions(*game, *currentPlayer);
+    std::vector<CompulsoryActions> compulsoryActions = getCompulsoryActions(*game, *currentPlayer);
+    std::cout << "Veuillez choisir une action obligatoire" << std::endl;
+    for (auto action : compulsoryActions) {
+        switch (action) {
+            case CompulsoryActions::TakeCoins:
+                std::cout << "Prendre des jetons" << std::endl;
+                break;
+            case CompulsoryActions::ReserveCard:
+                std::cout << "Reserver une carte" << std::endl;
+                break;
+            case CompulsoryActions::BuyCard:
+                std::cout << "Acheter une carte" << std::endl;
+                break;
+        }
+    }
+    unsigned int choice = choiceMaker(1, compulsoryActions.size());
+    applyCompulsoryAction(*game, *currentPlayer, compulsoryActions[choice-1]);
+    std::cout << "Veuillez choisir une action optionnelle" << std::endl;
+    for (auto action : optionalActions) {
+        switch (action) {
+            case OptionalActions::UsePrivileges:
+                std::cout << "Utiliser des privilèges" << std::endl;
+                break;
+            case OptionalActions::FillBoard:
+                std::cout << "Remplir le plateau" << std::endl;
+                break;
+        }
+    }
+    choice = choiceMaker(1, optionalActions.size());
+    applyOptionalAction(*game, *currentPlayer, optionalActions[choice-1]);
+}
+
+bool Controller::checkIfPlayerWins(Game& game, Player& player) {
+    if (player.getPrestige() >= 20) {
+        return true;
+    }
+    else if (player.getCrowns()>=10) {
+        return true;
+    }
+    else if(player.getMaxPrestigeColor()>=10) {
+        return true;
+    }
+
+    return false;
+}

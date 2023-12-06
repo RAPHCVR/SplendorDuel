@@ -257,8 +257,9 @@ const Privilege& Board::takePrivilege() {
     if (privileges.empty()) {
         throw TokenException("Il n'y a pas de privilège sur le plateau");
     }
-    const Privilege& privilege = *privileges.back();
-    privileges.back() = nullptr;
+    unsigned int size = getNbPrivileges()-1;
+    const Privilege& privilege = *privileges[size];
+    privileges[size] = nullptr;
     actionPerformed();
     return privilege;
 }
@@ -327,4 +328,16 @@ bool Board::containsOnly(const TokenColor color) const {
         }
     }
     return true;
+}
+
+unsigned Board::getNbTokens() const {
+    unsigned int nb = 0;
+    for (const auto& row : tokens) {
+        for (const auto& token : row) {
+            if (token) {
+                nb++;
+            }
+        }
+    }
+    return nb;
 }
