@@ -22,9 +22,9 @@ std::vector<int> Player::getBonusSummary() {
 }
 
 //celine
-void Player::addToken(Token &token) {
+void Player::addToken(const Token &token) {
     tokenSummary.at(token.getColor())+=1;
-    tokens.at(token.getColor()).push_back(token);
+    tokens.at(token.getColor()).push_back(&token);
 }
 
 // // lise --> plus besoin car on a tout dans Player::buyReservedCard()
@@ -47,7 +47,7 @@ void Player::addToken(Token &token) {
 
 // Celine
 // ajout d'une carte dans la reserve
-void Player::reserveOneCard(JewelryCard& card, Token& goldToken){
+void Player::reserveOneCard(JewelryCard& card, const Token& goldToken){
     addToken(goldToken);
     getReserve().push_back(card);
 }
@@ -79,16 +79,15 @@ void Player::addCrowns(int nbCrowns) {
 // retire un jeton de couleur "color"
 // retourne un token pour permettre de le remettre dans le sac si 11 eme jeton 
 // ou le donner a un autre joueur si vol
-Token& Player::removeToken(TokenColor color) {
+const Token& Player::removeToken(TokenColor color) {
     //retire dans le resume de jetons
-    tokenSummary.at(color)-=1; 
+    tokenSummary.at(color)-=1;
 
     // retire jeton dans inventaire
-    // utilisation de std::move() pour deplacer l'instance de l'objet plutot que de le supprimer
-    auto token = std::move(tokens.at(color).back());
+    const Token* token = tokens.at(color).back();
     // on retire le jeton du dico de jeton
     tokens.at(color).pop_back();
-    return token; 
+    return *token;
 }
 
 // // lise
@@ -130,7 +129,7 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
             // on retire le jeton du dico de jeton
             tokens.at(cost->first).pop_back();
             // on met le token dans le sac de jeton
-            Bag::getInstance().addToken(temp);
+            Bag::getInstance().addToken(*temp);
             // maj de tokenSummary pour la couleur en cours
             tokenSummary.at(cost->first)--;
 
@@ -161,7 +160,6 @@ void Player::addPrestige(int n, TokenColor color) {
         case TokenColor::NOIR:
             blackSummary.addprestigePoints(n);
             break;
-        default:
         // pas une carte joallerie
 
         }
@@ -265,5 +263,5 @@ void Player::actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenCo
         getReserve().erase(it);
 
     }
-        
+
 }

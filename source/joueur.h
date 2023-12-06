@@ -28,7 +28,7 @@ private:
     std::unordered_map<TokenColor, int> tokenSummary;
     //vector<vector<Token *>> tokens; //tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
     // autre idee pour rpz de token :
-    std::unordered_map<TokenColor, std::vector<Token>> tokens;
+    std::unordered_map<TokenColor, std::vector<const Token*>> tokens;
 
 
     SummaryCard blueSummary;
@@ -60,7 +60,7 @@ public:
     // ostream
 
 
-    Token& removeToken(TokenColor color); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
+    const Token& removeToken(TokenColor color); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
     //int prestigePerColor(); // retourne le total de prestige pour une couleur du joueur
     void addCrowns(int nbCrowns); // compter mes couronnes + prendre une carte couronne si crown = 3 ou 6 (--> appeler )
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
@@ -68,11 +68,11 @@ public:
     void removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
     void addJewelryCard( JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
     void addRoyalCard(RoyalCard &card);// ajout d'une carte royale a mon inventaire
-    void addToken(Token &token); // ajout d'un jeton a mon inventaire
+    void addToken(const Token &token); // ajout d'un jeton a mon inventaire
 
     // action obligatoires (acheter une carte et/ou prendre des jetons et/ou reserver une carte)
     void actionAddToken(); // prendre les jetons sur le plateau
-    void reserveOneCard(JewelryCard& card, Token& goldToken); // ajout d'une carte dans la reserve
+    void reserveOneCard(JewelryCard& card, const Token& goldToken); // ajout d'une carte dans la reserve
     bool canReserveCard();//verifie qu'on peut reserver une carte
 
     void actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)

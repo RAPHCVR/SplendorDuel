@@ -27,6 +27,8 @@ struct Bonus {
     TokenColor bonus_color;
 };
 
+bool operator==(const Bonus& b1, const Bonus& b2);
+
 class SummaryCard{
     
 private :
@@ -68,6 +70,9 @@ public:
     Abilities getAbility1() {return ability1;}
     Abilities getAbility2() {return ability2;}
     Bonus getBonus() {return bonus;}
+    bool operator==(const JewelryCard& other) const {
+        return level == other.level && cost == other.cost && prestige_points == other.prestige_points && crowns == other.crowns && ability1 == other.ability1 && ability2 == other.ability2 && bonus == other.bonus;
+    }
 private:
     unsigned int level;
     std::unordered_map<TokenColor, int> cost; //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
@@ -224,20 +229,21 @@ class Pyramid_Cards {
 public:
 
     // Transformation en singleton
-    static Pyramid_Cards* getInstance(Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three) {
+    static Pyramid_Cards* getInstance() {
         if (instance == nullptr) {
-            instance = new Pyramid_Cards(Deck_one, Deck_two, Deck_three);  // Crée l'instance si elle n'existe pas encore
-            }
+            instance = new Pyramid_Cards();  // Crée l'instance si elle n'existe pas encore
+        }
         return instance;
     }
 
     //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
-    void drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three);
+    void drawCard(unsigned int level);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
-
+    bool isEmpty(unsigned int level) { return (level == 1) ? row_level_one.empty() : (level == 2) ? row_level_two.empty() : row_level_three.empty(); };
+    std::vector<JewelryCard*> getLevelCards(unsigned int i) { return (i == 1) ? row_level_one : (i == 2) ? row_level_two : row_level_three; }
 private:
 
-    Pyramid_Cards(Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three);
+    Pyramid_Cards();
 
     static Pyramid_Cards *instance;
 

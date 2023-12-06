@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     std::cout<<"Appuyez sur une touche et entree pour continuer"<<std::endl;
     std::cin.get();
     controller->getGame().getGameTable().getBoard().takeToken(0,0);
+    std::vector<OptionalActions> v = controller->getOptionalActions(controller->getGame(),controller->getcurrentPlayer());
     controller->getGame().getGameTable().getBoard().showBoard();
     return QApplication::exec();
 }
