@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <map>
+#include <qminmax.h>
 #include <vector>
 #include <unordered_map>
 //#include les fichiers qui appelent les autres classes
@@ -17,7 +18,7 @@ enum class Type {IA, Humain};
 class Player {
 private:
     std::string name;
-    int privilege;
+    std::array<const Privilege*, 3> privileges{};
     Type type;
     int nbCrown;
     int prestigePoints;
@@ -40,9 +41,9 @@ private:
 
 public:
     std::string getName() const {return name;};
-    int getPrivilege() const {return privilege;};
-    int getPrestige() const {return prestigePoints;};
-    int getCrowns() const {return nbCrown;};
+    unsigned int getPrivilege() const { return privileges.size();}
+    unsigned int getPrestige() const {return prestigePoints;};
+    unsigned int getCrowns() const {return nbCrown;};
     Type getType() const {return type;}
     SummaryCard getBlueSummary(){return blueSummary;}
     SummaryCard getWhiteSummary(){return whiteSummary;}
@@ -64,8 +65,8 @@ public:
     //int prestigePerColor(); // retourne le total de prestige pour une couleur du joueur
     void addCrowns(int nbCrowns); // compter mes couronnes + prendre une carte couronne si crown = 3 ou 6 (--> appeler )
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
-    void addPrivilege(); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
-    void removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
+    void addPrivilege(const Privilege& privilege); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
+    const Privilege& removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
     void addJewelryCard( JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
     void addRoyalCard(RoyalCard &card);// ajout d'une carte royale a mon inventaire
     void addToken(const Token &token); // ajout d'un jeton a mon inventaire
@@ -86,7 +87,7 @@ public:
     ~Player()= default; // regarder si besoin
     Player(const Player& j)=delete; //interdire constructeur de recopie
     Player&& operator=(const Player& j)=delete; //interdire opérateur d'affectation
-    Player(std::string name, Type type) : name(name), type(type), nbCrown(0), prestigePoints(0),tokenSummary({{TokenColor::BLEU, 0},{TokenColor::ROUGE, 0},
+    Player(std::string& name, Type type) : name(name), type(type), nbCrown(0), nbTokens(0),blackSummary(SummaryCard()),blueSummary(SummaryCard()),whiteSummary(SummaryCard()),greenSummary(SummaryCard()),redSummary(SummaryCard()), prestigePoints(0),tokenSummary({{TokenColor::BLEU, 0},{TokenColor::ROUGE, 0},
                                                                                                                       {TokenColor::VERT, 0},{TokenColor::BLANC, 0},{TokenColor::NOIR, 0},
                                                                                                                       {TokenColor::OR,0},{TokenColor::PERLE,0}}){}; // vector?
 

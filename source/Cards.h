@@ -37,6 +37,7 @@ private :
     //int crownNumber;
 
 public :
+    explicit SummaryCard(unsigned int p = 0, unsigned int b = 0) : prestigePoints(p), bonusNumber(b) {};
     int getPrestigePoints(){ return prestigePoints;}
     int getBonusNumber(){ return bonusNumber;}
     void addBonusNumber(unsigned int b);

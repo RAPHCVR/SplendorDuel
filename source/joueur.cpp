@@ -63,12 +63,15 @@ bool Player::canReserveCard(){
     return false;
 }
 
-void Player::addPrivilege() {
-    privilege+=1;
+void Player::addPrivilege(const Privilege& privilege) {
+    unsigned int nb = getPrivilege();
+    privileges[nb]=&privilege;
 }
 
-void Player::removePrivilege() {
-    privilege-=1;
+const Privilege& Player::removePrivilege() {
+    const Privilege& privilege = *privileges.back();
+    privileges.back() = nullptr;
+    return privilege;
 }
 
 void Player::addCrowns(int nbCrowns) {
