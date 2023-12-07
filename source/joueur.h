@@ -23,9 +23,9 @@ private:
     int nbCrown;
     int prestigePoints;
     int nbTokens;
-    std::vector<JewelryCard> jewelryCards; //Pas sur de l utilisation de vector
-    std::vector<JewelryCard> reserve;
-    std::vector<RoyalCard> royalCards;
+    std::vector<JewelryCard*> jewelryCards; //Pas sur de l utilisation de vector
+    std::vector<JewelryCard*> reserve;
+    std::vector<RoyalCard*> royalCards;
     std::unordered_map<TokenColor, int> tokenSummary;
     //vector<vector<Token *>> tokens; //tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
     // autre idee pour rpz de token :
@@ -55,9 +55,9 @@ public:
     std::vector<int> getBonusSummary();
  
     std::unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
-    std::vector<JewelryCard> getJewelryCards(){ return jewelryCards;}
-    std::vector<RoyalCard> getRoyalCards(){ return royalCards;}
-    std::vector<JewelryCard> getReserve(){ return reserve;}
+    std::vector<JewelryCard*>& getJewelryCards(){ return jewelryCards;}
+    std::vector<RoyalCard*>& getRoyalCards(){ return royalCards;}
+    std::vector<JewelryCard*>& getReserve(){ return reserve;}
 
     // ostream
 

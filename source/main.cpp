@@ -35,18 +35,13 @@ int main(int argc, char *argv[]) {
     return QApplication::exec();
 }
 
+
 /*
 int main() {
-    Board &board = Board::getInstance();
-    unsigned int a = board.getNbPrivileges();
+    Deck_level_one* a = Deck_level_one::getInstance();
     std::string s = "Joueur 1";
     Player player1(s, Type::Humain);
-    player1.addPrivilege(board.takePrivilege());
-    a = board.getNbPrivileges();
-    unsigned int b = player1.getPrivilege();
-    board.placePrivilege(player1.removePrivilege());
-    a = board.getNbPrivileges();
-    b = player1.getPrivilege();
+    player1.addJewelryCard(*a->getPioche()[0]);
     return 0;
 }
 */

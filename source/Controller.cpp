@@ -232,19 +232,21 @@ void Controller::playTurn() {
     }
     unsigned int choice = choiceMaker(1, compulsoryActions.size());
     applyCompulsoryAction(*game, *currentPlayer, compulsoryActions[choice-1]);
-    std::cout << "Veuillez choisir une action optionnelle" << std::endl;
-    for (auto action : optionalActions) {
-        switch (action) {
-            case OptionalActions::UsePrivileges:
-                std::cout << "Utiliser des privilèges" << std::endl;
+    if (optionalActions[0] != OptionalActions::Empty) {
+        std::cout << "Veuillez choisir une action optionnelle" << std::endl;
+        for (auto action : optionalActions) {
+            switch (action) {
+                case OptionalActions::UsePrivileges:
+                    std::cout << "Utiliser des privilèges" << std::endl;
                 break;
-            case OptionalActions::FillBoard:
-                std::cout << "Remplir le plateau" << std::endl;
+                case OptionalActions::FillBoard:
+                    std::cout << "Remplir le plateau" << std::endl;
                 break;
+            }
         }
+        choice = choiceMaker(1, optionalActions.size());
+        applyOptionalAction(*game, *currentPlayer, optionalActions[choice-1]);
     }
-    choice = choiceMaker(1, optionalActions.size());
-    applyOptionalAction(*game, *currentPlayer, optionalActions[choice-1]);
 }
 
 bool Controller::checkIfPlayerWins(Game& game, Player& player) {
