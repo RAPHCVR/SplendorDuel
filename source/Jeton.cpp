@@ -3,6 +3,8 @@
 //
 
 #include "Jeton.h"
+
+#include <algorithm>
 #include <math.h>
 
 std::string toString(TokenColor c) {
@@ -98,6 +100,13 @@ const Token& Bag::drawToken() {
     return j;
 }
 
+bool Bag::containsOnly(TokenColor color) const {
+    std::all_of(tokens.begin(), tokens.end(), [color](const Token* token) {
+        return token->getColor() == color;
+    });
+}
+
+
 std::ostream& operator<< (std::ostream& f, const Privilege& privilege) {
     return f << "Privilege" << std::endl;
 }
@@ -125,17 +134,23 @@ TotalPrivileges::~TotalPrivileges() {
         delete privilege;
     }
 }
-
-void Board::placePrivilege(const Privilege& privilege) {
-    //place le privilege au bon endroit dans le tableau de privileges sur un array
+unsigned int Board::getNbPrivileges() const {
+    unsigned int nb = privileges.size();
     for (size_t i = 0; i < privileges.size(); i++) {
         if (privileges[i] == nullptr) {
-            privileges[i] = &privilege;
-            return;
+            nb--;
         }
     }
+    return nb;
+}
+void Board::placePrivilege(const Privilege& privilege) {
+    //place le privilege au bon endroit dans le tableau de privileges sur un array
+    unsigned int nb = getNbPrivileges();
+    if (nb < 3) {
+        privileges[nb]=&privilege;
+    }
+    else
     throw TokenException("Il n'y a plus de place pour un privilège");
-
 }
 
 void Board::showBoard(){
@@ -234,6 +249,7 @@ const Token& Board::takeToken(const size_t i, const size_t j) {
     }
     const Token& token = *tokens[i][j];
     tokens[i][j] = nullptr;
+    actionPerformed();
     return token;
 }
 
@@ -241,8 +257,10 @@ const Privilege& Board::takePrivilege() {
     if (privileges.empty()) {
         throw TokenException("Il n'y a pas de privilège sur le plateau");
     }
-    const Privilege& privilege = *privileges.back();
-    privileges.back() = nullptr;
+    unsigned int size = getNbPrivileges()-1;
+    const Privilege& privilege = *privileges[size];
+    privileges[size] = nullptr;
+    actionPerformed();
     return privilege;
 }
 
@@ -288,4 +306,38 @@ const Token* Board::BoardIterator::next() {
 Board& Board::getInstance() {
     static Board instance;
     return instance;
+}
+
+bool Board::hasTokenOfColor(TokenColor color) const {
+    for (const auto& row : tokens) {
+        for (const auto& token : row) {
+            if (token && token->getColor() == color) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Board::containsOnly(const TokenColor color) const {
+    for (const auto& row : tokens) {
+        for (const auto& token : row) {
+            if (token && token->getColor() != color) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+unsigned Board::getNbTokens() const {
+    unsigned int nb = 0;
+    for (const auto& row : tokens) {
+        for (const auto& token : row) {
+            if (token) {
+                nb++;
+            }
+        }
+    }
+    return nb;
 }

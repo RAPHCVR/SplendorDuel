@@ -1,19 +1,15 @@
 #ifndef TEST_JOUEUR_H
 #define TEST_JOUEUR_H
-#include "Jeton.cpp"
 #include "Jeton.h"
-#include "Partie.cpp"
-#include "Partie.h"
 #include "Cards.h"
-#include "Cards.cpp"
 
 #include <iostream>
 #include <map>
+#include <qminmax.h>
 #include <vector>
 #include <unordered_map>
 //#include les fichiers qui appelent les autres classes
 
-using namespace std;
 
 enum class Type {IA, Humain};
 
@@ -21,19 +17,19 @@ enum class Type {IA, Humain};
 
 class Player {
 private:
-    string name;
-    int privilege;
+    std::string name;
+    std::array<const Privilege*, 3> privileges{};
     Type type;
     int nbCrown;
     int prestigePoints;
     int nbTokens;
-    vector<JewelryCard> jewelryCards; //Pas sur de l utilisation de vector
-    vector<JewelryCard> reserve;
-    vector<RoyalCard> royalCards;
-    unordered_map<TokenColor, int> tokenSummary;
+    std::vector<JewelryCard*> jewelryCards; //Pas sur de l utilisation de vector
+    std::vector<JewelryCard*> reserve;
+    std::vector<RoyalCard*> royalCards;
+    std::unordered_map<TokenColor, int> tokenSummary;
     //vector<vector<Token *>> tokens; //tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
     // autre idee pour rpz de token :
-    unordered_map<TokenColor, vector<Token>> tokens;
+    std::unordered_map<TokenColor, std::vector<const Token*>> tokens;
 
 
     SummaryCard blueSummary;
@@ -44,55 +40,56 @@ private:
 
 
 public:
-    string getName() const {return name;};
-    int getPrivilege() const {return privilege;};
-    int getPrestige() const {return prestigePoints;};
-    int getCrowns() const {return nbCrown;};
-    //int getTokens() const {return nbTokens;};
+    std::string getName() const {return name;};
+    unsigned int getPrivilege() const;
+    unsigned int getPrestige() const {return prestigePoints;};
+    unsigned int getCrowns() const {return nbCrown;};
     Type getType() const {return type;}
     SummaryCard getBlueSummary(){return blueSummary;}
     SummaryCard getWhiteSummary(){return whiteSummary;}
     SummaryCard getGreenSummary(){return greenSummary;}
     SummaryCard getBlackSummary(){return whiteSummary;}
     SummaryCard getRedSummary(){return redSummary;}
+    unsigned int getMaxPrestigeColor(){return std::max({blueSummary.getPrestigePoints(),whiteSummary.getPrestigePoints(),greenSummary.getPrestigePoints(),blackSummary.getPrestigePoints(),redSummary.getPrestigePoints()});}
 
-    vector<int> getBonusSummary();
+    std::vector<int> getBonusSummary();
  
-    unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
-    vector<JewelryCard> getJewelryCards(){ return jewelryCards;}
-    vector<RoyalCard> getRoyalCards(){ return royalCards;}
-
+    std::unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
+    std::vector<JewelryCard*>& getJewelryCards(){ return jewelryCards;}
+    std::vector<RoyalCard*>& getRoyalCards(){ return royalCards;}
+    std::vector<JewelryCard*>& getReserve(){ return reserve;}
 
     // ostream
 
 
-    void removeToken(Token &token); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
+    const Token& removeToken(TokenColor color); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
     //int prestigePerColor(); // retourne le total de prestige pour une couleur du joueur
     void addCrowns(int nbCrowns); // compter mes couronnes + prendre une carte couronne si crown = 3 ou 6 (--> appeler )
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
-    void addPrivilege(); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
-    void removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
-    void addJewelryCard(JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
+    void addPrivilege(const Privilege& privilege); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
+    const Privilege& removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
+    void addJewelryCard( JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
     void addRoyalCard(RoyalCard &card);// ajout d'une carte royale a mon inventaire
-    void addToken(Token &token); // ajout d'un jeton a mon inventaire
+    void addToken(const Token &token); // ajout d'un jeton a mon inventaire
 
     // action obligatoires (acheter une carte et/ou prendre des jetons et/ou reserver une carte)
     void actionAddToken(); // prendre les jetons sur le plateau
-    void actionReserveCard(); // retirer du deck; prendre un or (avec addToken);
+    void reserveOneCard(JewelryCard& card); // ajout d'une carte dans la reserve
+    bool canReserveCard();//verifie qu'on peut reserver une carte
 
-    int actionBuyCard(JewelryCard &card, int position, unordered_map<TokenColor, int> tokensToSpend); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
+    void actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
-    void spendResources(unordered_map<TokenColor, int> tokensToSpend);
+    void spendResources(std::unordered_map<TokenColor, int> tokensToSpend);
+    void actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenColor, int> tokensToSpend);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
-    void usePrivilege(); // appelé au moment d'acheter un jeton
+    //void usePrivilege(); Impmémenté dans controller
 
     ~Player()= default; // regarder si besoin
     Player(const Player& j)=delete; //interdire constructeur de recopie
     Player&& operator=(const Player& j)=delete; //interdire opérateur d'affectation
-    Player(string name, Type type) : name(name), type(type), nbCrown(0), prestigePoints(0),tokenSummary({{TokenColor::BLEU, 0},{TokenColor::ROUGE, 0},
-                                                                                                                      {TokenColor::VERT, 0},{TokenColor::BLANC, 0},{TokenColor::NOIR, 0},
-                                                                                                                      {TokenColor::OR,0},{TokenColor::PERLE,0}}){}; // vector?
+    Player(std::string& n, Type t);
+
 
     // voler jeton
     //

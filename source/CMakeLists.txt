@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.22)
-project(LO21Project)
+cmake_minimum_required(VERSION 3.26)
+project(projet-lo21-splendor-duel)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
@@ -14,7 +14,7 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(LO21Project
+add_executable(projet-lo21-splendor-duel
         main.cpp
         Jeton.h
         Jeton.cpp
@@ -28,8 +28,14 @@ add_executable(LO21Project
         sqlite/sqlite3ext.h
         Partie.h
         Partie.cpp
+        Controller.h
+        Controller.cpp
+        joueur.h
+        joueur.cpp
+        #"../../../Downloads/Projet_LO21-commun(1)/Projet_LO21-commun/source/back-end/controller.cpp"
+        #"../../../Downloads/Projet_LO21-commun(1)/Projet_LO21-commun/source/back-end/controller.hpp"
 )
-target_link_libraries(LO21Project
+target_link_libraries(projet-lo21-splendor-duel
         Qt::Core
         Qt::Gui
         Qt::Widgets

@@ -1,10 +1,10 @@
 #include <iostream>
 #include "Jeton.h"
-
+#include "Controller.h"
 #include "QTJeton.h"
 #include <QApplication>
 
-
+/*
 int main(int argc, char *argv[]) {
         QApplication app(argc, argv);
         try
@@ -25,3 +25,23 @@ int main(int argc, char *argv[]) {
             std::cout << err.getMessage() << "\n";
         }
 }
+*/
+
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    MainWindow *mainWindow1 = new MainWindow();
+    mainWindow1->show();
+    return QApplication::exec();
+}
+
+
+/*
+int main() {
+    Deck_level_one* a = Deck_level_one::getInstance();
+    std::string s = "Joueur 1";
+    Player player1(s, Type::Humain);
+    player1.addJewelryCard(*a->getPioche()[0]);
+    return 0;
+}
+*/

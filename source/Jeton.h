@@ -78,6 +78,7 @@ public :
     void addToken(const Token& j); //Ajout d'un jeton dans le sac
     const Token& drawToken(); //Pioche d'un jeton dans le sac
     bool isEmpty() const { return tokens.empty(); } //Vérification si le sac est vide
+    bool containsOnly(TokenColor color) const; //Vérification si le sac ne contient que des jetons d'une couleur
 };
 
 //Les privilèges sont 3 objets indépendants entre eux, mais identiques
@@ -102,12 +103,18 @@ public :
     const static TotalPrivileges& getInstance(); //Récupération de l'instance unique
 };
 
+class Observer {
+public:
+    virtual ~Observer() = default;
+    virtual void update() = 0;
+};
 
 class Board {
     //Classe plateau contenant les jetons et les privilèges en jeu
 private :
     std::array<const Privilege*, 3> privileges{}; //Liste des privilèges
     std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
+    std::vector<Observer*> observers;
     //design pattern singleton
     Board(); //Instanciation du plateau avec tous les jetons et le sac de jetons (Constructeur)
 public :
@@ -143,6 +150,27 @@ public :
     void placePrivilege(const Privilege& privilege); //Placement d'un privilège sur le plateau
     void fillBoard(Bag& bag); //Remplissage du plateau avec les jetons du sac
     bool isEmpty() const; //Vérification si le plateau est vide
+    bool isCellEmpty(size_t i, size_t j) const {return tokens[i][j]==nullptr;}; //Vérification si une case est vide
+    unsigned int getNbPrivileges() const; //Récupération du nombre de privilèges
+    bool hasTokenOfColor(TokenColor color) const; //verification de la presence d'une couleur sur le plateau
+    bool containsOnly(TokenColor color) const; //verification de la presence d'une couleur uniquement sur le plateau
+    bool CellColor(size_t i, size_t j, TokenColor color) const{return tokens[i][j]->getColor()==color;}; //verification de la couleur d'une case
+    unsigned int getNbTokens() const; //Récupération du nombre de jetons
+    //Observer
+    void registerObserver(Observer* observer) {
+        observers.push_back(observer);
+    }
+    void notifyObservers() {
+        for (Observer* observer : observers) {
+            observer->update();
+        }
+    }
+
+    // Call this method whenever a token is taken or a privilege is changed
+    void actionPerformed() {
+        // Perform the action...
+        notifyObservers();
+    }
 };
 
 #endif //LO21PROJECT_JETON_H
