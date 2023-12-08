@@ -15,17 +15,15 @@ std::string toString(Abilities a);
 std::ostream& operator<<(std::ostream& f, Abilities a);
 
 namespace Utility {
-	
-    Abilities stringToAbility(const char *str);												    
-    TokenColor stringToTokenColor(const char *str);
-    std::string tokenColorToString(TokenColor color);
-	 
+    Abilities stringToAbility(const char *str);
 }
 
 struct Bonus {
     int bonus_number;
     TokenColor bonus_color;
 };
+std::ostream& operator<<(std::ostream&f, Bonus &b);
+
 
 bool operator==(const Bonus& b1, const Bonus& b2);
 
@@ -38,8 +36,8 @@ private :
 
 public :
     explicit SummaryCard(unsigned int p = 0, unsigned int b = 0) : prestigePoints(p), bonusNumber(b) {};
-    int getPrestigePoints(){ return prestigePoints;}
-    int getBonusNumber(){ return bonusNumber;}
+    unsigned int getPrestigePoints(){ return prestigePoints;}
+    unsigned int getBonusNumber(){ return bonusNumber;}
     void addBonusNumber(unsigned int b);
     void addprestigePoints(unsigned int p);
     //int getCrownNumber(){ return crownNumber;}
@@ -84,6 +82,8 @@ private:
     Bonus bonus;
 };
 
+std::ostream& operator<<(std::ostream& f, JewelryCard& c);
+
 
 class RoyalCardError {
     //Classe de gestion des exception avec les cartes royales
@@ -108,6 +108,8 @@ private:
     Abilities ability;
     unsigned int id;					
 };
+
+std::ostream& operator<<(std::ostream& f, RoyalCard& c);
 
 class Deck_Royal {
 public:
@@ -225,6 +227,7 @@ private:
 
     std::vector<JewelryCard*> pioche;
 };
+JewelryCard& takeCard(unsigned int level);
 
 class Pyramid_Cards {
 public:
@@ -240,7 +243,6 @@ public:
     //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
     void drawCard(unsigned int level);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
-    
     //void getRow1(){ return row_level_one;}
 
 
@@ -267,6 +269,6 @@ private:
 
 
 };
-
+std::ostream& operator << (std::ostream & f,Pyramid_Cards& p);
 #endif /* CARDS_H */
 

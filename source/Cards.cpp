@@ -28,50 +28,6 @@ namespace Utility{
             // Gérer le cas où la chaîne ne correspond à aucune capacité connue
             return Abilities::repeat_turn;
         }
-    } 
-   
-    TokenColor stringToTokenColor(const char *str) {
-        if (std::strcmp(str, "BLEU") == 0) {
-            return TokenColor::BLEU;
-        } else if (std::strcmp(str, "BLANC") == 0) {
-            return TokenColor::BLANC;
-        } else if (std::strcmp(str, "VERT") == 0) {
-            return TokenColor::VERT;
-        } else if (std::strcmp(str, "NOIR") == 0) {
-            return TokenColor::NOIR;
-        } else if (std::strcmp(str, "ROUGE") == 0) {
-            return TokenColor::ROUGE;
-        } else if (std::strcmp(str, "PERLE") == 0) {
-            return TokenColor::PERLE;
-        } else if (std::strcmp(str, "OR") == 0) {
-            return TokenColor::OR;
-        } else if (std::strcmp(str, "RIEN") == 0){
-            return TokenColor::None;
-        }
-        else {
-            // Gérer le cas où la chaîne ne correspond à aucune couleur connue
-            return TokenColor::BLEU;
-        }
-    }
-
-    std::string tokenColorToString(TokenColor color) {
-        switch (color) {
-            case TokenColor::BLEU:
-                return "BLEU";
-            case TokenColor::BLANC:
-                return "BLANC";
-            case TokenColor::VERT:
-                return "VERT";
-            case TokenColor::NOIR:
-                return "NOIR";
-            case TokenColor::ROUGE:
-                return "ROUGE";
-            case TokenColor::PERLE:
-                return "PERLE";
-            // Ajoutez d'autres cas au besoin
-            default:
-                return "UNKNOWN";
-        }
     }
 }
 
@@ -153,10 +109,9 @@ Deck_level_one::Deck_level_one() : pioche() {
         //Bonus
         int bonus_nb = sqlite3_column_int(stmt, 12);
         const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8));  
-        Bonus bonus;      
-        bonus.bonus_color = Utility::stringToTokenColor(color);   
+        Bonus bonus;
+        bonus.bonus_color = toTokenColor(color);
         bonus.bonus_number = bonus_nb;
-    
 
         //Création et ajout de l'instance au deck
         JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus); 
@@ -236,7 +191,7 @@ Deck_level_two::Deck_level_two() : pioche() {
         int bonus_nb = sqlite3_column_int(stmt, 12);
         const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8));  
         Bonus bonus;      
-        bonus.bonus_color = Utility::stringToTokenColor(color);   
+        bonus.bonus_color = toTokenColor(color);
         bonus.bonus_number = bonus_nb;
     
 
@@ -319,7 +274,7 @@ Deck_level_three::Deck_level_three() : pioche() {
         int bonus_nb = sqlite3_column_int(stmt, 12);
         const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 8));  
         Bonus bonus;      
-        bonus.bonus_color = Utility::stringToTokenColor(color);   
+        bonus.bonus_color = toTokenColor(color);
         bonus.bonus_number = bonus_nb;
     
 
@@ -414,6 +369,41 @@ JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
     }
 }
 
+JewelryCard& takeCard(unsigned level) {
+    //think of deleting the card in the pioche
+    switch (level) {
+        case 1:
+            if (Deck_level_one::getInstance()->getPioche().empty()) {
+                throw std::runtime_error("Le deck niveau 1 est vide");
+            }
+            else {
+                JewelryCard *card = Deck_level_one::getInstance()->getPioche()[0];
+                Deck_level_one::getInstance()->deleteFirstItem();
+                return *card;
+            }
+        case 2:
+            if (Deck_level_two::getInstance()->getPioche().empty()) {
+                throw std::runtime_error("Le deck niveau 2 est vide");
+            }
+            else {
+                JewelryCard *card = Deck_level_two::getInstance()->getPioche()[0];
+                Deck_level_two::getInstance()->deleteFirstItem();
+                return *card;
+            }
+        case 3:
+            if (Deck_level_three::getInstance()->getPioche().empty()) {
+                throw std::runtime_error("Le deck niveau 3 est vide");
+            }
+            else {
+                JewelryCard *card = Deck_level_three::getInstance()->getPioche()[0];
+                Deck_level_three::getInstance()->deleteFirstItem();
+                return *card;
+            }
+        default:
+            throw std::runtime_error("Niveau de carte non existant");
+    }
+}
+
 
 
 //Idee de code, à modif impérativement
@@ -493,4 +483,64 @@ bool operator==(const Bonus& b1, const Bonus& b2){
 
 void SummaryCard::addprestigePoints(unsigned int p){
     this->prestigePoints += p;
+}
+
+std::ostream& operator<<(std::ostream&f,const Bonus& b) {
+    if (b.bonus_color!=TokenColor::None) {
+        if (b.bonus_number == 1) {
+            f << b.bonus_number << " " << b.bonus_color;
+        }
+        else {
+            f << b.bonus_number << " " << b.bonus_color<<"S";
+        }
+    }
+    else {
+        f << "Pas de bonus";
+    }
+    return f;
+}
+
+std::ostream & operator << (std::ostream & f,
+JewelryCard& c) {
+    f << "------------------------------\n";
+    f << "Niveau : " << c.getLevel() << "   " << "Bonus : " << c.getBonus() << "\n";
+    f << "------------------------------\n";
+    f << "Capacite : " << c.getAbility1() << ", " << c.getAbility2() << "\n";
+    f << "------------------------------\n";
+    f << "Prix :\n";
+    for (auto const& [color, costValue] : c.getCost()) {
+        if(costValue!=0) {
+            if (costValue==1) {
+                f << costValue << " " << color << "\n";
+            }
+            else {
+                f << costValue << " " << color << "S\n";
+            }
+        }
+    }
+    f << "------------------------------\n";
+    f << "Prestige : " << c.getPrestige() << "   " << "Couronnes : " << c.getCrowns() << "\n";
+    f << "------------------------------\n";
+    return f;
+}
+
+std::ostream & operator << (std::ostream & f,
+RoyalCard& c) {
+    f << "------------------------------\n";
+    f << "ID : " << c.getId() << "Prestige : " << c.getPrestige() << "   " << "Capacité : " << c.getAbility() << "\n";
+    f << "------------------------------\n";
+    return f;
+}
+
+std::ostream& operator << (std::ostream & f,Pyramid_Cards& p) {
+    for (auto card : p.getLevelCards(1)) {
+        f << *card;
+    }
+    for (auto card : p.getLevelCards(2)) {
+        f << *card;
+    }
+    for (auto card : p.getLevelCards(3)) {
+        f << *card;
+    }
+    return f;
 }

@@ -37,7 +37,7 @@ public:
     std::vector<CompulsoryActions> getCompulsoryActions(const Game& game, Player& player) const;
     void applyOptionalAction(Game& game, Player& player,  OptionalActions action);
     void applyCompulsoryAction(Game& game, Player& player,  CompulsoryActions action);
-    bool applyCardSkills(Game& game, Player& cardOwner, Player& opponent, JewelryCard& card);
+    void applyCardSkills(Game& game, Player& cardOwner, Player& opponent, JewelryCard& card);
 
     bool checkCardPurchase(const JewelryCard& card, GameTable& gametable);
     // Actions optionnelles
@@ -45,9 +45,9 @@ public:
     void fillBoard(Board& board, Bag& bag);
 
     // Actions obligatoires
-    void chooseToken(Board& board, Player& player);
+    const Token& chooseToken(Board& board, Player& player);
     void chooseGoldenToken(Board& board, Player& player);
-    void buyNobleCard (Pyramid_Cards& pyramid);
+    void buyNobleCard ();
     void buyJewelryCard(GameTable& gametable);
     void bookCard(Pyramid_Cards& pyramid, GameTable& gametable);
     bool checkIfPlayerWins(Game& game, Player& player);

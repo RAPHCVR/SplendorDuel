@@ -9,15 +9,45 @@
 
 std::string toString(TokenColor c) {
     switch (c) {
-        case TokenColor::BLANC: return "Blanc";
-        case TokenColor::BLEU: return "Bleu";
-        case TokenColor::NOIR: return "Noir";
-        case TokenColor::OR: return "Or";
-        case TokenColor::PERLE: return "Perle";
-        case TokenColor::ROUGE: return "Rouge";
-        case TokenColor::VERT: return "Vert";
-        case TokenColor::None: return "Vide";
+        case TokenColor::BLANC: return "BLANC";
+        case TokenColor::BLEU: return "BLEU";
+        case TokenColor::NOIR: return "NOIR";
+        case TokenColor::OR: return "OR";
+        case TokenColor::PERLE: return "PERLE";
+        case TokenColor::ROUGE: return "ROUGE";
+        case TokenColor::VERT: return "VERT";
+        case TokenColor::None: return "VIDE";
         default: throw std::invalid_argument("Couleur inconnue");
+    }
+}
+
+
+
+TokenColor toTokenColor(std::string s) {
+    if (s==("BLEU")) {
+        return TokenColor::BLEU;
+    }
+    else if (s==("BLANC")) {
+        return TokenColor::BLANC;
+    }
+    else if (s==("VERT")) {
+        return TokenColor::VERT;
+    }
+    else if (s==("NOIR")) {
+        return TokenColor::NOIR;
+    }
+    else if (s==("ROUGE")) {
+        return TokenColor::ROUGE;
+    }
+    else if (s==("PERLE")) {
+        return TokenColor::PERLE;
+    }
+    else if (s==("OR")) {
+        return TokenColor::OR;
+    }
+    else {
+        // Gérer le cas où la chaîne ne correspond à aucune couleur connue
+        return TokenColor::None;
     }
 }
 

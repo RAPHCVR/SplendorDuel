@@ -41,18 +41,19 @@ private:
 
 public:
     std::string getName() const {return name;};
-    unsigned int getPrivilege() const;
+    unsigned int getNbPrivilege() const;
     unsigned int getPrestige() const {return prestigePoints;};
     unsigned int getCrowns() const {return nbCrown;};
     Type getType() const {return type;}
-    SummaryCard getBlueSummary(){return blueSummary;}
-    SummaryCard getWhiteSummary(){return whiteSummary;}
-    SummaryCard getGreenSummary(){return greenSummary;}
-    SummaryCard getBlackSummary(){return whiteSummary;}
-    SummaryCard getRedSummary(){return redSummary;}
+    SummaryCard& getBlueSummary(){return blueSummary;}
+    SummaryCard& getWhiteSummary(){return whiteSummary;}
+    SummaryCard& getGreenSummary(){return greenSummary;}
+    SummaryCard& getBlackSummary(){return whiteSummary;}
+    SummaryCard& getRedSummary(){return redSummary;}
     unsigned int getMaxPrestigeColor(){return std::max({blueSummary.getPrestigePoints(),whiteSummary.getPrestigePoints(),greenSummary.getPrestigePoints(),blackSummary.getPrestigePoints(),redSummary.getPrestigePoints()});}
 
     std::vector<int> getBonusSummary();
+    SummaryCard& getColorSummary(TokenColor color) {return color == TokenColor::BLEU ? blueSummary : color == TokenColor::BLANC ? whiteSummary : color == TokenColor::VERT ? greenSummary : color == TokenColor::NOIR ? blackSummary : redSummary;}
  
     std::unordered_map<TokenColor, int> getTokenSummary(){ return tokenSummary;}
     std::vector<JewelryCard*>& getJewelryCards(){ return jewelryCards;}
@@ -63,11 +64,11 @@ public:
 
 
     const Token& removeToken(TokenColor color); // appelé quand on achete une carte ou se fait voler un jeton ou au bout de 10 jetons
+    const Privilege& removePrivilege(); // decrementer le nb de priviliege --> en cas de vol, de remplissage de plateau, de dépense du privilège
     //int prestigePerColor(); // retourne le total de prestige pour une couleur du joueur
     void addCrowns(int nbCrowns); // compter mes couronnes + prendre une carte couronne si crown = 3 ou 6 (--> appeler )
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
     void addPrivilege(const Privilege& privilege); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
-    const Privilege& removePrivilege(); // decrementer le nb de priviliege --> en cas de vol
     void addJewelryCard( JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
     void addRoyalCard(RoyalCard &card);// ajout d'une carte royale a mon inventaire
     void addToken(const Token &token); // ajout d'un jeton a mon inventaire
@@ -80,7 +81,7 @@ public:
     void actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
     void spendResources(std::unordered_map<TokenColor, int> tokensToSpend);
-    void actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenColor, int> tokensToSpend);
+    void actionBuyReservedCard(JewelryCard &card);
 
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
     //void usePrivilege(); Impmémenté dans controller

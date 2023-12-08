@@ -11,6 +11,7 @@
 //Liste des couleurs possibles pour les jetons, avec l'affichage
 enum class TokenColor { BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR, None };
 std::string toString(TokenColor c);
+TokenColor toTokenColor(std::string s);
 std::ostream& operator<<(std::ostream& f, TokenColor c);
 
 
