@@ -234,6 +234,8 @@ public:
     //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
     void drawCard(unsigned int level, Deck_level_one* Deck_one, Deck_level_two* Deck_two, Deck_level_three* Deck_three);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
+    
+    //void getRow1(){ return row_level_one;}
 
 private:
 
