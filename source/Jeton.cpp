@@ -3,6 +3,8 @@
 //
 
 #include "Jeton.h"
+
+#include <algorithm>
 #include <math.h>
 
 std::string toString(TokenColor c) {
@@ -97,6 +99,13 @@ const Token& Bag::drawToken() {
     tokens.erase(tokens.begin() + i);
     return j;
 }
+
+bool Bag::containsOnly(TokenColor color) const {
+    std::all_of(tokens.begin(), tokens.end(), [color](const Token* token) {
+        return token->getColor() == color;
+    });
+}
+
 
 std::ostream& operator<< (std::ostream& f, const Privilege& privilege) {
     return f << "Privilege" << std::endl;
@@ -248,8 +257,9 @@ const Privilege& Board::takePrivilege() {
     if (privileges.empty()) {
         throw TokenException("Il n'y a pas de privilège sur le plateau");
     }
-    const Privilege& privilege = *privileges.back();
-    privileges.back() = nullptr;
+    unsigned int size = getNbPrivileges()-1;
+    const Privilege& privilege = *privileges[size];
+    privileges[size] = nullptr;
     actionPerformed();
     return privilege;
 }
@@ -307,4 +317,27 @@ bool Board::hasTokenOfColor(TokenColor color) const {
         }
     }
     return false;
+}
+
+bool Board::containsOnly(const TokenColor color) const {
+    for (const auto& row : tokens) {
+        for (const auto& token : row) {
+            if (token && token->getColor() != color) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+unsigned Board::getNbTokens() const {
+    unsigned int nb = 0;
+    for (const auto& row : tokens) {
+        for (const auto& token : row) {
+            if (token) {
+                nb++;
+            }
+        }
+    }
+    return nb;
 }

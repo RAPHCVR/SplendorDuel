@@ -30,13 +30,18 @@ int main(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    Controller* controller = new Controller();
     MainWindow *mainWindow1 = new MainWindow();
     mainWindow1->show();
-    app.processEvents();
-    std::cout<<"Appuyez sur une touche et entree pour continuer"<<std::endl;
-    std::cin.get();
-    controller->getGame().getGameTable().getBoard().takeToken(0,0);
-    controller->getGame().getGameTable().getBoard().showBoard();
     return QApplication::exec();
 }
+
+
+/*
+int main() {
+    Deck_level_one* a = Deck_level_one::getInstance();
+    std::string s = "Joueur 1";
+    Player player1(s, Type::Humain);
+    player1.addJewelryCard(*a->getPioche()[0]);
+    return 0;
+}
+*/

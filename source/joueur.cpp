@@ -1,9 +1,5 @@
-#include "Jeton.cpp"
 #include "Jeton.h"
-#include "Partie.cpp"
-#include "Partie.h"
 #include "Cards.h"
-#include "Cards.cpp"
 #include "joueur.h"
 
 #include <algorithm>
@@ -26,9 +22,9 @@ std::vector<int> Player::getBonusSummary() {
 }
 
 //celine
-void Player::addToken(Token &token) {
+void Player::addToken(const Token &token) {
     tokenSummary.at(token.getColor())+=1;
-    tokens.at(token.getColor()).push_back(token);
+    tokens.at(token.getColor()).push_back(&token);
 }
 
 // // lise --> plus besoin car on a tout dans Player::buyReservedCard()
@@ -51,9 +47,8 @@ void Player::addToken(Token &token) {
 
 // Celine
 // ajout d'une carte dans la reserve
-void Player::reserveOneCard(JewelryCard& card, Token& goldToken){
-    addToken(goldToken);
-    getReserve().push_back(card);
+void Player::reserveOneCard(JewelryCard& card){
+    getReserve().push_back(&card);
 }
 
 
@@ -67,81 +62,89 @@ bool Player::canReserveCard(){
     return false;
 }
 
-void Player::addPrivilege() {
-    privilege+=1;
+void Player::addPrivilege(const Privilege& privilege) {
+    unsigned int nb = getPrivilege();
+    privileges[nb]=&privilege;
 }
 
-void Player::removePrivilege() {
-    privilege-=1;
+unsigned int Player::getPrivilege() const {
+    unsigned int nb = privileges.size();
+    for (auto privilege : privileges) {
+        if (privilege == nullptr) {
+            nb--;
+        }
+    }
+    return nb;
+}
+
+const Privilege& Player::removePrivilege() {
+    unsigned int size = getPrivilege()-1;
+    const Privilege& privilege = *privileges[size];
+    privileges[size] = nullptr;
+    return privilege;
 }
 
 void Player::addCrowns(int nbCrowns) {
     nbCrown+=1;
-    RoyalCard chosenCard;
-    if (nbCrown==3 || nbCrown==6){
-        //afficher les carte royales disponibles
-        //en choisir une
-        //chosenCard=carte choisie
-        prestigePoints+=chosenCard.getPrestige();
-        cardsRoyal.insert(cardsRoyal.begin(),chosenCard);
-        chosenCard.useAbility();
-    }
 }
 
-void Player::removeToken(Token &token) {
-    std::string tokenColor=token.getColor();
-    tokenSummary.at(tokenColor)-=1; //retire dans le dico
-    std::vector<Token>::iterator it;
-    //it = remove(tokens.begin(), tokens.end(), token); ne marche pas encore
+// celine
+// retire un jeton de couleur "color"
+// retourne un token pour permettre de le remettre dans le sac si 11 eme jeton 
+// ou le donner a un autre joueur si vol
+const Token& Player::removeToken(TokenColor color) {
+    //retire dans le resume de jetons
+    tokenSummary.at(color)-=1;
+
+    // retire jeton dans inventaire
+    const Token* token = tokens.at(color).back();
+    // on retire le jeton du dico de jeton
+    tokens.at(color).pop_back();
+    return *token;
 }
 
-// lise
-// prendre les jetons sur le plateau (demander la rpz des jetons sur le plateau)
-void Player::actionAddToken(){
-        int nb_jetons = 0;
-        Token token1, token2, token3; // token est recopiable
-        int ok; 
-    while(!ok){
-        // affiche les jetons dispo sur le plateau + demander lequel (clique sur le jeton) [griser + non cliquable les cases pas cliquables]
-        // if(nb_jetons == O), else if nb_jeton ==1, 2
-        // a chaque clic --> incrementer nb_jeton + remplir les info du jeton selectionné + demander si ok ==1 ou 0 pour ajout definitif
+// // lise
+// // prendre les jetons sur le plateau (demander la rpz des jetons sur le plateau)
+// void Player::actionAddToken(){
+//         int nb_jetons = 0;
+//         Token token1, token2, token3; // token est recopiable
+//         int ok; 
+//     while(!ok){
+//         // affiche les jetons dispo sur le plateau + demander lequel (clique sur le jeton) [griser + non cliquable les cases pas cliquables]
+//         // if(nb_jetons == O), else if nb_jeton ==1, 2
+//         // a chaque clic --> incrementer nb_jeton + remplir les info du jeton selectionné + demander si ok ==1 ou 0 pour ajout definitif
 
 
-        // 
-    }
-    // ok = 1 --> ajout
-    tab_token_to_add
-    for(int i =0; i< nb_jeton; i++){
-        addToken(tab_token_to_add[i]);
-        // retirer le jeton du plateau (methode plateau)
-    }
+//         // 
+//     }
+//     // ok = 1 --> ajout
+//     tab_token_to_add
+//     for(int i =0; i< nb_jeton; i++){
+//         addToken(tab_token_to_add[i]);
+//         // retirer le jeton du plateau (methode plateau)
+//     }
     
-}
+// }
 
 //Celine
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
 void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
-    // remove token from list token + maj token summary et tokens
-    // add token to bag
-    //bagOfTokens.push_back(tokens.back());
-
-    // parcours le dico
-    for(auto cost = tokensToSpend.begin(); cost!=tokensToSpend.end(); cost++){
-        // depense des jetons
-        for(int i = 0; i< cost->second; i++){
-            // utilisation de std::move() pour deplacer l'instance de l'objet plutot que de le supprimer
-            auto temp = std::move(tokens.at(cost->first).back());
-            // on retire le jeton du dico de jeton
-            tokens.at(cost->first).pop_back();
-            // on met le token dans le sac de jeton
-            Bag::getInstance().addToken(temp);
-            // maj de tokenSummary pour la couleur en cours
-            tokenSummary.at(cost->first)--;
-
+    for(auto const& [color, tokensNeeded] : tokensToSpend) {
+        if (tokensNeeded != 0) {
+            int playerTokens = tokenSummary[color];
+            if(playerTokens < tokensNeeded) {
+                // If the player does not have enough tokens, throw an exception or return an error
+                throw std::runtime_error("Not enough tokens to spend");
+            }
+            // Subtract the tokens needed from the player's tokens
+            tokenSummary[color] -= tokensNeeded;
+            // Return the tokens to the bag
+            for(int i = 0; i < tokensNeeded; i++) {
+                Bag::getInstance().addToken(*tokens[color].back());
+                tokens[color].pop_back();
+            }
         }
     }
-
-
 }
 
 //Celine
@@ -165,7 +168,6 @@ void Player::addPrestige(int n, TokenColor color) {
         case TokenColor::NOIR:
             blackSummary.addprestigePoints(n);
             break;
-        default:
         // pas une carte joallerie
 
         }
@@ -173,73 +175,97 @@ void Player::addPrestige(int n, TokenColor color) {
         //cout << "Le joueur " << name << " a gagné " << n << " points de prestige!" << endl;
 }
 
+
+// VERIFIER SI CARTE COLOR NONE (cameleon) SI A DEJA
 //Celine
 // méthode pour vérifier si le joueur a les ressources nécessaires pour acheter une carte    
 bool Player::canBuyCard(JewelryCard &card){
-    // liste des bonus ordre (bleu,blanc,vert,noir,rouge)
-    std::vector<int> bonus = getBonusSummary();
-    int goldTokens = tokenSummary[TokenColor::OR];
-    unsigned int i = 0;
-    // pour chaque type de jeton, on regarde le cout
-    for(auto elt = getTokenSummary().begin(); elt!=getTokenSummary().end(); elt++){
-        // si cout > tokens du joueur + bonus (= carte trop chere)
-        int costGap = card.getCost().at(elt->first) - bonus[i] - elt->second;
-        // achat jeton+bonus pas suffisant
-        if(costGap > 0){
-            // achat de la carte avec or + jetons possible
-            if(goldTokens > costGap){
-                goldTokens = goldTokens - costGap;
-            }
-            // pas assez de gold pour acheter carte
-            else{
+    // Retrieve the cost of the card
+    std::unordered_map<TokenColor, int> cost = card.getCost();
+
+    // Retrieve the player's tokens and bonuses
+    std::unordered_map<TokenColor, int> playerTokens = getTokenSummary();
+    std::vector<int> playerBonuses = getBonusSummary();
+    unsigned int i =0;
+    unsigned int playerValue = 0;
+    // Check if the player has enough tokens and bonuses to cover the cost of the card
+    int goldAvailable = playerTokens[TokenColor::OR];
+    for(auto const& [color, costValue] : cost) {
+        if (color == TokenColor::PERLE) {
+            playerValue = playerTokens[color];
+        }
+        else {
+            playerValue = playerTokens[color] + playerBonuses[i];
+        }
+        if(playerValue < costValue) {
+            // If the player does not have enough tokens and bonuses, check if they have enough gold tokens to cover the remaining cost
+            int goldTokensNeeded = costValue - playerValue;
+            if(goldAvailable < goldTokensNeeded) {
+                // If the player does not have enough gold tokens, they cannot buy the card
                 return false;
             }
+            else {
+                goldAvailable -= goldTokensNeeded;
+            }
         }
-        i++;
-    } 
-    return true;   
-}
+        if (color != TokenColor::PERLE) {
+            i++;
+        }
+    }
 
+    // If the player has enough resources to buy the card, return true
+    return true;
+}
 
 
 //Celine
 // retire et place dans le sac les jetons dépensés lors de l’achat,
 // retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
-void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
+//void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
+void Player::actionBuyCard(JewelryCard &card){
     // Retirer les ressources nécessaires
+    std::unordered_map<TokenColor, int> tokensToSpend = card.getCost();
     spendResources(tokensToSpend);
 
     // Ajouter la carte au joueur
     addJewelryCard(card);
 
     // Retirer la carte du plateau de jeu
-    Pyramid_Cards::getInstance(Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance()).takeCard(card.getLevel(), position);
+    
+    // recup decks
+    //Deck_level_one* Deck1 = Deck_level_one::getInstance();
+    //Deck_level_two* Deck2 = Deck_level_two::getInstance();
+    //Deck_level_three* Deck3 = Deck_level_three::getInstance();
+    //Pyramid_Cards* pyramide = Pyramid_Cards::getInstance(Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance()).takeCard(card.getLevel(), position);
+    //Pyramid_Cards* pyramide = Pyramid_Cards::getInstance(Deck1, Deck2, Deck3);
+    //pyramide.takeCard(card.getLevel(), position);
 }
 
 
 //Celine
 // ajout de la carte dans jewelryCards + modif de la carte resumé correspondant (couleur)
-void Player::addJewelryCard(JewelryCard &card){
-    // ajout de la carte dans la liste de cartes joailleries
-    getJewelryCards().push_back(card);
+void Player::addJewelryCard(JewelryCard &card) {
+    // ajout de la carte dans la liste de cartes joaillerie
+    getJewelryCards().push_back(&card);
 
     //ajout des points de prestiges dans summary carte + dans attribut prestigePoints de Player
-    if(int nbPrestiges = card.getPrestige()){
-        addPrestige(nbPrestiges, card.getBonus().bonus_color);  
+    if(card.getPrestige()!=0){
+        addPrestige(card.getPrestige(), card.getBonus().bonus_color);
     }
 
     //ajout des couronnes
-    if(int nbCrowns = card.getCrowns()){
-        addCrowns(nbCrowns);
+    if(card.getCrowns()!=0){
+        addCrowns(card.getCrowns());
     }
+
 }
 
 //Celine
 // ajout de la carte dans royalCards 
 void Player::addRoyalCard(RoyalCard &card){
     // ajout de la carte dans la liste de cartes royales
-    getRoyalCards().push_back(card);
+    getRoyalCards().push_back(&card);
 
     // pas de couleur, juste ajout du nb de prestiges
     addPrestige(card.getPrestige(), TokenColor::None);
@@ -249,15 +275,30 @@ void Player::addRoyalCard(RoyalCard &card){
 
 // Celine 
 void Player::actionBuyReservedCard(JewelryCard &card, std::unordered_map<TokenColor, int> tokensToSpend){
-    auto it = std::find(getReserve().begin(), getReserve().end(), card);
-    if (it != getReserve().end()) {
-        // achat de la carte
-        spendResources(tokensToSpend);
-        // on met la carte dans jewelryCards
-        addJewelryCard(*it);
-        // on retire la carte de la reserve
-        getReserve().erase(it);
+    // Retirer les ressources nécessaires
+    spendResources(tokensToSpend);
 
+    // Ajouter la carte au joueur
+    addJewelryCard(card);
+
+    // Retirer la carte de la réserve
+    auto it = std::find(reserve.begin(), reserve.end(), &card);
+    if (it != reserve.end()) {
+        reserve.erase(it);
     }
-        
+}
+
+Player::Player(std::string& n, Type t) {
+    name = n;
+    type = t;
+    prestigePoints = 0;
+    nbCrown = 0;
+    nbTokens = 0;
+    tokenSummary = {{TokenColor::BLEU, 0}, {TokenColor::BLANC, 0}, {TokenColor::VERT, 0}, {TokenColor::NOIR, 0}, {TokenColor::ROUGE, 0}, {TokenColor::OR, 0}, {TokenColor::PERLE, 0}};
+    tokens = {{TokenColor::BLEU, std::vector<const Token*>()}, {TokenColor::BLANC, std::vector<const Token*>()}, {TokenColor::VERT, std::vector<const Token*>()}, {TokenColor::NOIR, std::vector<const Token*>()}, {TokenColor::ROUGE, std::vector<const Token*>()}, {TokenColor::OR, std::vector<const Token*>()}, {TokenColor::PERLE, std::vector<const Token*>()}};
+    blackSummary = SummaryCard(0, 0);
+    blueSummary = SummaryCard(0, 0);
+    greenSummary = SummaryCard(0, 0);
+    redSummary = SummaryCard(0, 0);
+    whiteSummary = SummaryCard(0, 0);
 }
