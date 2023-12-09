@@ -23,8 +23,9 @@ std::vector<int> Player::getBonusSummary() {
 
 //celine
 void Player::addToken(const Token &token) {
-    tokenSummary.at(token.getColor())+=1;
-    tokens.at(token.getColor()).push_back(&token);
+    tokenSummary.find(token.getColor())->second+=1;
+    nbTokens++;
+    tokens.find(token.getColor())->second.push_back(&token);
 }
 
 // // lise --> plus besoin car on a tout dans Player::buyReservedCard()
@@ -98,6 +99,8 @@ void Player::addCrowns(int nbCrowns) {
 const Token& Player::removeToken(TokenColor color) {
     //retire dans le resume de jetons
     tokenSummary.at(color)-=1;
+    //retire dans le total de jetons
+    nbTokens--;
 
     // retire jeton dans inventaire
     const Token* token = tokens.at(color).back();
@@ -133,16 +136,19 @@ const Token& Player::removeToken(TokenColor color) {
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
 void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
     unsigned int goldcounter = tokenSummary[TokenColor::OR];
+    SummaryCard* bonus;
     for(auto const& [color, tokensNeeded] : tokensToSpend) {
         if (tokensNeeded != 0) {
+            bonus = &getColorSummary(color);
+            int finalCost = tokensNeeded - bonus->getBonusNumber();
             int playerTokens = tokenSummary[color];
-            if(playerTokens < tokensNeeded) {
-                int tokenGap = tokensNeeded - playerTokens;
+            if(playerTokens < finalCost) {
+                int tokenGap = finalCost - playerTokens;
                 if (goldcounter >= tokenGap) {
                     goldcounter -= tokenGap;
-                    tokenSummary[color] = tokenSummary[color]  - tokensNeeded + tokenGap;
+                    tokenSummary[color] = tokenSummary[color]  - finalCost + tokenGap;
                     tokenSummary[TokenColor::OR] -= tokenGap;
-                    for(int i = 0; i < tokensNeeded - tokenGap; i++) {
+                    for(int i = 0; i < finalCost - tokenGap; i++) {
                         Bag::getInstance().addToken(*tokens[color].back());
                         tokens[color].pop_back();
                     }
@@ -157,12 +163,14 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
                 }
             }
             else {
-                // Subtract the tokens needed from the player's tokens
-                tokenSummary[color] -= tokensNeeded;
-                // Return the tokens to the bag
-                for(int i = 0; i < tokensNeeded; i++) {
-                    Bag::getInstance().addToken(*tokens[color].back());
-                    tokens[color].pop_back();
+                if (finalCost>0){
+                    // Subtract the tokens needed from the player's tokens
+                    tokenSummary[color] -= finalCost;
+                    // Return the tokens to the bag
+                    for(int i = 0; i < finalCost; i++) {
+                        Bag::getInstance().addToken(*tokens[color].back());
+                        tokens[color].pop_back();
+                    }
                 }
             }
         }
@@ -207,8 +215,7 @@ bool Player::canBuyCard(JewelryCard &card){
 
     // Retrieve the player's tokens and bonuses
     std::unordered_map<TokenColor, int> playerTokens = getTokenSummary();
-    std::vector<int> playerBonuses = getBonusSummary();
-    unsigned int i =0;
+    SummaryCard* bonus;
     unsigned int playerValue = 0;
     // Check if the player has enough tokens and bonuses to cover the cost of the card
     int goldAvailable = playerTokens[TokenColor::OR];
@@ -217,7 +224,8 @@ bool Player::canBuyCard(JewelryCard &card){
             playerValue = playerTokens[color];
         }
         else {
-            playerValue = playerTokens[color] + playerBonuses[i];
+            bonus = &getColorSummary(color);
+            playerValue = playerTokens[color] + bonus->getBonusNumber();
         }
         if(playerValue < costValue) {
             // If the player does not have enough tokens and bonuses, check if they have enough gold tokens to cover the remaining cost
@@ -229,9 +237,6 @@ bool Player::canBuyCard(JewelryCard &card){
             else {
                 goldAvailable -= goldTokensNeeded;
             }
-        }
-        if (color != TokenColor::PERLE) {
-            i++;
         }
     }
 
@@ -274,6 +279,11 @@ void Player::addJewelryCard(JewelryCard &card) {
     //ajout des points de prestiges dans summary carte + dans attribut prestigePoints de Player
     if(card.getPrestige()!=0){
         addPrestige(card.getPrestige(), card.getBonus().bonus_color);
+    }
+
+    //ajout des bonus dans summary carte
+    if(card.getBonus().bonus_number!=0){
+        getColorSummary(card.getBonus().bonus_color).addBonusNumber(card.getBonus().bonus_number);
     }
 
     //ajout des couronnes
@@ -331,4 +341,27 @@ Player::Player(std::string& n, Type t) {
     greenSummary = SummaryCard(0, 0);
     redSummary = SummaryCard(0, 0);
     whiteSummary = SummaryCard(0, 0);
+}
+
+std::ostream& operator<<(std::ostream& f, Player& p) {
+    f << "Joueur :" << p.getName() << " : " << std::endl;
+    f << "Couronnes : " << p.getCrowns() << std::endl;
+    f << "Prestige : " << p.getPrestige() << std::endl;
+    f << "Jetons : " << std::endl;
+    for (auto const& [color, tokens] : p.getTokenSummary()) {
+        f << color << " : " << tokens << std::endl;
+    }
+    f << "Cartes joaillerie : " << std::endl;
+    for (auto const& card : p.getJewelryCards()) {
+        f << *card << std::endl;
+    }
+    f << "Cartes royales : " << std::endl;
+    for (auto const& card : p.getRoyalCards()) {
+        f << *card << std::endl;
+    }
+    f << "Cartes en reserve : " << std::endl;
+    for (auto const& card : p.getReserve()) {
+        f << *card << std::endl;
+    }
+    return f;
 }

@@ -42,6 +42,7 @@ private:
 public:
     std::string getName() const {return name;};
     unsigned int getNbPrivilege() const;
+    unsigned int getNbTokens() const {return nbTokens;};
     unsigned int getPrestige() const {return prestigePoints;};
     unsigned int getCrowns() const {return nbCrown;};
     Type getType() const {return type;}
@@ -95,5 +96,5 @@ public:
     // voler jeton
     //
 };
-
+std::ostream& operator<<(std::ostream& f, Player& j);
 #endif //TEST_JOUEUR_H

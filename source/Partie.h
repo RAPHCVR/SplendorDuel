@@ -51,9 +51,8 @@ class Game {
 private:
     unsigned int round;
     Player *players[2];
-public:
-
     GameTable *gametable;
+public:
     Game() : gametable(new GameTable()) {
         players[0] = nullptr;
         players[1] = nullptr;

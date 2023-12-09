@@ -34,9 +34,9 @@ namespace Utility{
 std::string toString(Abilities a){
     switch(a){
         case Abilities::repeat_turn: return "Rejouer";
-        case Abilities::cameleon: return "Caméleon";
+        case Abilities::cameleon: return "Cameleon";
         case Abilities::take_bonus_token: return "Prendre un jeton";
-        case Abilities::take_privilege: return "Prendre un privilège";
+        case Abilities::take_privilege: return "Prendre un privilege";
         case Abilities::steal_token: return "Voler un jeton";
         case Abilities::None: return "Rien";
         default: throw std::invalid_argument("Capacité inconnue");

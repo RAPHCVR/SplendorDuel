@@ -38,6 +38,7 @@ public:
     void applyOptionalAction(Game& game, Player& player,  OptionalActions action);
     void applyCompulsoryAction(Game& game, Player& player,  CompulsoryActions action);
     void applyCardSkills(Game& game, Player& cardOwner, Player& opponent, JewelryCard& card);
+    void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
 
     bool checkCardPurchase(const JewelryCard& card, GameTable& gametable);
     // Actions optionnelles
@@ -45,7 +46,7 @@ public:
     void fillBoard(Board& board, Bag& bag);
 
     // Actions obligatoires
-    const Token& chooseToken(Board& board, Player& player);
+    const Token& chooseToken(Board& board, Player& player, std::vector<std::pair<int, int>>* tokenIndexes = nullptr);
     void chooseGoldenToken(Board& board, Player& player);
     void buyNobleCard ();
     void buyJewelryCard(GameTable& gametable);
@@ -59,5 +60,6 @@ public:
 };
 
 unsigned int choiceMaker(unsigned int a, unsigned int b);
+bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>* coordinates);
 
 #endif //CONTROLLER_H
