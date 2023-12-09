@@ -27,16 +27,16 @@ int main(int argc, char *argv[]) {
 }
 */
 
-/*
+
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     MainWindow *mainWindow1 = new MainWindow();
     mainWindow1->show();
     return QApplication::exec();
 }
-*/
 
 
+/*
 int main() {
     Controller* controller = new Controller();
     JewelryCard *card;
@@ -48,7 +48,7 @@ int main() {
     controller->play();
     return 0;
 }
-
+*/
 /*
 int main() {
     std::vector<std::pair<int, int>> grid = {{3, 3}, {4, 4}, {5, 4}};
