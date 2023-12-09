@@ -503,8 +503,7 @@ std::ostream& operator<<(std::ostream&f,const Bonus& b) {
     return f;
 }
 
-std::ostream & operator << (std::ostream & f,
-JewelryCard& c) {
+std::ostream & operator << (std::ostream & f, JewelryCard& c) {
     f << "------------------------------\n";
     f << "Niveau : " << c.getLevel() << "   " << "Bonus : " << c.getBonus() << "\n";
     f << "------------------------------\n";
