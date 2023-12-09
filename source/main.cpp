@@ -40,27 +40,18 @@ int main(int argc, char *argv[]) {
 int main() {
     Controller* controller = new Controller();
     JewelryCard *card;
-    while (controller->getopposingPlayer().getColorSummary(TokenColor::BLEU).getPrestigePoints()<10) {
-        for (int i = 0; i<4 ; i++) {
-            //take a card from pioche lv 1 and add it to the player's jewelryCards
-            card = controller->getGame().getGameTable().getPyramid().getLevelCards(2)[i];
-            controller->getopposingPlayer().addJewelryCard(*card);
-        }
-        for (int i = 0; i<3 ; i++) {
-            //take a card from pioche lv 1 and add it to the player's jewelryCards
-            card = controller->getGame().getGameTable().getPyramid().getLevelCards(3)[i];
-            controller->getopposingPlayer().addJewelryCard(*card);
-        }
-        for (int i = 0; i<5 ; i++) {
-            //take a card from pioche lv 1 and add it to the player's jewelryCards
-            card = controller->getGame().getGameTable().getPyramid().getLevelCards(1)[i];
-            controller->getopposingPlayer().addJewelryCard(*card);
-        }
+    controller->getopposingPlayer().addToken(controller->getGame().getGameTable().getBoard().takeToken(0,0));
+    while (card->getAbility1()!=Abilities::steal_token) {
+        card = &controller->getGame().getGameTable().getPyramid().takeCard(2,1);
+        controller->getGame().getGameTable().getPyramid().drawCard(2);
+        controller->getcurrentPlayer().addJewelryCard(*card);
     }
+    controller->applyCardSkills(controller->getGame(),controller->getcurrentPlayer(),controller->getopposingPlayer(),*card);
     controller->play();
     return 0;
 }
 */
+
 /*
 int main() {
     std::vector<std::pair<int, int>> grid = {{3, 3}, {4, 4}, {5, 4}};

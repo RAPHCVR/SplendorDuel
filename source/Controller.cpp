@@ -316,6 +316,7 @@ void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
         unsigned int nbCard = choiceMaker(1, nb);
         chooseGoldenToken(gametable.getBoard(), *currentPlayer);
         currentPlayer->reserveOneCard(pyramid.takeCard(level,nbCard-1));
+        pyramid.drawCard(level);
     }
 }
 
@@ -349,6 +350,7 @@ void Controller::buyJewelryCard(GameTable& gametable) {
         unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
         unsigned int nbCard = choiceMaker(1, nb);
         card = &gametable.getPyramid().takeCard(level, nbCard - 1);
+        gametable.getPyramid().drawCard(level);
         if (currentPlayer->canBuyCard(*card)) {
             currentPlayer->actionBuyCard(*card);
         }

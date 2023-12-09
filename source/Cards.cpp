@@ -343,24 +343,27 @@ JewelryCard& Pyramid_Cards::takeCard(unsigned int level, unsigned int position){
                 throw std::runtime_error("Position trop élevée !");
             }
             else{
-                unsigned int position_level_one = position;
-                return *row_level_one[position];
+                JewelryCard *card = row_level_one[position];
+                row_level_one.erase(row_level_one.begin()+position);
+                return *card;
             }
         case 2:
             if(position>4){
                 throw std::runtime_error("Position trop élevée !");
             }
             else{
-                unsigned int position_level_two = position;
-                return *row_level_two[position];
+                JewelryCard *card = row_level_two[position];
+                row_level_two.erase(row_level_two.begin()+position);
+                return *card;
             }
         case 3:
             if(position>3){
                 throw std::runtime_error("Position trop élevée !");
             }
             else{
-                unsigned int position_level_three = position;
-                return *row_level_three[position];
+                JewelryCard *card = row_level_three[position];
+                row_level_three.erase(row_level_three.begin()+position);
+                return *card;
             }
         default:
             throw std::runtime_error("Niveau de carte non existant");
