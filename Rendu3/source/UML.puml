@@ -1,0 +1,316 @@
+@startuml
+'skinparam classAttributeIconSize 0
+
+enum Niveau <<enumeration >> {
+  1
+  2
+  3
+}
+
+struct Bonus {
+    couleur : Couleur
+    nombre : uint
+}
+
+enum Couleur <<enumeration >> {
+  BLANC
+  VERT
+  PERLE
+  BLEU
+  OR
+  ROUGE
+  NOIR
+}
+enum OptionalActions{
+    UsePrivileges, FillBoard, Empty
+}
+
+enum CompulsoryActions{
+    TakeCoins, ReserveCard, BuyCard
+}
+
+namespace JetonsPrivilegePlateau {
+
+class Jeton {
+   -couleur : Couleur
+   +Jeton(jeton : const Jeton)
+   +Jeton(couleur: Couleur)
+   +getCouleur() : Couleur
+}
+
+class Privilege{
+}
+
+class SacJeton{
+  -jetons : Liste[Jeton]
+  -SacJeton(total : const TokenTotaux)
+  +getNbJetons() : size_t
+  +addJeton(jeton : const Jeton)
+  +PiocherJeton() : const Jeton
+  +estVide() : bool
+  +getInstance() : SacJeton
+  +containsOnly(color : TokenColor) : bool
+}
+note bottom of SacJeton : Le sac de jeton est unique, pas de duplication
+
+class JetonsTotaux{
+   -jetons : Liste[Jeton]
+   -max_or : const size_t
+   -max_rouge : const size_t
+   -max_noir : const size_t
+   -max_bleu : const size_t
+   -max_perle : const size_t
+   -max_vert : const size_t
+   -max_blanc : const size_t
+   {fi+TokenTotaux()
+   +~TokenTotaux
+   +getNbJetons : size_t
+   +getJeton : const Jeton
+}
+note bottom of JetonsTotaux: Le total initial est unique, pas de duplication
+
+class PrivilegesTotaux{
+   -privileges : Liste[Privilege]
+   -PrivilegesTotaux()
+   -~PrivilegesTotaux()
+   +getNbPrivileges() : size_t
+   +getPrivilege() : const Privilege
+   +getInstance() : TotalPrivilege
+}
+note bottom of PrivilegesTotaux: pas de duplication du total
+
+class Plateau{
+   -tokens : Liste[Liste[Jeton]]
+   -privileges : Liste[Privilege]
+   -observers : vecteur[Observer]
+   +Plateau(sac: SacJeton, privileges: const PrivilegesTotaux)
+   +takeToken(i : size_t, j : size_t) : const Jeton
+   +showBoard()
+   +takePrivilege() : const Privilege
+   +placerJeton(jeton : const Jeton)
+   +placerPrivilege(privilege : const Privilege)
+   +remplirPlateau(sac: SacJeton)
+   +estVideo() : bool
+   +getInstance() : Plateau
+   + class PlateauIterateur
+}
+note bottom of Plateau: pas de duplication du plateau
+
+
+' struct TupleIntJeton {
+'   nombre : int
+'   type_jeton : Jeton
+' }
+
+'class CoordonneeJeton{
+'  x : int
+'  y : int
+'}
+}
+
+enum Capacite <<enumeration >> {
+  Rejouer
+  Prendre_privilege
+  Prendre_jeton_adversaire
+  Prendre_jeton_plateau
+  Cameleon
+}
+namespace GestionPartie{
+
+class Controller {
+  - Jeu : Jeu
+  - JoueurEnCours : JoueurEnCours
+}			 
+class Jeu{
+    -TableDeJeu : TableDeJeu
+								 
+    -joueur_courant : Joueur
+    -tour : uint
+						 
+					   
+}
+class TableDeJeu{
+    - plateau : Plateau
+    - sac : SacJeton
+    - cartes_pyramide : CartesPyramide
+    - cartes_royales : Liste[CarteRoyale]
+    - cartes_joaillerie : Liste[CarteJoaillerie]
+    -DeckNv(1 à 3) : DeckNv(1 à 3)
+								  
+}
+}
+namespace JoueurHumainIA {
+
+class Joueur {
+  - name : string
+  - privilege :int
+  - type : Type
+  - nbCrown : int
+  - prestigePoints : int
+  - nbTokens : int
+  - cardsJewelry : Liste[CarteJoaillerie]
+  - reserve : Liste[CarteJoaillerie]
+  - cardsRoyal : Liste[CarteRoyale]
+  - tokens: Liste[Liste[jeton]]
+  - tokenSummary: unordered_map[CarteJoaillerie]
+  - blueSummary: SummaryCard
+  - greenSummary: SummaryCard
+  - redSummary: SummaryCard
+  - whiteSummary: SummaryCard
+  - blackSummary: SummaryCard
+  '- {field} jetons : List[TupleIntJeton]
+
+  + getName() : string
+  + getBonusSummary() : vector							  
+  + getPrivilege() : int
+  + getPrestige() : int
+  + getCrowns() : int
+  + getTokens() : int
+  + getType() : Type
+  + addToken(Token token)
+  + removeToken(Token token)
+  + addCrowns()
+  + addPrestige(int nb, tokenColor couleur)
+  + addPrivilege(const Privilege& privilege)
+  + removePrivilege()
+  + addJewelryCard(JewelryCard card)
+  + addRoyalCard(RoyalCard card)
+  + actionAddToken()
+  + actionReserveCard()
+  + actionBuyCard()
+  + actionBuyReservedCard(JewelryCard &card)											
+  + canBuyCard(const JewelryCard &card): Bool
+  + spendResources(const JewelryCard &card)
+  + usePrivilege()
+  + reserveoneCard (JewelryCard& card)
+  + canReserveCard()									  
+  + actionFillBoard()
+}
+note bottom of Joueur : privilege entre 0 et 3
+
+class Humain{}
+class IA{}
+}
+
+namespace GestionCartes{
+class CarteJoaillerie <<abstract>>{
+  - niveau : uint
+  - bonus : Bonus
+  - point_de_prestige : uint
+  - capacite : Capacite
+  - {field} cout : Liste[int]
+  - couronne : int
+  - id : int
+  +CarteJoaillerie(niveau : Niveau, bonus : Couleur, point_de_prestige : int, capacite : Capacite, cout : Liste[int], couronne : int, id : int)
+  +getNiveau() : int
+  +getBonus() : Bonus
+  +getCompetence() : Capacite
+  +getPrestige() : uint
+  +getCout() : Liste[int]
+  +getCouronne() : int
+  +getId() : int
+}
+note bottom of CarteJoaillerie : point de prestige entre 0 et 4\ncouronne entre 0 et 2
+
+
+class CarteRoyale {
+  - point_de_prestige : uint
+  - capacite : Capacite
+  - id : int
+  + CarteRoyale(point_de_prestige : int, capacite : Capacite)
+  + getPrestige() : uint
+  + getCompetence() : Capacite
+  + getId() : int
+}
+note bottom of CarteRoyale :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
+
+class Deck_Royal{
+  - Deck_Royal()
+  - instance : Deck_Royal
+  - cards : vecteur[RoyalCard]
+  + getInstance : Deck_Royal
+  + getCards : vecteur[RoyalCard]
+  + addCardToDeck(card : RoyalCard) : void
+  + deleteCard(pos : int) : void
+}
+note bottom of Deck_Royal : Gère le deck des cartes royales
+
+class DeckNv1{
+  - Deck_level_one()
+  - instance : Deck_level_one 
+  - pioche : Liste[CarteJoaillerie]
+  + getInstance() : Deck_level_one
+  + getPioche() : Liste[CarteJoaillerie]
+  + addCardToDeck(card : CarteJoaillerie) : void
+  + deleteFirstItem() : void
+}
+
+class DeckNv2{
+  - Deck_level_two()
+  - instance : Deck_level_two 
+  - pioche : Liste[CarteJoaillerie]
+  + getInstance() : Deck_level_two
+  + getPioche() : Liste[CarteJoaillerie]
+  + addCardToDeck(card : CarteJoaillerie) : void
+  + deleteFirstItem() : void
+}
+
+class DeckNv3{
+  - Deck_level_three()
+  - instance : Deck_level_three
+  - pioche : Liste[CarteJoaillerie]
+  + getInstance() : Deck_level_three
+  + getPioche() : Liste[CarteJoaillerie]
+  + addCardToDeck(card : CarteJoaillerie) : void
+  + deleteFirstItem() : void
+}
+
+class CartesPyramide{
+    - instance : CartesPyramide
+    - niveau1 : Liste[CarteJoaillerie]
+    - niveau2 : Liste[CarteJoaillerie]
+    - niveau3 : Liste[CarteJoaillerie]
+    - max_level_one : static int
+    - max_level_two : static int
+    - max_level_three : static int
+    + getInstance() : CartesPyramide
+    + CartesPyramide(deck1 : DeckNv1, deck2 : DeckNv2, deck3 : DeckNv3)
+    + piocherCarte(niveau : uint) : const CarteJoaillerie
+    + remplirPyramide(deck1 : DeckNv1, deck2 : DeckNv2, deck3 : DeckNv3)
+    + isEmpty(level : int) : bool
+    + getLevelCards(i : int) : vecteur[CarteJoaillerie]
+}
+}
+
+Jeu "1" -- "2" Joueur : < joue
+Plateau "1" -- "1" TableDeJeu : est joué dans >
+SacJeton "1" -- "1" TableDeJeu : est joué dans >
+CarteJoaillerie "*" -- "1" TableDeJeu : est joué dans >
+CarteRoyale "4" -- "1" TableDeJeu : est joué dans >
+TableDeJeu "1" --* Jeu : se joue dans >
+Controller *-- "1" Jeu : est controllé <									 
+
+Jeton "0..25" --* JetonsTotaux : est contenu dans >
+Privilege "0..3" --* PrivilegesTotaux : est contenu dans >
+Jeton "0..10" -- "0..1" Joueur : possède <
+Jeton "0..25" --o "0..1" SacJeton : est composé de <
+Jeton "0..25" --o "1" Plateau : est placé sur >
+Privilege "0..3" --o "0..1" Plateau : est placé sur >
+
+IA --|> Joueur
+Humain --|> Joueur
+'CoordonneeJeton "0..25" --  "1" Plateau
+'CoordonneeJeton "0..1" -- "1" Jeton
+
+Joueur "0..1" -- "0..*" CarteJoaillerie : possède >
+CarteJoaillerie --* DeckNv1
+CarteJoaillerie --* DeckNv2
+CarteJoaillerie --* DeckNv3
+CartesPyramide *-- "1" DeckNv1
+CartesPyramide *-- "1" DeckNv2
+CartesPyramide *-- "1" DeckNv3
+
+Joueur "0..1" -- "0..2" CarteRoyale : possède >
+
+
+@enduml
