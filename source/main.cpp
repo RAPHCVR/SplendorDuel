@@ -40,10 +40,22 @@ int main(int argc, char *argv[]) {
 int main() {
     Controller* controller = new Controller();
     JewelryCard *card;
-    for (int i = 0; i<5 ; i++) {
-        //take a card from pioche lv 1 and add it to the player's jewelryCards
-        card = controller->getGame().getGameTable().getPyramid().getLevelCards(1)[i];
-        controller->getcurrentPlayer().addJewelryCard(*card);
+    while (controller->getopposingPlayer().getColorSummary(TokenColor::BLEU).getPrestigePoints()<10) {
+        for (int i = 0; i<4 ; i++) {
+            //take a card from pioche lv 1 and add it to the player's jewelryCards
+            card = controller->getGame().getGameTable().getPyramid().getLevelCards(2)[i];
+            controller->getopposingPlayer().addJewelryCard(*card);
+        }
+        for (int i = 0; i<3 ; i++) {
+            //take a card from pioche lv 1 and add it to the player's jewelryCards
+            card = controller->getGame().getGameTable().getPyramid().getLevelCards(3)[i];
+            controller->getopposingPlayer().addJewelryCard(*card);
+        }
+        for (int i = 0; i<5 ; i++) {
+            //take a card from pioche lv 1 and add it to the player's jewelryCards
+            card = controller->getGame().getGameTable().getPyramid().getLevelCards(1)[i];
+            controller->getopposingPlayer().addJewelryCard(*card);
+        }
     }
     controller->play();
     return 0;
