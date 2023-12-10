@@ -5,7 +5,7 @@
 
 #include <iostream>
 #include <map>
-#include <qminmax.h>
+//#include <qminmax.h>
 #include <vector>
 #include <unordered_map>
 //#include les fichiers qui appelent les autres classes
