@@ -590,7 +590,7 @@ void Controller::playTurn() {
     }
     choice = choiceMaker(1, compulsoryActions.size());
     applyCompulsoryAction(*game, *currentPlayer, compulsoryActions[choice-1]);
-    if (currentPlayer->getNbTokens()>=10) {
+    if (currentPlayer->getNbTokens()>10) {
         unsigned int nb = - (10 - currentPlayer->getNbTokens());
         std::cout << "Voici vos Jetons, vous devez en retirer " << nb << " pour n'en conserver que 10 : " << std::endl;
         std::cout << *currentPlayer << std::endl;
