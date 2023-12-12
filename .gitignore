@@ -4,7 +4,6 @@ CMakeLists.txt
 cmake-build-debug
 .vs
 out
-CMakeLists.txt
 CMakePresets.json
 .dep.inc
 .vscode/settings.json
