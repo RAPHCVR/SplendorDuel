@@ -32,6 +32,9 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     MainWindow *mainWindow1 = new MainWindow();
     mainWindow1->show();
+    Controller* controller = new Controller();
+    app.processEvents();
+    controller->play();
     return QApplication::exec();
 }
 

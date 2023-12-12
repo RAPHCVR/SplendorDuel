@@ -334,7 +334,7 @@ void Controller::buyJewelryCard(GameTable& gametable) {
             bought = true;
             std::cout << "Veuillez choisir une carte" << std::endl;
             for (auto card : currentPlayer->getReserve()) {
-                std::cout << card << std::endl;
+                std::cout << *card << std::endl;
             }
             unsigned int nbCard = choiceMaker(1, currentPlayer->getReserve().size());
             card = currentPlayer->getReserve()[nbCard - 1];
