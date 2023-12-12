@@ -148,13 +148,16 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
                     goldcounter -= tokenGap;
                     tokenSummary[color] = tokenSummary[color]  - finalCost + tokenGap;
                     tokenSummary[TokenColor::OR] -= tokenGap;
+                    nbTokens -= tokenGap;
                     for(int i = 0; i < finalCost - tokenGap; i++) {
                         Bag::getInstance().addToken(*tokens[color].back());
                         tokens[color].pop_back();
+                        nbTokens--;
                     }
                     for (int i = 0; i < tokenGap; i++) {
                         Bag::getInstance().addToken(*tokens[TokenColor::OR].back());
                         tokens[TokenColor::OR].pop_back();
+                        nbTokens--;
                     }
                 }
                 else {
@@ -170,6 +173,7 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
                     for(int i = 0; i < finalCost; i++) {
                         Bag::getInstance().addToken(*tokens[color].back());
                         tokens[color].pop_back();
+                        nbTokens--;
                     }
                 }
             }
