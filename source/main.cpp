@@ -30,11 +30,11 @@ int main(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    MainWindow *mainWindow1 = new MainWindow();
-    mainWindow1->show();
+    PlateView* plate = new PlateView(nullptr, 500, 500);
+    plate -> show();
     Controller* controller = new Controller();
     app.processEvents();
-    controller->play();
+    controller -> play();
     return QApplication::exec();
 }
 

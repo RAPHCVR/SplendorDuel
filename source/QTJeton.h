@@ -10,6 +10,17 @@
 #include <QPalette>
 #include "Controller.h"
 
+class position{
+private:
+    int x;
+    int y;
+public:
+    position(int x, int y) : x(x), y(y){}
+    int getx() const {return x;}
+    int gety() const {return y;}
+};
+
+
 class PrivilegeCounter : public QLabel {
 public:
     explicit PrivilegeCounter(QWidget* parent = nullptr) : QLabel(parent) {
@@ -31,68 +42,81 @@ public:
     }
 };
 
-class CircleWidget : public QWidget {
+class CircleWidget : public QPushButton {
+    Q_OBJECT
 public:
-    CircleWidget(QWidget* parent,const Token* token);
+    CircleWidget(QWidget* parent = nullptr, const Token* token = nullptr, unsigned int rad = 0, position* pos = nullptr);
 
     void paintEvent(QPaintEvent* event) override;
 
-    void updateToken(const Token* newToken);
+    void changeSelect(){selected = !selected; update();};
+    void unselect(){selected = false; update();};
+    void appear(){show();};
+    void disappear(){hide();};
+    position* getPosition(){return pos;}
+    const Token* getJeton(){return token;}
 
 private:
     QColor convertColor(const Token &token);
+    QColor convertBackgroundColor(const Token &token);
+    QColor convertBorderColor(const Token &token);
     const Token* token;
+    position* pos;
+    QColor color;
+    QColor borderColor;
+    QColor backGroundColor;
+    bool selected;
+    unsigned int radius;
 };
 
 class PlateWidget : public QWidget {
+    Q_OBJECT
 public:
-    explicit PlateWidget(QWidget* parent = nullptr);
+    PlateWidget(QWidget* parent = nullptr, unsigned int h = 0, unsigned int w = 0, unsigned int nbTokens = 0, unsigned int tokenSize = 0, std::vector<CircleWidget*>* buttons = nullptr);
     void paintEvent(QPaintEvent* event) override;
-    void updateTokens();
+    void placeTokens();
 
 private:
-    std::vector<std::vector<CircleWidget*>> widgets;
+    std::vector<CircleWidget*>* buttons;
+    std::vector<QRect*> rectangles;
+    unsigned int nbTokens;
+    unsigned int rnbTokens;
+    unsigned int h;
+    unsigned int w;
+    unsigned int tokenSize;
 };
 
-class MainWindow : public QWidget, public Observer {
+class PlateView : public QWidget {
 public:
-    explicit MainWindow(QWidget* parent = nullptr) : QWidget(parent) {
-        Controller* controller = new Controller();
-        plateWidget = new PlateWidget(this);
-        plateWidget->move(0, 0);
-
-        privilegeCounter = new PrivilegeCounter(this);
-        privilegeCounter->move(plateWidget->width() + 10, 0); // Position on the right side
-
-        Board::getInstance().registerObserver(this);
-
-        // Set the size of the MainWindow to fit the PlateWidget and PrivilegeCounter
-        setFixedSize(plateWidget->width() + privilegeCounter->width(), plateWidget->height());
-
-        // Change the background color of the MainWindow
-        QPalette palette;
-        palette.setColor(QPalette::Window, QColor::fromRgb(100, 100, 100)); // Change to your desired color
-        setAutoFillBackground(true);
-        setPalette(palette);
-        controller->play();
-    }
+    PlateView(QWidget* parent = nullptr, unsigned int h = 0, unsigned int w = 0);
 
     void updatePrivilegeCounter() {
         privilegeCounter->updateCounter();
     }
 
-    void updatePlateWidget() {
-        plateWidget->updateTokens();
-    }
-
-    void update() override {
-        updatePlateWidget();
-        updatePrivilegeCounter();
-    }
+    void clickOnToken(unsigned int i);
+    void unselectToken();
+    bool isSelected(CircleWidget* button);
+    void validateTokens();
+    void hideElements();
+    void showTokens(){for(unsigned int i = 0; i < nbTokens; i++){buttons[i]->show();}update();}
 
 
 private:
     PrivilegeCounter* privilegeCounter;
     PlateWidget* plateWidget;
+    std::vector<CircleWidget*> buttons;
+    unsigned int nbTokens;
+    unsigned int rnbTokens;
+    std::array<CircleWidget*, 3> selectedTokens;
+    unsigned int nbSelectedTokens = 0;
+    unsigned int h;
+    unsigned int w;
+    unsigned int xHGButton;
+    unsigned int yHGButton;
+
+    QPushButton* validateButton;
+    QVBoxLayout* layout;
+
 };
 #endif //LO21PROJECT_QTJETON_H

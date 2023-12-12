@@ -10,13 +10,15 @@
 #include <QPalette>
 
 
-CircleWidget::CircleWidget(QWidget* parent,const Token* t) : QWidget(parent), token(t) {
-    setFixedSize(50, 50);
-    QPalette palette;
-    QColor randomColor = convertColor(*token);
-    palette.setColor(QPalette::Base, randomColor);
-    setAutoFillBackground(true);
-    setPalette(palette);
+CircleWidget::CircleWidget(QWidget* parent, const Token* token, unsigned int rad, position* p): QPushButton(parent), token(token), pos(p) {
+    color = convertColor(*token);
+    backGroundColor = convertBackgroundColor(*token);
+    borderColor = convertBorderColor(*token);
+    radius = rad;
+    setFixedSize(2 * rad, 2 * rad);
+    setStyleSheet("QPushButton:pressed { border: none; }");
+    selected = false;
+    setFlat(true);
 }
 
 QColor CircleWidget::convertColor(const Token &token) {
@@ -36,80 +38,210 @@ QColor CircleWidget::convertColor(const Token &token) {
     } else if (token.getColor() == TokenColor::OR) {
         return QColor::fromRgb(255, 215, 0);
     }
+    else {
+        return QColor::fromRgb(255, 255, 255);
+    }
 }
 
-PlateWidget::PlateWidget(QWidget* parent) : QWidget(parent) {
-    int tokenSize = 50; // The size of each token
-    Board::BoardIterator it = Board::getInstance().iterator();
-    unsigned int i = 0;
-    while (it.hasNext()) {
-        std::vector<CircleWidget*> widgetRow;
-        for (int j = 0; j < 5; ++j) {
-            const auto& token = it.next();;
-            if (token != nullptr) {
-                CircleWidget* widget = new CircleWidget(this, token);
-                widget->move(j * tokenSize, i * tokenSize); // Position the widget
-                widgetRow.push_back(widget);
-                std::cout << "Created CircleWidget for token\n";
-            } else {
-                widgetRow.push_back(nullptr);
-            }
-        }
-        ++i;
-        widgets.push_back(widgetRow);
+QColor CircleWidget::convertBackgroundColor(const Token& token) {
+    if (token.getColor() == TokenColor::BLEU) {
+        return QColor("#2FC5FF");
+    } else if (token.getColor() == TokenColor::BLANC) {
+        return QColor::fromRgb(255, 255, 255);
+    } else if (token.getColor() == TokenColor::VERT) {
+        return QColor("#88C85A");
+    } else if (token.getColor() == TokenColor::NOIR) {
+        return QColor::fromRgb(0, 0, 0);
+    } else if (token.getColor() == TokenColor::ROUGE) {
+        return QColor("#CD534E");
+    } else if (token.getColor() == TokenColor::PERLE) {
+        //rgb color purple brillant
+        return QColor("#EFC7FC");
+    } else if (token.getColor() == TokenColor::OR) {
+        return QColor("#E6DE73");
     }
-    // Set the size of the PlateWidget to fit the board
-    setFixedSize(5 * tokenSize, 5 * tokenSize);
+    else{
+        return QColor::fromRgb(255, 255, 255);
+    }
+}
+
+QColor CircleWidget::convertBorderColor(const Token& token) {
+    if (token.getColor() == TokenColor::BLANC) {
+        return QColor::fromRgb(0, 0, 0);
+    } else if (token.getColor() == TokenColor::NOIR) {
+        return QColor::fromRgb(255, 255, 255);
+    } else{
+        return QColor::fromRgb(255, 255, 255);
+    }
+}
+
+PlateWidget::PlateWidget(QWidget* parent, unsigned int h, unsigned int w, unsigned int nbTokens, unsigned int tokenSize, std::vector<CircleWidget*>* butt): QWidget(parent), nbTokens(nbTokens), h(h), w(w), tokenSize(tokenSize), buttons(butt) {
+    rnbTokens = static_cast<int>(sqrt(nbTokens));
+    for (unsigned int i = 0; i < rnbTokens; i++) {
+        for (unsigned int j = 0; j < rnbTokens; j++) {
+            QRect* rect = new QRect(2 * i * (tokenSize + 5) + (w - (2 * (tokenSize + 5)) * rnbTokens)/2, 2 * j * (tokenSize + 5), 2 * (tokenSize + 5), 2 * (tokenSize + 5));
+            rectangles.push_back(rect);
+        }
+    }
+    setFixedSize(w, h);
+}
+
+void PlateWidget::placeTokens() {
+    for (auto button : *buttons) {
+        unsigned int j = button->getPosition()->getx() + button->getPosition()->gety() * rnbTokens;
+        unsigned int posx = rectangles[j]->center().x() - button->width() / 2 + 2.5;
+        unsigned int posy = rectangles[j]->center().y() - button->height() / 2 + 2.5;
+        button->move(posx, posy);
+    }
 }
 
 void PlateWidget::paintEvent(QPaintEvent* event) {
-    Q_UNUSED(event)
-
+    QWidget::paintEvent(event);
     QPainter painter(this);
-    for (const auto& row : widgets) {
-        for (const auto& widget : row) {
-            if (widget != nullptr) {
-                widget->update();
-                std::cout << "Updated CircleWidget\n";
-            }
-        }
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(QColor("black"), 4));
+    painter.setBrush(QColor("orange"));
+    for (auto rect : rectangles) {
+        painter.drawRect(*rect);
     }
 }
 
 
 void CircleWidget::paintEvent(QPaintEvent* event) {
-    Q_UNUSED(event)
-
+    QPushButton::paintEvent(event);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(palette().base());
-    painter.drawEllipse(rect().adjusted(2, 2, -2, -2));
-}
-void CircleWidget::updateToken(const Token* newToken) {
-        token = newToken;
-        QColor newColor = convertColor(*token);
-        QPalette palette;
-        palette.setColor(QPalette::Base, newColor);
-        setAutoFillBackground(true);
-        setPalette(palette);
-        QWidget::update();  // Call the base class update to redraw the widget
+    unsigned int size = std::min(width(), height());
+    QPoint center = rect().center();
+
+    if(selected) {
+        painter.setPen(QPen(Qt::gray, 4));
+    }
+    else {
+        painter.setPen(QPen(borderColor,3));
+    }
+    int Radius = size / 2;
+    painter.setBrush(QBrush(backGroundColor));
+    painter.drawEllipse(center, Radius - 3, Radius - 3);
+
+    QVector<QPoint> tokenShape;
+    const int width = size * 2 / 3;
+    const int height = size * 3 / 4;
+    // Define the points for the token shape
+    tokenShape << QPoint(center.x(), center.y() - height / 2); // Top point
+    tokenShape << QPoint(center.x() + width / 2, center.y()); // Right point
+    tokenShape << QPoint(center.x(), center.y() + height / 2); // Bottom point
+    tokenShape << QPoint(center.x() - width / 2, center.y()); // Left point
+
+    // Draw the token shape
+    painter.setPen(QPen(borderColor, 2)); // Set the pen for the token shape
+    painter.setBrush(QBrush(color)); // Set the brush for the token shape
+    painter.drawPolygon(tokenShape); // Draw the token shape
+    if (this->isDown()) {
+        painter.setBrush(QColor(0,0,0,30));
+        painter.setPen(Qt::NoPen);
+        painter.drawPolygon(tokenShape);
+        painter.drawEllipse(center, Radius, Radius);
+    }
 }
 
-void PlateWidget::updateTokens() {
-    auto tokenIterator = Board::getInstance().iterator();
-    for (auto& row : widgets) {
-        for (auto& widget : row) {
-            if (widget != nullptr) {
-                const Token* token = tokenIterator.next();
-                if (token==nullptr) {
-                    delete widget;
-                    widget = nullptr;
-                }
-                else {
-                    widget->updateToken(token);
-                }
+PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height),w(width) {
+    std::vector<TokenColor> colors = {TokenColor::BLEU, TokenColor::BLANC, TokenColor::VERT, TokenColor::NOIR, TokenColor::ROUGE, TokenColor::PERLE, TokenColor::OR};
+    std::vector<unsigned int> indices;
+    for (unsigned int i = 0; i < 49; i++) {
+        indices.push_back(i%7);
+    }
+    std::mt19937 generateur(static_cast<unsigned int>(std::time(0)));
+    std::shuffle(indices.begin(), indices.end(), generateur);
+
+    nbTokens = 25; //Nombre de jetons sur la plateau (sera recuperer depuis le back apres)
+    rnbTokens = static_cast<int>(sqrt(nbTokens));
+    setFixedSize(w, h); //Fixe la taille du plateau
+    //sac = plateau->getSac();
+
+    int TokenSize = (h - 100)/(2*rnbTokens) - 5;
+
+    plateWidget = new PlateWidget(nullptr, h-100, w, nbTokens, TokenSize, &buttons);
+
+    for(int i = 0; i < nbTokens; i++){
+        //Creer un getteur pour les Jetons
+        buttons.push_back(new CircleWidget(plateWidget, new Token(colors[indices[i]]), TokenSize, new position((i/rnbTokens), (i%rnbTokens))));
+        QObject::connect(buttons[i], &CircleWidget::clicked, [this, i]() {
+            clickOnToken(i); //Permet d'appeler la fonction boutonClique(int i) lorsque le bouton i est clique
+        });
+    }
+    for(int i = 0; i < 3; i++){
+        selectedTokens[i] = nullptr; //Initialise jetonSelection avec nullptr
+    }
+
+    plateWidget->placeTokens();
+
+    validateButton = new QPushButton("Valider le choix des jetons"); //Creer le bouton valider (pour la selection des jetons)
+    validateButton->setStyleSheet("color blue;");
+
+    layout = new QVBoxLayout; //Layout pour mettre le Grid + les boutons en dessous
+
+    layout -> addWidget(plateWidget); //Ajoute layoutJetons au layout vertical
+    layout -> addWidget(validateButton); //Ajoute layoutJetons au layout vertical (faire un QHBoxLayout pour ajouter aussi un bouton desselctionner)
+
+    setLayout(layout); //Set le layout
+
+    connect(validateButton, &QPushButton::clicked, this, &PlateView::validateTokens); //connect boutonValider avec valliderJetons
+}
+
+void PlateView::clickOnToken(unsigned i) {
+    unsigned int j = 0;
+    if (isSelected(buttons[i])) {
+        for (j = 0; j < 3; j++) {
+            if (selectedTokens[j] == buttons[i]) {
+                selectedTokens[j] = nullptr;
+                buttons[i] -> changeSelect();
+                nbSelectedTokens -= 1;
             }
         }
     }
+    else {
+        if (nbSelectedTokens < 3) {
+            buttons[i] -> changeSelect();
+            while(selectedTokens[j] != nullptr) {
+                j++;
+            }
+            selectedTokens[j] = buttons[i];
+            nbSelectedTokens += 1;
+        }
+    }
+}
+
+void PlateView::unselectToken() {
+    for (unsigned int i = 0; i < 3; i++) {
+        if (selectedTokens[i] != nullptr) {
+            selectedTokens[i] -> changeSelect();
+            selectedTokens[i] = nullptr;
+        }
+    }
+    nbSelectedTokens = 0;
+}
+
+void PlateView::validateTokens() {
+    for(int j = 0; j < 3; j++){
+        if(selectedTokens[j] != nullptr){
+            selectedTokens[j]->unselect();
+        }
+    }
+}
+
+bool PlateView::isSelected(CircleWidget* button) {
+    for (unsigned int i = 0; i < 3; i++) {
+        if (selectedTokens[i] == button) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void PlateView::hideElements() {
+    for (unsigned int i = 0; i < nbTokens; i++) {
+        buttons[i]->hide();
+    }
+    validateButton->hide();
 }

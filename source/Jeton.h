@@ -115,7 +115,6 @@ class Board {
 private :
     std::array<const Privilege*, 3> privileges{}; //Liste des privilèges
     std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
-    std::vector<Observer*> observers;
     //design pattern singleton
     Board(); //Instanciation du plateau avec tous les jetons et le sac de jetons (Constructeur)
 public :
@@ -157,21 +156,6 @@ public :
     bool containsOnly(TokenColor color) const; //verification de la presence d'une couleur uniquement sur le plateau
     bool CellColor(size_t i, size_t j, TokenColor color) const{return tokens[i][j]->getColor()==color;}; //verification de la couleur d'une case
     unsigned int getNbTokens() const; //Récupération du nombre de jetons
-    //Observer
-    void registerObserver(Observer* observer) {
-        observers.push_back(observer);
-    }
-    void notifyObservers() {
-        for (Observer* observer : observers) {
-            observer->update();
-        }
-    }
-
-    // Call this method whenever a token is taken or a privilege is changed
-    void actionPerformed() {
-        // Perform the action...
-        notifyObservers();
-    }
 };
 
 #endif //LO21PROJECT_JETON_H
