@@ -239,11 +239,11 @@ const Token& Controller::chooseToken(Board&board, Player&player, std::vector<std
             return token;
         }
         else {
-            std::cout << "Plus de Jetons sur le plateau" << std::endl;
             return *new Token(TokenColor::None);
         }
     }
     else {
+        std::cout << "Plus de Jetons sur le plateau" << std::endl;
         return *new Token(TokenColor::None);
     }
 }
@@ -340,7 +340,6 @@ void Controller::buyJewelryCard(GameTable& gametable) {
             card = currentPlayer->getReserve()[nbCard - 1];
             if (currentPlayer->canBuyCard(*card)) {
                 currentPlayer->actionBuyReservedCard(*card);
-                return;
             }
         }
     }
