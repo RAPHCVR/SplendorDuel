@@ -4,6 +4,8 @@
 #include "QTJeton.h"
 #include <QApplication>
 
+#include "QTGame.h"
+
 /*
 int main(int argc, char *argv[]) {
         QApplication app(argc, argv);
@@ -30,11 +32,8 @@ int main(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    PlateView* plate = new PlateView(nullptr, 500, 500);
-    plate -> show();
-    Controller* controller = new Controller();
-    app.processEvents();
-    controller -> play();
+    QTGame game;
+    game.show();
     return QApplication::exec();
 }
 

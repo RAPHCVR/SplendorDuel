@@ -7,7 +7,6 @@
 #include <QColor>
 #include <QPainter>
 #include <QRandomGenerator>
-#include <QPalette>
 
 
 CircleWidget::CircleWidget(QWidget* parent, const Token* token, unsigned int rad, position* p): QPushButton(parent), token(token), pos(p) {
@@ -146,41 +145,45 @@ void CircleWidget::paintEvent(QPaintEvent* event) {
 }
 
 PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height),w(width) {
-    std::vector<TokenColor> colors = {TokenColor::BLEU, TokenColor::BLANC, TokenColor::VERT, TokenColor::NOIR, TokenColor::ROUGE, TokenColor::PERLE, TokenColor::OR};
     std::vector<unsigned int> indices;
     for (unsigned int i = 0; i < 49; i++) {
         indices.push_back(i%7);
     }
-    std::mt19937 generateur(static_cast<unsigned int>(std::time(0)));
-    std::shuffle(indices.begin(), indices.end(), generateur);
 
-    nbTokens = 25; //Nombre de jetons sur la plateau (sera recuperer depuis le back apres)
+    nbTokens = 25;
     rnbTokens = static_cast<int>(sqrt(nbTokens));
     setFixedSize(w, h); //Fixe la taille du plateau
     //sac = plateau->getSac();
 
     int TokenSize = (h - 100)/(2*rnbTokens) - 5;
 
+    PrivilegeCounter *privilegeCounter = new PrivilegeCounter();
+    privilegeCounter->setFixedWidth(35);
     plateWidget = new PlateWidget(nullptr, h-100, w, nbTokens, TokenSize, &buttons);
-
+    Board::BoardIterator it = Board::getInstance().iterator();
+    unsigned int j = 0;
     for(int i = 0; i < nbTokens; i++){
         //Creer un getteur pour les Jetons
-        buttons.push_back(new CircleWidget(plateWidget, new Token(colors[indices[i]]), TokenSize, new position((i/rnbTokens), (i%rnbTokens))));
-        QObject::connect(buttons[i], &CircleWidget::clicked, [this, i]() {
-            clickOnToken(i); //Permet d'appeler la fonction boutonClique(int i) lorsque le bouton i est clique
-        });
+        const Token* token = it.next();
+        if (token != nullptr) {
+            buttons.push_back(new CircleWidget(plateWidget, token, TokenSize, new position((i/rnbTokens), (i%rnbTokens))));
+            QObject::connect(buttons[j], &CircleWidget::clicked, [this, j]() {
+            clickOnToken(j); //Permet d'appeler la fonction boutonClique(int i) lorsque le bouton i est clique;
+            });
+            j++;
+        }
     }
     for(int i = 0; i < 3; i++){
         selectedTokens[i] = nullptr; //Initialise jetonSelection avec nullptr
     }
 
     plateWidget->placeTokens();
-
     validateButton = new QPushButton("Valider le choix des jetons"); //Creer le bouton valider (pour la selection des jetons)
     validateButton->setStyleSheet("color blue;");
 
     layout = new QVBoxLayout; //Layout pour mettre le Grid + les boutons en dessous
 
+    layout->addWidget(privilegeCounter);
     layout -> addWidget(plateWidget); //Ajoute layoutJetons au layout vertical
     layout -> addWidget(validateButton); //Ajoute layoutJetons au layout vertical (faire un QHBoxLayout pour ajouter aussi un bouton desselctionner)
 
@@ -216,17 +219,35 @@ void PlateView::unselectToken() {
     for (unsigned int i = 0; i < 3; i++) {
         if (selectedTokens[i] != nullptr) {
             selectedTokens[i] -> changeSelect();
+            selectedTokens[i]->setParent(nullptr);
+            selectedTokens[i]->deleteLater();
             selectedTokens[i] = nullptr;
         }
     }
     nbSelectedTokens = 0;
 }
 
-void PlateView::validateTokens() {
+std::vector<const Token*> PlateView::validateTokens() {
+    std::vector<std::pair<int, int>>* pos = new std::vector<std::pair<int, int>>;
+    std::vector<const Token*> tokens;
     for(int j = 0; j < 3; j++){
-        if(selectedTokens[j] != nullptr){
-            selectedTokens[j]->unselect();
+        if(selectedTokens[j] != nullptr) {
+            if(Board::getInstance().CellColor(selectedTokens[j]->getPosition()->getx(),selectedTokens[j]->getPosition()->gety(),TokenColor::OR)){
+                throw TokenException("Impossible de prendre un jeton or");
+            }
+            pos->push_back(std::make_pair(selectedTokens[j]->getPosition()->getx(), selectedTokens[j]->getPosition()->gety()));
         }
+    }
+    if (areCoordinatesAlignedAndConsecutive(pos) || pos->size()==1) {
+        for (auto pair: *pos) {
+            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+        }
+        unselectToken();
+        emit tokensValidated(tokens);
+        return tokens;
+    }
+    else {
+        throw TokenException("Les jetons ne sont pas alignes ou consecutifs");
     }
 }
 
@@ -245,3 +266,6 @@ void PlateView::hideElements() {
     }
     validateButton->hide();
 }
+
+
+

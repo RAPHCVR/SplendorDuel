@@ -7,7 +7,6 @@
 
 #include <QtWidgets>
 #include <QColor>
-#include <QPalette>
 #include "Controller.h"
 
 class position{
@@ -87,6 +86,7 @@ private:
 };
 
 class PlateView : public QWidget {
+    Q_OBJECT
 public:
     PlateView(QWidget* parent = nullptr, unsigned int h = 0, unsigned int w = 0);
 
@@ -97,10 +97,11 @@ public:
     void clickOnToken(unsigned int i);
     void unselectToken();
     bool isSelected(CircleWidget* button);
-    void validateTokens();
+    std::vector<const Token*> validateTokens();
     void hideElements();
     void showTokens(){for(unsigned int i = 0; i < nbTokens; i++){buttons[i]->show();}update();}
-
+    signals:
+        void tokensValidated(std::vector<const Token*> tokens);
 
 private:
     PrivilegeCounter* privilegeCounter;
