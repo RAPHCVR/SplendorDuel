@@ -20,25 +20,46 @@ public:
 };
 
 
-class PrivilegeCounter : public QLabel {
+class PrivilegeCounter : public QWidget {
+    Q_OBJECT
+
 public:
-    explicit PrivilegeCounter(QWidget* parent = nullptr) : QLabel(parent) {
-        // Set the stylesheet
-        setStyleSheet("QLabel {"
-                      "background-color : black;"
-                      "color : white;"
-                      "border: 2px solid white;"
-                      "border-radius: 10px;"
-                      "padding: 5px;"
-                      "font: bold 14px;"
-                      "}");
+    PrivilegeCounter(QWidget *parent = nullptr) : QWidget(parent), valeur(Board::getInstance().getNbPrivileges()) {}
 
-        updateCounter();
+    void updateValue() {
+        valeur = Board::getInstance().getNbPrivileges();
+        update(); // Redessine le widget
     }
 
-    void updateCounter() {
-        setText(QString::number(Board::getInstance().getNbPrivileges()));
+protected:
+    void paintEvent(QPaintEvent *event) override {
+        QPainter painter(this);
+        painter.setRenderHint(QPainter::Antialiasing);
+
+        int diameter = qMin(width(), height());
+
+        // Créer un rectangle pour définir les limites du cercle
+        QRect circleRect(0, 0, diameter, diameter);
+        circleRect.moveCenter(rect().center()); // Centrer le cercle dans le widget
+
+        // Dessiner le fond circulaire
+        QLinearGradient gradient(circleRect.topLeft(), circleRect.bottomRight());
+        gradient.setColorAt(0, Qt::lightGray);
+        gradient.setColorAt(1, Qt::darkGray);
+        painter.setBrush(gradient);
+        painter.setPen(Qt::black);
+        painter.drawEllipse(circleRect);
+
+        // Configurer la police et la taille
+        QFont font("Arial", 30, QFont::Bold);
+        painter.setFont(font);
+        painter.setPen(Qt::white); // Couleur du texte
+
+        // Dessiner le texte
+        painter.drawText(circleRect, Qt::AlignCenter, QString::number(valeur));
     }
+private:
+    unsigned int valeur;
 };
 
 class CircleWidget : public QPushButton {
@@ -54,7 +75,7 @@ public:
     void appear(){show();};
     void disappear(){hide();};
     position* getPosition(){return pos;}
-    const Token* getJeton(){return token;}
+    const Token* getToken(){return token;}
 
 private:
     QColor convertColor(const Token &token);
@@ -92,7 +113,7 @@ public:
     PlateView(QWidget* parent = nullptr, unsigned int h = 0, unsigned int w = 0);
 
     void updatePrivilegeCounter() {
-        privilegeCounter->updateCounter();
+        privilegeCounter->updateValue();
     }
 
     void clickOnToken(unsigned int i);
@@ -102,8 +123,10 @@ public:
     void hideElements();
     void showTokens(){for(unsigned int i = 0; i < nbTokens; i++){buttons[i]->show();}update();}
     void updateWidgetsFromBoard();
+    void updateMaxNbSelectedTokens(const unsigned int nb){max_nbSelectedTokens = nb;};
     signals:
         void tokensValidated(std::vector<const Token*> tokens);
+        void privilegeUsed(unsigned int nb);
 
 private:
     PrivilegeCounter* privilegeCounter;
@@ -111,6 +134,7 @@ private:
     std::vector<CircleWidget*> buttons;
     unsigned int nbTokens;
     unsigned int rnbTokens;
+    unsigned int max_nbSelectedTokens;
     std::array<CircleWidget*, 3> selectedTokens;
     unsigned int nbSelectedTokens = 0;
     unsigned int h;

@@ -75,7 +75,7 @@ QColor CircleWidget::convertBorderColor(const Token& token) {
 }
 
 PlateWidget::PlateWidget(QWidget* parent, unsigned int h, unsigned int w, unsigned int nbTokens, unsigned int tokenSize, std::vector<CircleWidget*>* butt): QWidget(parent), nbTokens(nbTokens), h(h), w(w), tokenSize(tokenSize), buttons(butt) {
-    rnbTokens = static_cast<int>(sqrt(nbTokens));
+    rnbTokens = sqrt(nbTokens);
     for (unsigned int i = 0; i < rnbTokens; i++) {
         for (unsigned int j = 0; j < rnbTokens; j++) {
             QRect* rect = new QRect(2 * i * (tokenSize + 5) + (w - (2 * (tokenSize + 5)) * rnbTokens)/2, 2 * j * (tokenSize + 5), 2 * (tokenSize + 5), 2 * (tokenSize + 5));
@@ -145,19 +145,14 @@ void CircleWidget::paintEvent(QPaintEvent* event) {
 }
 
 PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height),w(width) {
-    std::vector<unsigned int> indices;
-    for (unsigned int i = 0; i < 49; i++) {
-        indices.push_back(i%7);
-    }
-
     nbTokens = 25;
-    rnbTokens = static_cast<int>(sqrt(nbTokens));
+    rnbTokens = sqrt(nbTokens);
     setFixedSize(w, h); //Fixe la taille du plateau
-    //sac = plateau->getSac();
-
+    max_nbSelectedTokens = 0;
     int TokenSize = (h - 100)/(2*rnbTokens) - 5;
 
-    PrivilegeCounter *privilegeCounter = new PrivilegeCounter();
+    PrivilegeCounter *counter = new PrivilegeCounter(this);
+    privilegeCounter=counter;
     privilegeCounter->setFixedWidth(35);
     plateWidget = new PlateWidget(nullptr, h-100, w, nbTokens, TokenSize, &buttons);
     Board::BoardIterator it = Board::getInstance().iterator();
@@ -182,7 +177,6 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
     validateButton->setStyleSheet("color blue;");
 
     layout = new QVBoxLayout; //Layout pour mettre le Grid + les boutons en dessous
-
     layout->addWidget(privilegeCounter);
     layout -> addWidget(plateWidget); //Ajoute layoutJetons au layout vertical
     layout -> addWidget(validateButton); //Ajoute layoutJetons au layout vertical (faire un QHBoxLayout pour ajouter aussi un bouton desselctionner)
@@ -195,7 +189,7 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
 void PlateView::clickOnToken(unsigned i) {
     unsigned int j = 0;
     if (isSelected(buttons[i])) {
-        for (j = 0; j < 3; j++) {
+        for (j = 0; j < max_nbSelectedTokens; j++) {
             if (selectedTokens[j] == buttons[i]) {
                 selectedTokens[j] = nullptr;
                 buttons[i] -> changeSelect();
@@ -204,7 +198,7 @@ void PlateView::clickOnToken(unsigned i) {
         }
     }
     else {
-        if (nbSelectedTokens < 3) {
+        if (nbSelectedTokens < max_nbSelectedTokens) {
             buttons[i] -> changeSelect();
             while(selectedTokens[j] != nullptr) {
                 j++;
@@ -219,7 +213,7 @@ void PlateView::unselectToken() {
     for (unsigned int i = 0; i < 3; i++) {
         if (selectedTokens[i] != nullptr) {
             selectedTokens[i] -> changeSelect();
-            selectedTokens[i] -> hide();
+            selectedTokens[i]->disappear();
             selectedTokens[i] = nullptr;
         }
     }
@@ -242,7 +236,13 @@ std::vector<const Token*> PlateView::validateTokens() {
             tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
         }
         unselectToken();
-        emit tokensValidated(tokens);
+        if (max_nbSelectedTokens != 3) {
+            emit privilegeUsed(tokens.size());
+        }
+        else {
+            emit tokensValidated(tokens);
+        }
+        updateMaxNbSelectedTokens(0);
         return tokens;
     }
     else {
@@ -261,7 +261,7 @@ bool PlateView::isSelected(CircleWidget* button) {
 
 void PlateView::hideElements() {
     for (unsigned int i = 0; i < nbTokens; i++) {
-        buttons[i]->hide();
+        buttons[i]->disappear();
     }
     validateButton->hide();
 }

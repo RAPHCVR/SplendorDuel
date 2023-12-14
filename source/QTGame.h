@@ -20,6 +20,7 @@ private:
     PlateView* plateView;
 
     QHBoxLayout* first;
+    QHBoxLayout* second;
     QVBoxLayout* mainlayout;
     QScreen* screen;
     QSize* size;
@@ -33,6 +34,11 @@ public:
     QTGame(QWidget* parent = nullptr);
     void handleTokenSelection(std::vector<const Token*> tokens);
     void fillBoard();
+    void takePrivilege();
+    void usePriviledge();
+    void placePrivilege(unsigned int nb);
+    void applyOptionalAction(OptionalActions action);
+    //void play();
 };
 
 #endif //QTGAME_H
