@@ -13,3 +13,4 @@ dist
 source_resource.rc
 *.bak
 .DS_Store
+source/CMakeLists.txt
