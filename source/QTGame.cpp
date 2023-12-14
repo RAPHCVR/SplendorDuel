@@ -30,6 +30,17 @@ void QTGame::paintEvent(QPaintEvent* event) {
 
 void QTGame::handleTokenSelection(std::vector<const Token*> tokens) {
     for (auto token : tokens) {
-        controller->getcurrentPlayer().addToken(*token);
+        controller->getGame().getGameTable().getBag().addToken(*token);
+    }
+    fillBoard();
+}
+
+void QTGame::fillBoard() {
+    try {
+        controller->getGame().getGameTable().getBoard().fillBoard(controller->getGame().getGameTable().getBag());
+        plateView->updateWidgetsFromBoard();
+    }
+    catch (TokenException& err) {
+        std::cout << err.getMessage() << "\n";
     }
 }

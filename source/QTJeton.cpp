@@ -219,8 +219,7 @@ void PlateView::unselectToken() {
     for (unsigned int i = 0; i < 3; i++) {
         if (selectedTokens[i] != nullptr) {
             selectedTokens[i] -> changeSelect();
-            selectedTokens[i]->setParent(nullptr);
-            selectedTokens[i]->deleteLater();
+            selectedTokens[i] -> hide();
             selectedTokens[i] = nullptr;
         }
     }
@@ -267,5 +266,36 @@ void PlateView::hideElements() {
     validateButton->hide();
 }
 
+void PlateView::updateWidgetsFromBoard() {
+    // Get the Board instance and create a BoardIterator
+    Board& board = Board::getInstance();
+    Board::BoardIterator it = board.iterator();
 
+    // Iterate over the tokens in the Board
+    for (int i = 0; i < nbTokens; ++i) {
+        const Token* token = it.next();
+        if (token != nullptr) {
+            // Find the corresponding CircleWidget and update its token
+            CircleWidget* circleWidget = buttons[i];
+            circleWidget->setToken(token);
+            circleWidget->show();
+        }
+    }
+
+    // Update the PlateView to reflect the changes
+    update();
+}
+
+void CircleWidget::setToken(const Token* newToken) {
+    // Update the token
+    token = newToken;
+
+    // Update the colors based on the new token
+    color = convertColor(*newToken);
+    backGroundColor = convertBackgroundColor(*newToken);
+    borderColor = convertBorderColor(*newToken);
+
+    // Redraw the widget
+    update();
+}
 

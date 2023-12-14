@@ -32,6 +32,7 @@ public:
     void paintEvent(QPaintEvent* event) override;
     QTGame(QWidget* parent = nullptr);
     void handleTokenSelection(std::vector<const Token*> tokens);
+    void fillBoard();
 };
 
 #endif //QTGAME_H

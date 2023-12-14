@@ -49,6 +49,7 @@ public:
     void paintEvent(QPaintEvent* event) override;
 
     void changeSelect(){selected = !selected; update();};
+    void setToken(const Token* newToken);
     void unselect(){selected = false; update();};
     void appear(){show();};
     void disappear(){hide();};
@@ -100,6 +101,7 @@ public:
     std::vector<const Token*> validateTokens();
     void hideElements();
     void showTokens(){for(unsigned int i = 0; i < nbTokens; i++){buttons[i]->show();}update();}
+    void updateWidgetsFromBoard();
     signals:
         void tokensValidated(std::vector<const Token*> tokens);
 
