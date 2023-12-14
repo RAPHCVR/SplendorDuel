@@ -144,7 +144,7 @@ void CircleWidget::paintEvent(QPaintEvent* event) {
     }
 }
 
-PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height),w(width) {
+PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height),w(width), status("take3tokens"){
     nbTokens = 25;
     rnbTokens = sqrt(nbTokens);
     setFixedSize(w, h); //Fixe la taille du plateau
@@ -220,34 +220,48 @@ void PlateView::unselectToken() {
     nbSelectedTokens = 0;
 }
 
-std::vector<const Token*> PlateView::validateTokens() {
+void PlateView::validateTokens() {
     std::vector<std::pair<int, int>>* pos = new std::vector<std::pair<int, int>>;
     std::vector<const Token*> tokens;
     for(int j = 0; j < 3; j++){
         if(selectedTokens[j] != nullptr) {
             if(Board::getInstance().CellColor(selectedTokens[j]->getPosition()->getx(),selectedTokens[j]->getPosition()->gety(),TokenColor::OR)){
-                throw TokenException("Impossible de prendre un jeton or");
+                if (status != "gold") {
+                    throw TokenException("Impossible de prendre un jeton or");
+                }
             }
             pos->push_back(std::make_pair(selectedTokens[j]->getPosition()->getx(), selectedTokens[j]->getPosition()->gety()));
         }
     }
-    if (areCoordinatesAlignedAndConsecutive(pos) || pos->size()==1) {
+    if ((areCoordinatesAlignedAndConsecutive(pos) || pos->size()==1) &&status=="take3tokens") {
         for (auto pair: *pos) {
             tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
         }
         unselectToken();
-        if (max_nbSelectedTokens != 3) {
-            emit privilegeUsed(tokens.size());
-        }
-        else {
-            emit tokensValidated(tokens);
-        }
+        emit tokensValidated(tokens);
         updateMaxNbSelectedTokens(0);
-        return tokens;
+    }
+    else if (status == "privileges") {
+        for (auto pair: *pos) {
+            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+        }
+        unselectToken();
+        emit tokensValidated(tokens);
+        emit privilegeUsed(tokens.size());
+        updateMaxNbSelectedTokens(0);
+    }
+    else if (status == "gold") {
+        for (auto pair: *pos) {
+            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+        }
+        unselectToken();
+        emit tokensValidated(tokens);
+        updateMaxNbSelectedTokens(0);
     }
     else {
         throw TokenException("Les jetons ne sont pas alignes ou consecutifs");
     }
+    emit endOfTurn();
 }
 
 bool PlateView::isSelected(CircleWidget* button) {

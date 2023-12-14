@@ -26,6 +26,7 @@ private:
     QSize* size;
     unsigned int width;
     unsigned int height;
+    std::string status;
 public:
     void quit() {
         this->close();
@@ -34,11 +35,18 @@ public:
     QTGame(QWidget* parent = nullptr);
     void handleTokenSelection(std::vector<const Token*> tokens);
     void fillBoard();
-    void takePrivilege();
+    void takePrivilege(Player& player);
+    void bookCard(Pyramid_Cards& pyramid, GameTable& gametable);
     void usePriviledge();
     void placePrivilege(unsigned int nb);
     void applyOptionalAction(OptionalActions action);
-    //void play();
+    void play();
+    void playOptionalActions();
+    void handleGameStatus();
+    void playCompulsoryActions();
+    void applyCompulsoryAction(CompulsoryActions action);
+    void checkEndTurn();
+    void applyCardSkills(Game&game, Player&cardOwner, Player&opponent, JewelryCard&card);
 };
 
 #endif //QTGAME_H

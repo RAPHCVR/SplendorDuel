@@ -7,6 +7,7 @@
 
 #include <QtWidgets>
 #include <QColor>
+#include <utility>
 #include "Controller.h"
 
 class position{
@@ -119,14 +120,17 @@ public:
     void clickOnToken(unsigned int i);
     void unselectToken();
     bool isSelected(CircleWidget* button);
-    std::vector<const Token*> validateTokens();
+    void validateTokens();
     void hideElements();
     void showTokens(){for(unsigned int i = 0; i < nbTokens; i++){buttons[i]->show();}update();}
     void updateWidgetsFromBoard();
+    void updateStatus(std::string status){this->status = std::move(status); update();};
+    std::string& getStatus(){return status;};
     void updateMaxNbSelectedTokens(const unsigned int nb){max_nbSelectedTokens = nb;};
     signals:
         void tokensValidated(std::vector<const Token*> tokens);
         void privilegeUsed(unsigned int nb);
+        void endOfTurn();
 
 private:
     PrivilegeCounter* privilegeCounter;
@@ -139,9 +143,7 @@ private:
     unsigned int nbSelectedTokens = 0;
     unsigned int h;
     unsigned int w;
-    unsigned int xHGButton;
-    unsigned int yHGButton;
-
+    std::string status;
     QPushButton* validateButton;
     QVBoxLayout* layout;
 

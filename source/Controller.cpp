@@ -136,6 +136,9 @@ void Controller::applyCompulsoryAction(Game &game, Player &player, CompulsoryAct
                         break;
                     }
             }
+            if (tokens.size()!=3 || TokenColor::None == tokens[0]->getColor() || TokenColor::None == tokens[1]->getColor() || TokenColor::None == tokens[2]->getColor()) {
+                check = false;
+            }
             for (auto token : tokens) {
                 if (token!=nullptr) {
                     if (color==TokenColor::None) {
@@ -253,24 +256,26 @@ bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>*
         return false;
     }
 
-    int dx = (*coordinates)[1].first - (*coordinates)[0].first;
-    int dy = (*coordinates)[1].second - (*coordinates)[0].second;
+    // Créer une copie des coordonnées pour les trier
+    std::vector<std::pair<int, int>> sortedCoords = *coordinates;
 
-    if (std::abs(dx) > 1 || std::abs(dy) > 1) {
-        return false;
-    }
+    // Trier les coordonnées
+    std::sort(sortedCoords.begin(), sortedCoords.end());
 
-    for (size_t i = 2; i < coordinates->size(); ++i) {
-        int currentDx = (*coordinates)[i].first - (*coordinates)[i - 1].first;
-        int currentDy = (*coordinates)[i].second - (*coordinates)[i - 1].second;
+    // Vérifier si les coordonnées triées sont alignées et consécutives
+    for (size_t i = 0; i < sortedCoords.size() - 1; ++i) {
+        int dx = sortedCoords[i + 1].first - sortedCoords[i].first;
+        int dy = sortedCoords[i + 1].second - sortedCoords[i].second;
 
-        if (currentDx != dx || currentDy != dy) {
+        // Vérifier si elles sont adjacentes (dx et dy ne dépassent pas 1)
+        if (std::abs(dx) > 1 || std::abs(dy) > 1) {
             return false;
         }
     }
 
     return true;
 }
+
 
 void Controller::chooseGoldenToken(Board&board, Player&player) {
     std::cout << "Veuillez choisir un jeton" << std::endl;
@@ -604,7 +609,7 @@ void Controller::playTurn() {
             std::cout << "Choisissez combien vous voulez en retirer " << std::endl;
             unsigned int tot = choiceMaker(1, currentPlayer->getTokenSummary().find(color)->second);
             for (unsigned int i = 0; i < tot; i++) {
-                currentPlayer->removeToken(color);
+                game->getGameTable().getBag().addToken(currentPlayer->removeToken(color));
                 nb--;
             }
         }
