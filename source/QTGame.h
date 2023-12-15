@@ -47,6 +47,9 @@ public:
     void applyCompulsoryAction(CompulsoryActions action);
     void checkEndTurn();
     void applyCardSkills(Game&game, Player&cardOwner, Player&opponent, JewelryCard&card);
+    void buyJewelryCard(GameTable& gametable);
+    void buyNobleCard();
+    void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
 };
 
 #endif //QTGAME_H

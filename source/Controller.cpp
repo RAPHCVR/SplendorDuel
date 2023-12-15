@@ -369,7 +369,7 @@ void Controller::buyNobleCard() {
     }
     unsigned int nbCard = choiceMaker(1, Deck_Royal::getInstance()->getCards().size());
     RoyalCard& card = *Deck_Royal::getInstance()->getCards()[nbCard - 1];
-    currentPlayer->addRoyalCard(card);
+    currentPlayer->addRoyalCard(card, nbCard - 1);
     applyRoyalCardSkills(*game,*currentPlayer,getopposingPlayer(),card);
 }
 

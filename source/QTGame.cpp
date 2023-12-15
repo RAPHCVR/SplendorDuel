@@ -22,6 +22,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
     connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
+    controller->getcurrentPlayer().addCrowns(3);
     status = "start";
     play();
 }
@@ -114,7 +115,7 @@ void QTGame::usePriviledge() {
     unsigned int nbp = controller->getcurrentPlayer().getNbPrivilege();
     unsigned int nbt = Board::getInstance().getNbTokens();
     unsigned int nb = std::min(nbp,nbt);
-    std::cout << "Combien de privileges voulez vous utiliser ? Vous pouvez en utiliser " << nb << std::endl;
+    std::cout << "Vous pouvez en utiliser " << nb << " privileges" << std::endl;
     plateView->updateMaxNbSelectedTokens(nb);
     plateView->updateStatus("privileges");
 }
@@ -123,12 +124,19 @@ void QTGame::applyOptionalAction(OptionalActions action) {
     switch (action) {
         case OptionalActions::UsePrivileges:
             usePriviledge();
+            status = "compulsoryActions";
         break;
         case OptionalActions::FillBoard:
             fillBoard();
+            if (controller->getGame().getGameTable().getBoard().getNbPrivileges()>0) {
+                takePrivilege(controller->getopposingPlayer());
+            }
+            else if (controller->getcurrentPlayer().getNbPrivilege()>0) {
+                controller->getopposingPlayer().addPrivilege(controller->getcurrentPlayer().removePrivilege());
+            }
             status = "compulsoryActions";
             handleGameStatus();
-        break;
+            break;
         case OptionalActions::Empty:
             status = "compulsoryActions";
             handleGameStatus();
@@ -137,28 +145,28 @@ void QTGame::applyOptionalAction(OptionalActions action) {
 }
 
 void QTGame::handleGameStatus(){
-    if (status == "start") {
-        play();
+    if (controller->checkIfPlayerWins(controller->getGame(),controller->getcurrentPlayer())) {
+        status = "win";
+        std::cout << "Le joueur " << controller->getcurrentPlayer().getName() << " a gagné" << std::endl;
     }
-    else if (status == "optionalActions"){
-        if (!(controller->getOptionalActions(controller->getGame(), controller->getcurrentPlayer())==std::vector<OptionalActions>{OptionalActions::Empty})){
+    else {
+        if (status == "start") {
+            play();
+        }
+        else if (status == "optionalActions"){
             playOptionalActions();
         }
-        else {
-            status = "compulsoryActions";
-            handleGameStatus();
+        else if (status == "compulsoryActions") {
+            playCompulsoryActions();
         }
-    }
-    else if (status == "compulsoryActions") {
-        playCompulsoryActions();
-    }
-    else if (status == "check") {
-        checkEndTurn();
-    }
-    else if (status == "end") {
-        controller->changeCurrentPlayer();
-        status = "start";
-        play();
+        else if (status == "check") {
+            checkEndTurn();
+        }
+        else if (status == "end") {
+            controller->changeCurrentPlayer();
+            status = "start";
+            play();
+        }
     }
 }
 
@@ -166,9 +174,17 @@ void QTGame::play() {
     std::cout << "C'est au tour de " << controller->getcurrentPlayer().getName() << std::endl;
     std::cout << controller->getcurrentPlayer() << std::endl;
     std::vector<CompulsoryActions> compulsoryActions = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
+    std::cout << "Cartes de la pyramide : " << std::endl;
+    std::cout << controller->getGame().getGameTable().getPyramid() << std::endl;
     if (compulsoryActions.empty()) {
         applyOptionalAction(OptionalActions::FillBoard);
         std::cout << "Pas d'action obligatoires possibles, remplissage du plateau" << std::endl;
+        status = "compulsoryActions";
+        handleGameStatus();
+    }
+    else if (controller->getOptionalActions(controller->getGame(),controller->getcurrentPlayer()).size()==1){
+        status = "compulsoryActions";
+        handleGameStatus();
     }
     else {
         status = "optionalActions";
@@ -219,7 +235,6 @@ void QTGame::playCompulsoryActions(){
 void QTGame::applyCompulsoryAction(CompulsoryActions action) {
     switch (action) {
         case CompulsoryActions::TakeCoins:
-            std::cout << controller->getGame().getGameTable().getPyramid() << std::endl;
             std::cout << "Veuillez choisir des jetons" << std::endl;
             plateView->updateStatus("take3tokens");
             plateView->updateMaxNbSelectedTokens(3);
@@ -230,9 +245,7 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
             status = "check";
             break;
         case CompulsoryActions::BuyCard:
-            controller->buyJewelryCard(controller->getGame().getGameTable());
-            status = "check";
-            handleGameStatus();
+            buyJewelryCard(controller->getGame().getGameTable());
             break;
     }
 }
@@ -258,8 +271,13 @@ void QTGame::checkEndTurn() {
             }
         }
     }
-    status = "end";
-    handleGameStatus();
+    if(controller->getcurrentPlayer().getCrowns() >=3 && controller->getcurrentPlayer().getRoyalCards().empty() || controller->getcurrentPlayer().getCrowns() >= 6 && controller->getcurrentPlayer().getRoyalCards().size()==1){
+        buyNobleCard();
+    }
+    else {
+        status = "end";
+        handleGameStatus();
+    }
 }
 
 void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
@@ -286,43 +304,76 @@ void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     plateView->updateMaxNbSelectedTokens(1);
 }
 
-/*
+
 void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, JewelryCard&card) {
-    if (card.getAbility1() == Abilities::take_privilege) {
-        if (controller->getGame().getGameTable().getBoard().getNbPrivileges()!=0) {
-            cardOwner.addPrivilege(controller->getGame().getGameTable().getBoard().takePrivilege());
+    if (card.getAbility2()==Abilities::None) {
+        if (card.getAbility1() == Abilities::take_privilege) {
+            status = "check";
+            if (controller->getGame().getGameTable().getBoard().getNbPrivileges()!=0) {
+                takePrivilege(cardOwner);
+            }
+            else if (controller->getopposingPlayer().getNbPrivilege()!=0) {
+                cardOwner.addPrivilege(controller->getopposingPlayer().removePrivilege());
+            }
+            handleGameStatus();
         }
-        else if (controller->getopposingPlayer().getNbPrivilege()!=0) {
-            cardOwner.addPrivilege(controller->getopposingPlayer().removePrivilege());
+        else if (card.getAbility1() == Abilities::take_bonus_token) {
+            status = "check";
+            plateView->updateStatus("take3tokens");
+            plateView->updateMaxNbSelectedTokens(1);
+            std::cout << "Veuillez choisir un jeton bonus sur le plateau" << std::endl;
         }
-    }
-    else if (card.getAbility1() == Abilities::take_bonus_token) {
-        chooseToken(game.getGameTable().getBoard(), cardOwner);
-    }
-    else if (card.getAbility1() == Abilities::steal_token) {
-        if (opponent.getNbTokens()!=0) {
-            std::cout << "Voici les jetons du joueur advrese : \n";
-            std::cout << opponent << std::endl;
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
+        else if (card.getAbility1() == Abilities::steal_token) {
+            if (opponent.getNbTokens()!=0) {
+                std::cout << "Voici les jetons du joueur advrese : \n";
+                std::cout << opponent << std::endl;
+                std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
+                std::string rep;
+                std::cin >> rep;
+                if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
+                    throw TokenException("Couleur invalide");
+                }
+                TokenColor color = toTokenColor(rep);
+                if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
+                    std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
+                }
+                else {
+                    const Token& token = controller->getopposingPlayer().removeToken(color);
+                    cardOwner.addToken(token);
+                }
+            }
+            else {
+                std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+            }
+            status = "check";
+            handleGameStatus();
+        }
+        else if (card.getAbility1() == Abilities::cameleon) {
+            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
             std::string rep;
             std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
+            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
                 throw TokenException("Couleur invalide");
             }
             TokenColor color = toTokenColor(rep);
-            if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
-                std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
+
+            if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
+                throw TokenException("Vous n'avez pas de cartes de cette couleur");
             }
             else {
-                const Token& token = controller->getopposingPlayer().removeToken(color);
-                cardOwner.addToken(token);
+                cardOwner.getColorSummary(color).addBonusNumber(1);
+                cardOwner.addPrestige(1,color);
             }
+            status = "check";
+            handleGameStatus();
         }
-        else {
-            std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+        else if (card.getAbility1() == Abilities::repeat_turn) {
+            status = "start";
+            std::cout << "Vous rejouez" << std::endl;
+            handleGameStatus();
         }
     }
-    else if (card.getAbility1() == Abilities::cameleon) {
+    else {
         std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
         std::string rep;
         std::cin >> rep;
@@ -338,65 +389,118 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             cardOwner.getColorSummary(color).addBonusNumber(1);
             cardOwner.addPrestige(1,color);
         }
-    }
-    else if (card.getAbility1() == Abilities::repeat_turn) {
         status = "start";
-        play();
-    }
-    if (card.getAbility2() == Abilities::take_privilege) {
-        if (controller->getGame().getGameTable().getBoard().getNbPrivileges()!=0) {
-            cardOwner.addPrivilege(controller->getGame().getGameTable().getBoard().takePrivilege());
-        }
-        else if (controller->getopposingPlayer().getNbPrivilege()!=0) {
-            cardOwner.addPrivilege(controller->getopposingPlayer().removePrivilege());
-        }
-    }
-    else if (card.getAbility2() == Abilities::take_bonus_token) {
-        chooseToken(game.getGameTable().getBoard(), cardOwner);
-    }
-    else if (card.getAbility2() == Abilities::steal_token) {
-        if (opponent.getNbTokens()!=0) {
-            std::cout << "Voici les jetons du joueur advrese : \n";
-            std::cout << opponent << std::endl;
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
-            std::string rep;
-            std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
-                throw TokenException("Couleur invalide");
-            }
-            TokenColor color = toTokenColor(rep);
-            if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
-                std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
-            }
-            else {
-                const Token& token = controller->getopposingPlayer().removeToken(color);
-                cardOwner.addToken(token);
-            }
-        }
-        else {
-            std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
-        }
-    }
-    else if (card.getAbility2() == Abilities::cameleon) {
-        std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
-        std::string rep;
-        std::cin >> rep;
-        if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
-            throw TokenException("Couleur invalide");
-        }
-        TokenColor color = toTokenColor(rep);
-
-        if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
-            throw TokenException("Vous n'avez pas de cartes de cette couleur");
-        }
-        else {
-            cardOwner.getColorSummary(color).addBonusNumber(1);
-            cardOwner.addPrestige(1,color);
-        }
-    }
-    else if (card.getAbility2() == Abilities::repeat_turn) {
-        status = "start";
-        play();
+        std::cout << "Vous rejouez" << std::endl;
+        handleGameStatus();
     }
 }
-*/
+
+void QTGame::buyJewelryCard(GameTable& gametable) {
+    bool bought = false;
+    JewelryCard* card;
+    std::cout << "Jetons disponibles : " << std::endl;
+    std::cout << controller->getcurrentPlayer() << std::endl;
+    if (controller->getcurrentPlayer().getReserve().size() > 0) {
+        std::cout << "Voulez vous acheter une carte reservee ?" << std::endl;
+        std::cout << "1. Oui" << std::endl;
+        std::cout << "2. Non" << std::endl;
+        unsigned int choice = choiceMaker(1, 2);
+        if (choice == 1) {
+            bought = true;
+            std::cout << "Veuillez choisir une carte" << std::endl;
+            for (auto card : controller->getcurrentPlayer().getReserve()) {
+                std::cout << *card << std::endl;
+            }
+            unsigned int nbCard = choiceMaker(1, controller->getcurrentPlayer().getReserve().size());
+            card = controller->getcurrentPlayer().getReserve()[nbCard - 1];
+            if (controller->getcurrentPlayer().canBuyCard(*card)) {
+                controller->getcurrentPlayer().actionBuyReservedCard(*card);
+            }
+        }
+    }
+    if (not(bought)) {
+        unsigned int level = choiceMaker(1, 3);
+        unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
+        std::cout << "Cartes de niveau " << level << " : \n";
+        for (auto card: gametable.getPyramid().getLevelCards(level)) {
+            std::cout << *card << std::endl;
+        }
+        unsigned int nbCard = choiceMaker(1, nb);
+        card = &gametable.getPyramid().takeCard(level, nbCard - 1);
+        gametable.getPyramid().drawCard(level);
+        if (controller->getcurrentPlayer().canBuyCard(*card)) {
+            controller->getcurrentPlayer().actionBuyCard(*card);
+        }
+        else {
+            throw JewelryCardError("Vous ne pouvez pas acheter cette carte");
+        }
+    }
+    if (card->getAbility1()!= Abilities::None || card->getAbility2()!= Abilities::None) {
+        applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),*card);
+    }
+    else {
+        status = "check";
+        handleGameStatus();
+    }
+}
+
+void QTGame::buyNobleCard() {
+    std::cout << "Veuillez choisir une carte" << std::endl;
+    for (auto card : Deck_Royal::getInstance()->getCards()) {
+        std::cout << *card << std::endl;
+    }
+    unsigned int nbCard = choiceMaker(1, Deck_Royal::getInstance()->getCards().size());
+    RoyalCard& card = *Deck_Royal::getInstance()->getCards()[nbCard - 1];
+    controller->getcurrentPlayer().addRoyalCard(card, nbCard - 1);
+    if (card.getAbility()!= Abilities::None) {
+        applyRoyalCardSkills(controller->getGame(),controller->getcurrentPlayer(),controller->getopposingPlayer(),card);
+    }
+    else {
+        status = "check";
+        handleGameStatus();
+    }
+}
+
+void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card) {
+    if (card.getAbility() == Abilities::take_privilege) {
+        status = "check";
+        if (controller->getGame().getGameTable().getBoard().getNbPrivileges()!=0) {
+            takePrivilege(cardOwner);
+        }
+        else if (controller->getopposingPlayer().getNbPrivilege()!=0) {
+            cardOwner.addPrivilege(controller->getopposingPlayer().removePrivilege());
+        }
+        handleGameStatus();
+    }
+    else if (card.getAbility() == Abilities::steal_token) {
+        if (opponent.getNbTokens()!=0) {
+            std::cout << "Voici les jetons du joueur advrese : \n";
+            std::cout << opponent << std::endl;
+            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
+            std::string rep;
+            std::cin >> rep;
+            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
+                throw TokenException("Couleur invalide");
+            }
+            TokenColor color = toTokenColor(rep);
+            if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
+                std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
+            }
+            else {
+                const Token& token = controller->getopposingPlayer().removeToken(color);
+                cardOwner.addToken(token);
+            }
+        }
+        else {
+            std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+        }
+        status = "check";
+        handleGameStatus();
+    }
+    else if (card.getAbility() == Abilities::repeat_turn) {
+        status = "start";
+        std::cout << "Vous rejouez" << std::endl;
+        handleGameStatus();
+    }
+}
+

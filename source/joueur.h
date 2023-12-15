@@ -71,7 +71,7 @@ public:
     void addPrestige(int points, TokenColor color); // compteur de tous mes prestiges (pour condition de victoire sur 20)
     void addPrivilege(const Privilege& privilege); // appelee en debut de partie si l'autre commence, si l'autre rempli le plateau, si j'achete une carte avec cette capacité
     void addJewelryCard( JewelryCard &card); //Pour simplifier buyCard  ajout de ma carte achetér au tas de mes cartes
-    void addRoyalCard(RoyalCard &card);// ajout d'une carte royale a mon inventaire
+    void addRoyalCard(RoyalCard &card, int position);// ajout d'une carte royale a mon inventaire
     void addToken(const Token &token); // ajout d'un jeton a mon inventaire
 
     // action obligatoires (acheter une carte et/ou prendre des jetons et/ou reserver une carte)
