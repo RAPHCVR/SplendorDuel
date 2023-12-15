@@ -349,14 +349,20 @@ void Controller::buyJewelryCard(GameTable& gametable) {
         }
     }
     if (not(bought)) {
-        std::cout << gametable.getPyramid() << std::endl;
         unsigned int level = choiceMaker(1, 3);
         unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
+        std::cout << "Cartes de niveau " << level << " : \n";
+        for (auto card: gametable.getPyramid().getLevelCards(level)) {
+            std::cout << *card << std::endl;
+        }
         unsigned int nbCard = choiceMaker(1, nb);
         card = &gametable.getPyramid().takeCard(level, nbCard - 1);
         gametable.getPyramid().drawCard(level);
         if (currentPlayer->canBuyCard(*card)) {
             currentPlayer->actionBuyCard(*card);
+        }
+        else {
+            throw JewelryCardError("Vous ne pouvez pas acheter cette carte");
         }
     }
     applyCardSkills(*game, *currentPlayer, getopposingPlayer(),*card);
@@ -541,12 +547,14 @@ void Controller::play() {
         }
         changeCurrentPlayer();
     }
-    std::cout << "Le joueur " << currentPlayer->getName() << " a gagne !" << std::endl;
+    std::cout << "Le joueur " << getopposingPlayer().getName() << " a gagne !" << std::endl;
 }
 
 void Controller::playTurn() {
     std::cout << "C'est au tour de " << currentPlayer->getName() << std::endl;
     std::cout << *currentPlayer << std::endl;
+    std::cout << "Pyramide: " << std::endl;
+    std::cout << getGame().getGameTable().getPyramid() << std::endl;
     std::vector<CompulsoryActions> compulsoryActions = getCompulsoryActions(*game, *currentPlayer);
     unsigned int choice = 0;
     if (compulsoryActions.empty()) {

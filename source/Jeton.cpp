@@ -266,7 +266,6 @@ void Board::fillBoard(Bag& bag) {
     }
     while(!bag.isEmpty()){
         placeToken(bag.drawToken());
-        showBoard();
     }
 }
 

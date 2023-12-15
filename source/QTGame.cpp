@@ -22,9 +22,8 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
     connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
-    controller->getcurrentPlayer().addCrowns(3);
     status = "start";
-    play();
+    handleGameStatus();
 }
 
 void QTGame::paintEvent(QPaintEvent* event) {
@@ -124,7 +123,7 @@ void QTGame::applyOptionalAction(OptionalActions action) {
     switch (action) {
         case OptionalActions::UsePrivileges:
             usePriviledge();
-            status = "compulsoryActions";
+            status = "optionalActions";
         break;
         case OptionalActions::FillBoard:
             fillBoard();
@@ -177,14 +176,8 @@ void QTGame::play() {
     std::cout << "Cartes de la pyramide : " << std::endl;
     std::cout << controller->getGame().getGameTable().getPyramid() << std::endl;
     if (compulsoryActions.empty()) {
-        applyOptionalAction(OptionalActions::FillBoard);
         std::cout << "Pas d'action obligatoires possibles, remplissage du plateau" << std::endl;
-        status = "compulsoryActions";
-        handleGameStatus();
-    }
-    else if (controller->getOptionalActions(controller->getGame(),controller->getcurrentPlayer()).size()==1){
-        status = "compulsoryActions";
-        handleGameStatus();
+        applyOptionalAction(OptionalActions::FillBoard);
     }
     else {
         status = "optionalActions";
@@ -194,22 +187,28 @@ void QTGame::play() {
 
 void QTGame::playOptionalActions(){
     std::vector<OptionalActions> optionalActions = controller->getOptionalActions(controller->getGame(), controller->getcurrentPlayer());
-    std::cout << "Veuillez choisir une action optionnelle" << std::endl;
-    for (auto action : optionalActions) {
-        switch (action) {
-            case OptionalActions::Empty:
-                std::cout << "Ne rien faire" << std::endl;
-            break;
-            case OptionalActions::UsePrivileges:
-                std::cout << "Utiliser des privileges" << std::endl;
-            break;
-            case OptionalActions::FillBoard:
-                std::cout << "Remplir le plateau" << std::endl;
-            break;
+    if (optionalActions.size()>1) {
+        std::cout << "Veuillez choisir une action optionnelle" << std::endl;
+        for (auto action : optionalActions) {
+            switch (action) {
+                case OptionalActions::Empty:
+                    std::cout << "Ne rien faire" << std::endl;
+                break;
+                case OptionalActions::UsePrivileges:
+                    std::cout << "Utiliser des privileges" << std::endl;
+                break;
+                case OptionalActions::FillBoard:
+                    std::cout << "Remplir le plateau" << std::endl;
+                break;
+            }
         }
+        unsigned int choice = choiceMaker(1, optionalActions.size());
+        applyOptionalAction(optionalActions[choice-1]);
     }
-    unsigned int choice = choiceMaker(1, optionalActions.size());
-    applyOptionalAction(optionalActions[choice-1]);
+    else {
+        status = "compulsoryActions";
+        handleGameStatus();
+    }
 }
 
 void QTGame::playCompulsoryActions(){
