@@ -4,6 +4,8 @@
 
 #include "QTGame.h"
 
+#include <string>
+
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     controller = new Controller();
     screen = QGuiApplication::primaryScreen();
@@ -202,8 +204,11 @@ void QTGame::playOptionalActions(){
                 break;
             }
         }
-        unsigned int choice = choiceMaker(1, optionalActions.size());
-        applyOptionalAction(optionalActions[choice-1]);
+
+        QString text = QInputDialog::getText(nullptr, "Choix des actions optionnelles",
+                            "Entrez une valeur entre 1 et " + QString::number(optionalActions.size()), QLineEdit::Normal,
+                            QDir::home().dirName());
+        applyOptionalAction(optionalActions[text.toInt()-1]);
     }
     else {
         status = "compulsoryActions";
@@ -227,8 +232,10 @@ void QTGame::playCompulsoryActions(){
             break;
         }
     }
-    unsigned int choice = choiceMaker(1, compulsoryActions.size());
-    applyCompulsoryAction(compulsoryActions[choice-1]);
+    QString text = QInputDialog::getText(nullptr, "Choix des actions obligaroires",
+                            "Entrez une valeur entre 1 et " + QString::number(compulsoryActions.size()), QLineEdit::Normal,
+                            QDir::home().dirName());
+    applyCompulsoryAction(compulsoryActions[text.toInt()-1]);
 }
 
 void QTGame::applyCompulsoryAction(CompulsoryActions action) {
