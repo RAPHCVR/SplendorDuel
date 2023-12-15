@@ -257,6 +257,7 @@ void PlateView::validateTokens() {
         unselectToken();
         emit tokensValidated(tokens);
         updateMaxNbSelectedTokens(0);
+        status = "take3tokens";
     }
     else {
         throw TokenException("Les jetons ne sont pas alignes ou consecutifs");
