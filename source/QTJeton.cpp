@@ -190,16 +190,16 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
     validateButton = new QPushButton("Valider le choix des jetons"); //Creer le bouton valider (pour la selection des jetons)
     validateButton->setStyleSheet("color blue;");
 
-    layout = new QGridLayout; //Layout pour mettre le Grid + les boutons en dessous
+    mainLayout = new QVBoxLayout; //Layout pour mettre le Grid + les boutons en dessous
     //layout->addWidget(privilegeCounter, 0, 0, -1, 1); // -1 pour "rowSpan" signifie qu'il occupera toutes les lignes nécessaires
 
     // Ajout du PlateWidget dans la deuxième colonne
-    layout->addWidget(plateWidget);
+    mainLayout->addWidget(plateWidget);
 
     // Ajout du bouton valider dans une nouvelle ligne sous le PlateWidget
-    layout->addWidget(validateButton);
+    mainLayout->addWidget(validateButton);
 
-    setLayout(layout); //Set le layout
+    setLayout(mainLayout); //Set le layout
 
     connect(validateButton, &QPushButton::clicked, this, &PlateView::validateTokens); //connect boutonValider avec valliderJetons
 }

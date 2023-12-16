@@ -10,11 +10,9 @@
 //widget pour les tokens résumés
 class TokenWidget : public QWidget {
 public:
-    TokenWidget(QWidget* parent, const TokenColor color);
+    TokenWidget(QWidget* parent, TokenColor color);
 
     void paintEvent(QPaintEvent* event) override;
-
-    void setColor(const TokenColor* color);
 
     void updateNumToken(int newNumToken);
 
@@ -28,7 +26,7 @@ class CardWidget : public QWidget {
     Q_OBJECT
 
 public:
-    CardWidget(QWidget *parent = nullptr, const TokenColor color=TokenColor::None);
+    explicit CardWidget(QWidget *parent = nullptr, TokenColor color=TokenColor::None);
 
     void updateBonus(int newBonus);
 
@@ -48,17 +46,17 @@ class PlayerQT : public QWidget {
     Q_OBJECT
 
 public:
-    PlayerQT(const Player player, QWidget *parent = nullptr);
+    PlayerQT(Player &player, QWidget *parent = nullptr);
 
-    void updatePrivilege(const Player player);
+    void updatePrivilege(Player &player);
 
-    void updateCrown(const Player player);
+    void updateCrown(Player &player);
 
-    void updateTotalPrestige(const Player player);
+    void updateTotalPrestige(Player &player);
 
-    void updateTokens(const Player player);
+    void updateTokens(Player &player);
 
-    void updateCards(const Player player);
+    void updateCards(Player &player);
 
 private:
     QLabel* typeJoueur; // texte "Humain ou IA"
@@ -78,24 +76,23 @@ private:
     QGridLayout* layoutCards; // grille des cartes
     QGridLayout* layoutTokens; // grille des jetons
     QVBoxLayout* layoutMainJoueur;
-    QPushButton* accesReserve; //boutton donnant acces a la reserve
+    QPushButton* accesReserve{}; //boutton donnant acces a la reserve
     std::vector<CardWidget*> SummaryCards; //tableau des cartes resumes
     std::vector<TokenWidget*> SummaryTokens; //tableau des jetons resumes
 
-    TokenWidget* blueToken;
-    TokenWidget* redToken;
-    TokenWidget* blackToken;
-    TokenWidget* whiteToken;
-    TokenWidget* pearlToken;
-    TokenWidget* greenToken;
-    TokenWidget* goldToken;
+    TokenWidget* blueToken{};
+    TokenWidget* redToken{};
+    TokenWidget* blackToken{};
+    TokenWidget* whiteToken{};
+    TokenWidget* pearlToken{};
+    TokenWidget* greenToken{};
+    TokenWidget* goldToken{};
 
-    CardWidget* blueCard;
-    CardWidget* redCard;
-    CardWidget* greenCard;
-    CardWidget* blackCard;
-    CardWidget* whiteCard;
-    CardWidget* royalCard;
+    CardWidget* blueCard{};
+    CardWidget* redCard{};
+    CardWidget* greenCard{};
+    CardWidget* blackCard{};
+    CardWidget* whiteCard{};
 };
 
 #endif // QTJOUEUR_H
