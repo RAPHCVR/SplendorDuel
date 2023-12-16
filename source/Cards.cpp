@@ -55,7 +55,7 @@ Deck_level_one::Deck_level_one() : pioche() {
     std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
     // Obtient le répertoire du fichier source
     std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
-    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
+    std::string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
     
     //cout << pathtodatabase << endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
@@ -120,6 +120,9 @@ Deck_level_one::Deck_level_one() : pioche() {
         bonus.bonus_color = toTokenColor(color);
         bonus.bonus_number = bonus_nb;
 
+        //Id
+        int id = sqlite3_column_int(stmt, 13);
+
         //Création et ajout de l'instance au deck
         JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id); 
         Deck_level_one::addCardToDeck(newCard);
@@ -143,9 +146,9 @@ Deck_level_two::Deck_level_two() : pioche() {
     std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
     // Obtient le répertoire du fichier source
     std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
-    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
+    std::string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
 
-    cout << pathtodatabase << endl;
+    std::cout << pathtodatabase << std::endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
 										 
     int rc = sqlite3_open(pathtodatabase.c_str(), &db); //rc = return code, on ouvre la database
@@ -206,7 +209,9 @@ Deck_level_two::Deck_level_two() : pioche() {
         Bonus bonus;      
         bonus.bonus_color = toTokenColor(color);
         bonus.bonus_number = bonus_nb;
-    
+
+        //Id
+        int id = sqlite3_column_int(stmt, 13);
 
         //Création et ajout de l'instance au deck
         JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id); 
@@ -231,9 +236,9 @@ Deck_level_three::Deck_level_three() : pioche() {
     std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
     // Obtient le répertoire du fichier source
     std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
-    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
+    std::string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
 
-    cout << pathtodatabase << endl;
+    std::cout << pathtodatabase << std::endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
 										 
     int rc = sqlite3_open(pathtodatabase.c_str(), &db); //rc = return code, on ouvre la database
@@ -296,7 +301,9 @@ Deck_level_three::Deck_level_three() : pioche() {
         Bonus bonus;      
         bonus.bonus_color = toTokenColor(color);
         bonus.bonus_number = bonus_nb;
-    
+
+        //Id
+        int id = sqlite3_column_int(stmt, 13);
 
         //Création et ajout de l'instance au deck
         JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id); 
@@ -320,9 +327,9 @@ Deck_Royal::Deck_Royal() : cards() {
     std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
     // Obtient le répertoire du fichier source
     std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
-    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
+    std::string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
 
-    cout << pathtodatabase << endl;
+    std::cout << pathtodatabase << std::endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
 										 
     int rc = sqlite3_open(pathtodatabase.c_str(), &db); //rc = return code, on ouvre la database

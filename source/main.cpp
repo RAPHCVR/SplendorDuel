@@ -1,8 +1,8 @@
-#include <iostream>
-#include "Jeton.h"
-#include "Controller.h"
-#include "QTJeton.h"
 #include <QApplication>
+#include "Controller.h"
+#include "Jeton.h"
+#include "QTJeton.h"
+#include <iostream>
 
 #include "QTGame.h"
 
@@ -29,14 +29,13 @@ int main(int argc, char *argv[]) {
 }
 */
 
-
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     QApplication app(argc, argv);
     QTGame game;
     game.show();
     return QApplication::exec();
 }
-
 
 /*
 int main() {

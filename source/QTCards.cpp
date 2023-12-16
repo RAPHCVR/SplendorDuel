@@ -194,13 +194,13 @@ void QTPyramid::carteClicked(Carte* carte) {
     if (choix == QMessageBox::AcceptRole) {
         int row = retirerCarte(carte);
         int level = abs(row - 3); //Convertir la ligne en level
-        pyramidcard->Pyramid_Cards::drawCard(level, Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance());
+        pyramidcard->Pyramid_Cards::drawCard(level);
 
         ajouterCarte(row);
     } else if (choix == QMessageBox::RejectRole) {
         int row = retirerCarte(carte);
         int level = abs(row - 3); //Convertir la ligne en level
-        pyramidcard->Pyramid_Cards::drawCard(level, Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance());
+        pyramidcard->Pyramid_Cards::drawCard(level);
         ajouterCarte(row);
     }
 }
