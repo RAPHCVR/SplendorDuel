@@ -115,9 +115,6 @@ class PlateView : public QWidget {
 public:
     PlateView(QWidget* parent = nullptr, unsigned int h = 0, unsigned int w = 0);
 
-    void updatePrivilegeCounter() {
-        privilegeCounter->updateValue();
-    }
 
     void clickOnToken(unsigned int i);
     void unselectToken();
@@ -135,7 +132,7 @@ public:
         void endOfTurn();
 
 private:
-    PrivilegeCounter* privilegeCounter;
+    //PrivilegeCounter* privilegeCounter;
     PlateWidget* plateWidget;
     std::vector<CircleWidget*> buttons;
     unsigned int nbTokens;

@@ -22,7 +22,7 @@ private:
     QTPyramid* pyramid;
     QTRangeePioches* pioches;
     QTBoardRoyal* boardRoyal;
-
+    PrivilegeCounter* privilegeCounter;
     QGridLayout* mainlayout;
     QScreen* screen;
     QSize* size;

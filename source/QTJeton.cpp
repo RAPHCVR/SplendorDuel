@@ -165,9 +165,9 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
     max_nbSelectedTokens = 0;
     int TokenSize = (h - 100)/(2*rnbTokens) - 5;
 
-    PrivilegeCounter *counter = new PrivilegeCounter(this);
-    privilegeCounter=counter;
-    privilegeCounter->setFixedWidth(35);
+    //PrivilegeCounter *counter = new PrivilegeCounter(this);
+    //privilegeCounter=counter;
+    //privilegeCounter->setFixedWidth(35);
     plateWidget = new PlateWidget(nullptr, h-100, w, nbTokens, TokenSize, &buttons);
     Board::BoardIterator it = Board::getInstance().iterator();
     unsigned int j = 0;
@@ -191,9 +191,13 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
     validateButton->setStyleSheet("color blue;");
 
     layout = new QGridLayout; //Layout pour mettre le Grid + les boutons en dessous
-    layout->addWidget(privilegeCounter);
-    layout -> addWidget(plateWidget); //Ajoute layoutJetons au layout vertical
-    layout -> addWidget(validateButton); //Ajoute layoutJetons au layout vertical (faire un QHBoxLayout pour ajouter aussi un bouton desselctionner)
+    //layout->addWidget(privilegeCounter, 0, 0, -1, 1); // -1 pour "rowSpan" signifie qu'il occupera toutes les lignes nécessaires
+
+    // Ajout du PlateWidget dans la deuxième colonne
+    layout->addWidget(plateWidget);
+
+    // Ajout du bouton valider dans une nouvelle ligne sous le PlateWidget
+    layout->addWidget(validateButton);
 
     setLayout(layout); //Set le layout
 
