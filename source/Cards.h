@@ -245,7 +245,9 @@ public:
     //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
     void drawCard(unsigned int level);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
-    //void getRow1(){ return row_level_one;}
+    std::vector<JewelryCard*> getRow1() {return row_level_one;}
+    std::vector<JewelryCard*> getRow2() {return row_level_two;}
+    std::vector<JewelryCard*> getRow3() {return row_level_three;}
 
 
     bool isEmpty(unsigned int level) { return (level == 1) ? row_level_one.empty() : (level == 2) ? row_level_two.empty() : row_level_three.empty(); };
