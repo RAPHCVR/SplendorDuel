@@ -65,7 +65,7 @@ QString Carte::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }
@@ -237,13 +237,13 @@ QString QTPioche::getImagePath() const {
     //Id de la carte pour récupérer son image
     int backnumber = 0;
     if (Deck1 != nullptr && Deck2 == nullptr && Deck3 == nullptr){ backnumber = 3100;}
-    if (Deck2 != nullptr && Deck1 == nullptr && Deck3 == nullptr){ backnumber = 3200; cout << "Deck2-2" << endl;}
-    if (Deck3 != nullptr && Deck1 == nullptr && Deck2 == nullptr){ backnumber = 3300; cout << "Deck3-3" << endl;}
+    if (Deck2 != nullptr && Deck1 == nullptr && Deck3 == nullptr){ backnumber = 3200; std::cout << "Deck2-2" << std::endl;}
+    if (Deck3 != nullptr && Deck1 == nullptr && Deck2 == nullptr){ backnumber = 3300; std::cout << "Deck3-3" << std::endl;}
 
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
+    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
 
     return imagePath;
 }
@@ -266,9 +266,9 @@ void QTRangeePioches::afficher(){
     Deck_level_three* Deck3 = Deck_level_three::getInstance();
     QTPioche* currentPioche;
     for(int i=0; i<3; i++){
-        if(i==0){ currentPioche = new QTPioche(nullptr, nullptr, Deck3); cout << "Deck3" << endl;}
-        else if(i==1){ currentPioche = new QTPioche(nullptr, Deck2, nullptr); cout << "Deck2" << endl;}
-        else if(i==2){ currentPioche = new QTPioche(Deck1, nullptr, nullptr); cout << "Deck1" << endl;}
+        if(i==0){ currentPioche = new QTPioche(nullptr, nullptr, Deck3); std::cout << "Deck3" << std::endl;}
+        else if(i==1){ currentPioche = new QTPioche(nullptr, Deck2, nullptr); std::cout << "Deck2" << std::endl;}
+        else if(i==2){ currentPioche = new QTPioche(Deck1, nullptr, nullptr); std::cout << "Deck1" << std::endl;}
 
         grille->addWidget(currentPioche, i, 0); //en une seule colonne
         connect(currentPioche, &QTPioche::clicked, this, &QTRangeePioches::piocheClicked);
@@ -319,11 +319,11 @@ QString QTCardRoyal::getImagePath() const {
 
     //Id de la carte pour récupérer son image
     int id = royalcard->getId();
-    cout << "Id : " << id << endl;
+    std::cout << "Id : " << id << std::endl;
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }

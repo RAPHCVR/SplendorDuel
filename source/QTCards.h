@@ -6,7 +6,7 @@
 #include <QColor>
 #include <QGraphicsEllipseItem>
 #include <QGraphicsLineItem>
-#include <sqlite/sqlite3.h>
+#include "sqlite/sqlite3.h"
 #include <QString>
 #include <QPixmap>
 #include <QGridLayout>
@@ -15,8 +15,6 @@
 #include <cstddef>
 #include "Jeton.h"
 #include "Cards.h"
-
-using namespace std;
 
 namespace Utility {
 
