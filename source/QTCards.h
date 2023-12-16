@@ -54,7 +54,7 @@ namespace Utility {
         Q_OBJECT
 
     public:
-        QTPyramid( Pyramid_Cards* pyramidcard, QWidget *parent = nullptr);
+        QTPyramid(QWidget *parent = nullptr);
 
         void ajouterRangee(const QStringList& valeurs, const QStringList& couleurs);
 
@@ -153,7 +153,7 @@ namespace Utility {
         Q_OBJECT
 
     public:
-        QTBoardRoyal( Deck_Royal* dr, QWidget *parent = nullptr);
+        QTBoardRoyal(QWidget *parent = nullptr);
 
         //void ajouterRangee(const QStringList& valeurs, const QStringList& couleurs);
 

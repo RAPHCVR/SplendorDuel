@@ -1,5 +1,6 @@
 #include "QTCards.h"
-#include <QDesktopWidget>
+#include "QTGame.h"
+//#include <QDesktopWidget>
 #include <QLabel>
 #include <QtCore/qmath.h>
 #include <QGraphicsProxyWidget>
@@ -64,7 +65,7 @@ QString Carte::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/cardstestsplendor/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }
@@ -75,7 +76,7 @@ void Carte::mousePressEvent(QMouseEvent* event) {
 }
 
 
-QTPyramid::QTPyramid( Pyramid_Cards* pyramidcard, QWidget *parent) : QWidget(parent), pyramidcard(pyramidcard) {
+QTPyramid::QTPyramid(QWidget *parent) : QWidget(parent), pyramidcard(Pyramid_Cards::getInstance()) {
     grille = new QGridLayout(this);
     afficher();
 
@@ -242,7 +243,7 @@ QString QTPioche::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/cardstestsplendor/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
+    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
 
     return imagePath;
 }
@@ -322,7 +323,7 @@ QString QTCardRoyal::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/cardstestsplendor/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }
@@ -332,7 +333,7 @@ void QTCardRoyal::mousePressEvent(QMouseEvent* event) {
     emit clicked(this);
 }
 
-QTBoardRoyal::QTBoardRoyal( Deck_Royal* dr, QWidget *parent) : QWidget(parent), deckroyal(dr) {
+QTBoardRoyal::QTBoardRoyal(QWidget *parent) : QWidget(parent), deckroyal(Deck_Royal::getInstance()) {
     grille = new QGridLayout(this);
     afficher();
 

@@ -75,6 +75,7 @@ QColor CircleWidget::convertBorderColor(const Token& token) {
 }
 
 PlateWidget::PlateWidget(QWidget* parent, unsigned int h, unsigned int w, unsigned int nbTokens, unsigned int tokenSize, std::vector<CircleWidget*>* butt): QWidget(parent), nbTokens(nbTokens), h(h), w(w), tokenSize(tokenSize), buttons(butt) {
+
     rnbTokens = sqrt(nbTokens);
     for (unsigned int i = 0; i < rnbTokens; i++) {
         for (unsigned int j = 0; j < rnbTokens; j++) {
@@ -83,6 +84,19 @@ PlateWidget::PlateWidget(QWidget* parent, unsigned int h, unsigned int w, unsign
         }
     }
     setFixedSize(w, h);
+
+    /*
+    grille = new QGridLayout(this);
+    rnbTokens = sqrt(nbTokens);
+    unsigned int k = 0;
+    for (unsigned int i = 0; i < rnbTokens; i++) {
+        for (unsigned int j = 0; j < rnbTokens; j++) {
+            grille->addWidget((*butt)[k], i, j);
+            k++;
+        }
+    }
+    */
+
 }
 
 void PlateWidget::placeTokens() {

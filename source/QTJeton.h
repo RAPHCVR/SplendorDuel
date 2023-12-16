@@ -106,6 +106,8 @@ private:
     unsigned int h;
     unsigned int w;
     unsigned int tokenSize;
+
+    //QGridLayout *grille;
 };
 
 class PlateView : public QWidget {

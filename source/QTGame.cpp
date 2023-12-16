@@ -14,12 +14,29 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     height = size->height();
     setFixedSize(width, height);
     mainlayout = new QVBoxLayout(this);
+    maingrid = new QGridLayout();
     first = new QHBoxLayout();
     second = new QHBoxLayout();
     plateView = new PlateView(nullptr, height-100,width/2);
-    first->addWidget(plateView);
-    mainlayout->addLayout(first);
-    mainlayout->addLayout(second);
+
+    //Partie Cartes
+    qtpyramid = new QTPyramid();
+    qtrangeepioches = new QTRangeePioches(nullptr);
+    qtboardroyal = new QTBoardRoyal();
+
+    maingrid->addWidget(qtrangeepioches, 0, 0, 3, 1);
+    maingrid->addWidget(qtpyramid, 0 , 1, 3, 5);
+    maingrid->addWidget(qtboardroyal, 4, 0, 2, 2);
+    //Il faut modifier plateview pour que ce soit une grille avec les privilège à gauche (se baser sur le schéma du compte rendu 3)
+    //En attendant je print le plateau de jeton dans une autre fenetre
+    maingrid->addWidget(plateView, 4, 3);
+
+    mainlayout->addLayout(maingrid);
+
+    //first->addWidget(plateView);
+    //second->addWidget(qtpyramid);
+    //mainlayout->addLayout(first);
+    //mainlayout->addLayout(second);
     setLayout(mainlayout);
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
