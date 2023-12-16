@@ -28,24 +28,6 @@ void Player::addToken(const Token &token) {
     tokens.find(token.getColor())->second.push_back(&token);
 }
 
-// // lise --> plus besoin car on a tout dans Player::buyReservedCard()
-// void Player::actionReserveCard(){ //Conditions d'activation à penser : moins de 3 cartes en réserve + au moins un or sur plateau
-//     JewelryCard chosenCard;
-//     Token jetonOr;
-//     //choix d'une carte joallerie
-//     //chosenCard=carte choisie
-//     reserve.insert(reserve.begin(),chosenCard);
-//     //afficher "Veuillez choisir un jeton Or"
-//     //afficher le plateau
-//     //jetonOr=jeton choisi
-//     while (jetonOr.getColor()!="Or"){
-//         //afficher "Ceci n'est pas un jeton Or, veuillez en selectionner un"
-//         //afficher le plateau
-//         //jetonOr=jeton choisi
-//     }
-//     addToken(jetonOr);
-// };
-
 // Celine
 // ajout d'une carte dans la reserve
 void Player::reserveOneCard(JewelryCard& card){
@@ -109,28 +91,6 @@ const Token& Player::removeToken(TokenColor color) {
     return *token;
 }
 
-// // lise
-// // prendre les jetons sur le plateau (demander la rpz des jetons sur le plateau)
-// void Player::actionAddToken(){
-//         int nb_jetons = 0;
-//         Token token1, token2, token3; // token est recopiable
-//         int ok; 
-//     while(!ok){
-//         // affiche les jetons dispo sur le plateau + demander lequel (clique sur le jeton) [griser + non cliquable les cases pas cliquables]
-//         // if(nb_jetons == O), else if nb_jeton ==1, 2
-//         // a chaque clic --> incrementer nb_jeton + remplir les info du jeton selectionné + demander si ok ==1 ou 0 pour ajout definitif
-
-
-//         // 
-//     }
-//     // ok = 1 --> ajout
-//     tab_token_to_add
-//     for(int i =0; i< nb_jeton; i++){
-//         addToken(tab_token_to_add[i]);
-//         // retirer le jeton du plateau (methode plateau)
-//     }
-    
-// }
 
 //Celine
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
