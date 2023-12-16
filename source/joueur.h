@@ -45,6 +45,7 @@ public:
     unsigned int getNbTokens() const {return nbTokens;};
     unsigned int getPrestige() const {return prestigePoints;};
     unsigned int getCrowns() const {return nbCrown;};
+
     Type getType() const {return type;}
     SummaryCard& getBlueSummary(){return blueSummary;}
     SummaryCard& getWhiteSummary(){return whiteSummary;}
