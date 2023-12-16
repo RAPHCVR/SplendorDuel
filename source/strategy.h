@@ -35,7 +35,7 @@ public:
 
 class HumanStrategy : public Strategy{
 public:
-    virtual vector<OptionalActions> choseOptionalActions();
+    virtual vector<OptionalActions> choseOptionalActions() override;
 
 };
 
@@ -43,7 +43,7 @@ public:
 class AiStrategy : public Strategy{
 public:
     virtual int random(int min, int max) override;
-    virtual vector<OptionalActions> choseOptionalActions();
+    virtual vector<OptionalActions> choseOptionalActions() override;
 
 
 };
