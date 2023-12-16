@@ -106,7 +106,6 @@ private:
     unsigned int h;
     unsigned int w;
     unsigned int tokenSize;
-
     //QGridLayout *grille;
 };
 
@@ -145,6 +144,7 @@ private:
     std::string status;
     QPushButton* validateButton;
     QGridLayout* layout;
+    QGridLayout* grille;
 
 };
 #endif //LO21PROJECT_QTJETON_H

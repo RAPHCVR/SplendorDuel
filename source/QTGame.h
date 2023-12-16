@@ -23,7 +23,7 @@ private:
     QTRangeePioches* pioches;
     QTBoardRoyal* boardRoyal;
     PrivilegeCounter* privilegeCounter;
-    QGridLayout* mainlayout;
+    QVBoxLayout* mainlayout;
     QScreen* screen;
     QSize* size;
     unsigned int width;
