@@ -5,6 +5,7 @@
 #include <vector>
 #include <random>
 #include <chrono>
+#include <filesystem>					 
 #include "sqlite/sqlite3.h"
 #include "Cards.h"
 #include "Jeton.h"
@@ -49,11 +50,17 @@ std::ostream& operator<<(std::ostream& f, Abilities a){
 	
 Deck_level_one* Deck_level_one::instance = nullptr;
 Deck_level_one::Deck_level_one() : pioche() {
+
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
     
-            
+    //cout << pathtodatabase << endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
-    //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
+										 
+    int rc = sqlite3_open(pathtodatabase.c_str(), &db); //rc = return code, on ouvre la database
 
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
@@ -114,7 +121,7 @@ Deck_level_one::Deck_level_one() : pioche() {
         bonus.bonus_number = bonus_nb;
 
         //Création et ajout de l'instance au deck
-        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus); 
+        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id); 
         Deck_level_one::addCardToDeck(newCard);
 						
     }    
@@ -132,11 +139,17 @@ Deck_level_one::Deck_level_one() : pioche() {
 Deck_level_two* Deck_level_two::instance = nullptr;												   
 Deck_level_two::Deck_level_two() : pioche() {
     
-            
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
+
+    cout << pathtodatabase << endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
-    //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
-    
+										 
+    int rc = sqlite3_open(pathtodatabase.c_str(), &db); //rc = return code, on ouvre la database
+   
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
         sqlite3_close(db);
@@ -196,7 +209,7 @@ Deck_level_two::Deck_level_two() : pioche() {
     
 
         //Création et ajout de l'instance au deck
-        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus); 
+        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id); 
         Deck_level_two::addCardToDeck(newCard);
 					  
     }    
@@ -213,11 +226,18 @@ Deck_level_two::Deck_level_two() : pioche() {
 Deck_level_three *Deck_level_three::instance = nullptr;													   
 Deck_level_three::Deck_level_three() : pioche() {
     
-            
+
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
+
+    cout << pathtodatabase << endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
-    //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
-    
+										 
+    int rc = sqlite3_open(pathtodatabase.c_str(), &db); //rc = return code, on ouvre la database
+     
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
         sqlite3_close(db);
@@ -279,7 +299,7 @@ Deck_level_three::Deck_level_three() : pioche() {
     
 
         //Création et ajout de l'instance au deck
-        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus); 
+        JewelryCard *newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id); 
         Deck_level_three::addCardToDeck(newCard);
 					  
     }    
@@ -296,9 +316,16 @@ Deck_level_three::Deck_level_three() : pioche() {
 Deck_Royal *Deck_Royal::instance = nullptr;										   
 Deck_Royal::Deck_Royal() : cards() {
 
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    string pathtodatabase = sourceDirectory.string() + "/Data/cards.db";
+
+    cout << pathtodatabase << endl;
     sqlite3 *db; //On créer une variable sqlite du nom de db
-    //PENSER A MODIFIER LE CHEMIN D ACCES
-    int rc = sqlite3_open("../Data/cards.db", &db); //rc = return code, on ouvre la database
+										 
+    int rc = sqlite3_open(pathtodatabase.c_str(), &db); //rc = return code, on ouvre la database
     
     if (rc) {
         std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;

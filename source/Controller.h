@@ -6,7 +6,8 @@
 #define CONTROLLER_H
 
 #include "Partie.h"
-#include <QApplication>
+#include "QTJeton.h"
+
 enum class OptionalActions{
     UsePrivileges, FillBoard, Empty
 };

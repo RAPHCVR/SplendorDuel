@@ -266,7 +266,6 @@ void Board::fillBoard(Bag& bag) {
     }
     while(!bag.isEmpty()){
         placeToken(bag.drawToken());
-        showBoard();
     }
 }
 
@@ -283,7 +282,7 @@ const Token& Board::takeToken(const size_t i, const size_t j) {
 }
 
 const Privilege& Board::takePrivilege() {
-    if (privileges.empty()) {
+    if (getNbPrivileges() == 0) {
         throw TokenException("Il n'y a pas de privilège sur le plateau");
     }
     unsigned int size = getNbPrivileges()-1;
