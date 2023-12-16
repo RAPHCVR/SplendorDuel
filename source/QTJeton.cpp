@@ -190,7 +190,7 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
     validateButton = new QPushButton("Valider le choix des jetons"); //Creer le bouton valider (pour la selection des jetons)
     validateButton->setStyleSheet("color blue;");
 
-    layout = new QVBoxLayout; //Layout pour mettre le Grid + les boutons en dessous
+    layout = new QGridLayout; //Layout pour mettre le Grid + les boutons en dessous
     layout->addWidget(privilegeCounter);
     layout -> addWidget(plateWidget); //Ajoute layoutJetons au layout vertical
     layout -> addWidget(validateButton); //Ajoute layoutJetons au layout vertical (faire un QHBoxLayout pour ajouter aussi un bouton desselctionner)

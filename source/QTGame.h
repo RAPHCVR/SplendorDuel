@@ -10,25 +10,20 @@
 #include <QHBoxLayout>
 #include <QScreen>
 #include <QSize>
-#include <QGridLayout>
 #include "Controller.h"
 #include "QTJeton.h"
 #include "QTCards.h"
-#include "Cards.h"
 
 class QTGame : public QWidget {
     Q_OBJECT
 private:
     Controller* controller;
     PlateView* plateView;
-    QTPyramid* qtpyramid;
-    QTRangeePioches* qtrangeepioches;
-    QTBoardRoyal* qtboardroyal;
+    QTPyramid* pyramid;
+    QTRangeePioches* pioches;
+    QTBoardRoyal* boardRoyal;
 
-    QHBoxLayout* first;
-    QHBoxLayout* second;
-    QVBoxLayout* mainlayout;
-    QGridLayout* maingrid;
+    QGridLayout* mainlayout;
     QScreen* screen;
     QSize* size;
     unsigned int width;

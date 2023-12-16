@@ -147,7 +147,7 @@ private:
     unsigned int w;
     std::string status;
     QPushButton* validateButton;
-    QVBoxLayout* layout;
+    QGridLayout* layout;
 
 };
 #endif //LO21PROJECT_QTJETON_H

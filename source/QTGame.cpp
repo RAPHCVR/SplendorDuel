@@ -10,31 +10,21 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     controller = new Controller();
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
+    setFixedSize( size->width(), size->height()+50);
     width = size->width();
-    height = size->height() +50;
-    setFixedSize(width, height);
-    mainlayout = new QVBoxLayout(this);
-    maingrid = new QGridLayout();
-    first = new QHBoxLayout();
-    second = new QHBoxLayout();
+    height = size->height();
+    mainlayout = new QGridLayout(this);
+    //first = new QVBoxLayout();
+    //second = new QHBoxLayout();
     plateView = new PlateView(nullptr, height-100,width/2);
+    pyramid = new QTPyramid();
+    pioches = new QTRangeePioches(nullptr);
+    boardRoyal = new QTBoardRoyal(nullptr);
+    mainlayout->addWidget(plateView,4,2,5,5);
+    mainlayout->addWidget(pioches, 0, 0, 3, 1);
+    mainlayout->addWidget(pyramid, 0 , 1, 3, 5);
+    mainlayout->addWidget(boardRoyal, 4, 0, 2, 2);
 
-    //Partie Cartes
-    qtpyramid = new QTPyramid();
-    qtrangeepioches = new QTRangeePioches(nullptr);
-    qtboardroyal = new QTBoardRoyal();
-
-    maingrid->addWidget(qtrangeepioches, 0, 0, 3, 1);
-    maingrid->addWidget(qtpyramid, 0 , 1, 3, 5);
-    maingrid->addWidget(qtboardroyal, 3, 0, 2, 2);
-    //Il faut modifier plateview pour que ce soit une grille avec les privilège à gauche (se baser sur le schéma du compte rendu 3)
-    //En attendant je print le plateau de jeton dans une autre fenetre
-    maingrid->addWidget(plateView, 3, 3);
-
-    mainlayout->addLayout(maingrid);
-
-    //first->addWidget(plateView);
-    //second->addWidget(qtpyramid);
     //mainlayout->addLayout(first);
     //mainlayout->addLayout(second);
     setLayout(mainlayout);
