@@ -28,6 +28,7 @@ Controller::Controller() {
         currentPlayer= game->getPlayer(i);
         getopposingPlayer().addPrivilege(game->getGameTable().getBoard().takePrivilege());
     }
+
 }
 
 void Controller::setCurrentPlayer(unsigned int n) {
