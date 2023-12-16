@@ -13,6 +13,7 @@
 #include "Controller.h"
 #include "QTJeton.h"
 #include "QTCards.h"
+#include "QTJoueur.h"
 
 class QTGame : public QWidget {
     Q_OBJECT
@@ -26,6 +27,8 @@ private:
     QVBoxLayout* mainlayout;
     QScreen* screen;
     QSize* size;
+    PlayerQT* player1;
+    PlayerQT* player2;
     unsigned int width;
     unsigned int height;
     std::string status;
