@@ -75,7 +75,8 @@ QColor CircleWidget::convertBorderColor(const Token& token) {
 }
 
 PlateWidget::PlateWidget(QWidget* parent, unsigned int h, unsigned int w, unsigned int nbTokens, unsigned int tokenSize, std::vector<CircleWidget*>* butt): QWidget(parent), nbTokens(nbTokens), h(h), w(w), tokenSize(tokenSize), buttons(butt) {
-    rnbTokens = static_cast<int>(sqrt(nbTokens));
+
+    rnbTokens = sqrt(nbTokens);
     for (unsigned int i = 0; i < rnbTokens; i++) {
         for (unsigned int j = 0; j < rnbTokens; j++) {
             QRect* rect = new QRect(2 * i * (tokenSize + 5) + (w - (2 * (tokenSize + 5)) * rnbTokens)/2, 2 * j * (tokenSize + 5), 2 * (tokenSize + 5), 2 * (tokenSize + 5));
@@ -83,6 +84,19 @@ PlateWidget::PlateWidget(QWidget* parent, unsigned int h, unsigned int w, unsign
         }
     }
     setFixedSize(w, h);
+
+    /*
+    grille = new QGridLayout(this);
+    rnbTokens = sqrt(nbTokens);
+    unsigned int k = 0;
+    for (unsigned int i = 0; i < rnbTokens; i++) {
+        for (unsigned int j = 0; j < rnbTokens; j++) {
+            grille->addWidget((*butt)[k], i, j);
+            k++;
+        }
+    }
+    */
+
 }
 
 void PlateWidget::placeTokens() {
@@ -144,21 +158,16 @@ void CircleWidget::paintEvent(QPaintEvent* event) {
     }
 }
 
-PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height),w(width) {
-    std::vector<unsigned int> indices;
-    for (unsigned int i = 0; i < 49; i++) {
-        indices.push_back(i%7);
-    }
-
+PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height),w(width), status("take3tokens"){
     nbTokens = 25;
-    rnbTokens = static_cast<int>(sqrt(nbTokens));
+    rnbTokens = sqrt(nbTokens);
     setFixedSize(w, h); //Fixe la taille du plateau
-    //sac = plateau->getSac();
-
+    max_nbSelectedTokens = 0;
     int TokenSize = (h - 100)/(2*rnbTokens) - 5;
 
-    PrivilegeCounter *privilegeCounter = new PrivilegeCounter();
-    privilegeCounter->setFixedWidth(35);
+    //PrivilegeCounter *counter = new PrivilegeCounter(this);
+    //privilegeCounter=counter;
+    //privilegeCounter->setFixedWidth(35);
     plateWidget = new PlateWidget(nullptr, h-100, w, nbTokens, TokenSize, &buttons);
     Board::BoardIterator it = Board::getInstance().iterator();
     unsigned int j = 0;
@@ -181,11 +190,14 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
     validateButton = new QPushButton("Valider le choix des jetons"); //Creer le bouton valider (pour la selection des jetons)
     validateButton->setStyleSheet("color blue;");
 
-    layout = new QVBoxLayout; //Layout pour mettre le Grid + les boutons en dessous
+    layout = new QGridLayout; //Layout pour mettre le Grid + les boutons en dessous
+    //layout->addWidget(privilegeCounter, 0, 0, -1, 1); // -1 pour "rowSpan" signifie qu'il occupera toutes les lignes nécessaires
 
-    layout->addWidget(privilegeCounter);
-    layout -> addWidget(plateWidget); //Ajoute layoutJetons au layout vertical
-    layout -> addWidget(validateButton); //Ajoute layoutJetons au layout vertical (faire un QHBoxLayout pour ajouter aussi un bouton desselctionner)
+    // Ajout du PlateWidget dans la deuxième colonne
+    layout->addWidget(plateWidget);
+
+    // Ajout du bouton valider dans une nouvelle ligne sous le PlateWidget
+    layout->addWidget(validateButton);
 
     setLayout(layout); //Set le layout
 
@@ -195,7 +207,7 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
 void PlateView::clickOnToken(unsigned i) {
     unsigned int j = 0;
     if (isSelected(buttons[i])) {
-        for (j = 0; j < 3; j++) {
+        for (j = 0; j < max_nbSelectedTokens; j++) {
             if (selectedTokens[j] == buttons[i]) {
                 selectedTokens[j] = nullptr;
                 buttons[i] -> changeSelect();
@@ -204,7 +216,7 @@ void PlateView::clickOnToken(unsigned i) {
         }
     }
     else {
-        if (nbSelectedTokens < 3) {
+        if (nbSelectedTokens < max_nbSelectedTokens) {
             buttons[i] -> changeSelect();
             while(selectedTokens[j] != nullptr) {
                 j++;
@@ -219,35 +231,56 @@ void PlateView::unselectToken() {
     for (unsigned int i = 0; i < 3; i++) {
         if (selectedTokens[i] != nullptr) {
             selectedTokens[i] -> changeSelect();
-            selectedTokens[i] -> hide();
+            selectedTokens[i]->disappear();
             selectedTokens[i] = nullptr;
         }
     }
     nbSelectedTokens = 0;
 }
 
-std::vector<const Token*> PlateView::validateTokens() {
+void PlateView::validateTokens() {
     std::vector<std::pair<int, int>>* pos = new std::vector<std::pair<int, int>>;
     std::vector<const Token*> tokens;
     for(int j = 0; j < 3; j++){
         if(selectedTokens[j] != nullptr) {
             if(Board::getInstance().CellColor(selectedTokens[j]->getPosition()->getx(),selectedTokens[j]->getPosition()->gety(),TokenColor::OR)){
-                throw TokenException("Impossible de prendre un jeton or");
+                if (status != "gold") {
+                    throw TokenException("Impossible de prendre un jeton or");
+                }
             }
             pos->push_back(std::make_pair(selectedTokens[j]->getPosition()->getx(), selectedTokens[j]->getPosition()->gety()));
         }
     }
-    if (areCoordinatesAlignedAndConsecutive(pos) || pos->size()==1) {
+    if ((areCoordinatesAlignedAndConsecutive(pos) || pos->size()==1) &&status=="take3tokens") {
         for (auto pair: *pos) {
             tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
         }
         unselectToken();
         emit tokensValidated(tokens);
-        return tokens;
+        updateMaxNbSelectedTokens(0);
+    }
+    else if (status == "privileges") {
+        for (auto pair: *pos) {
+            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+        }
+        unselectToken();
+        emit tokensValidated(tokens);
+        emit privilegeUsed(tokens.size());
+        updateMaxNbSelectedTokens(0);
+    }
+    else if (status == "gold") {
+        for (auto pair: *pos) {
+            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+        }
+        unselectToken();
+        emit tokensValidated(tokens);
+        updateMaxNbSelectedTokens(0);
+        status = "take3tokens";
     }
     else {
         throw TokenException("Les jetons ne sont pas alignes ou consecutifs");
     }
+    emit endOfTurn();
 }
 
 bool PlateView::isSelected(CircleWidget* button) {
@@ -261,7 +294,7 @@ bool PlateView::isSelected(CircleWidget* button) {
 
 void PlateView::hideElements() {
     for (unsigned int i = 0; i < nbTokens; i++) {
-        buttons[i]->hide();
+        buttons[i]->disappear();
     }
     validateButton->hide();
 }

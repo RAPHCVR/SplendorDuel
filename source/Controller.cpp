@@ -28,6 +28,7 @@ Controller::Controller() {
         currentPlayer= game->getPlayer(i);
         getopposingPlayer().addPrivilege(game->getGameTable().getBoard().takePrivilege());
     }
+
 }
 
 void Controller::setCurrentPlayer(unsigned int n) {
@@ -135,6 +136,9 @@ void Controller::applyCompulsoryAction(Game &game, Player &player, CompulsoryAct
                     if (tokens[i]->getColor()==TokenColor::None) {
                         break;
                     }
+            }
+            if (tokens.size()!=3 || TokenColor::None == tokens[0]->getColor() || TokenColor::None == tokens[1]->getColor() || TokenColor::None == tokens[2]->getColor()) {
+                check = false;
             }
             for (auto token : tokens) {
                 if (token!=nullptr) {
@@ -253,24 +257,26 @@ bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>*
         return false;
     }
 
-    int dx = (*coordinates)[1].first - (*coordinates)[0].first;
-    int dy = (*coordinates)[1].second - (*coordinates)[0].second;
+    // Créer une copie des coordonnées pour les trier
+    std::vector<std::pair<int, int>> sortedCoords = *coordinates;
 
-    if (std::abs(dx) > 1 || std::abs(dy) > 1) {
-        return false;
-    }
+    // Trier les coordonnées
+    std::sort(sortedCoords.begin(), sortedCoords.end());
 
-    for (size_t i = 2; i < coordinates->size(); ++i) {
-        int currentDx = (*coordinates)[i].first - (*coordinates)[i - 1].first;
-        int currentDy = (*coordinates)[i].second - (*coordinates)[i - 1].second;
+    // Vérifier si les coordonnées triées sont alignées et consécutives
+    for (size_t i = 0; i < sortedCoords.size() - 1; ++i) {
+        int dx = sortedCoords[i + 1].first - sortedCoords[i].first;
+        int dy = sortedCoords[i + 1].second - sortedCoords[i].second;
 
-        if (currentDx != dx || currentDy != dy) {
+        // Vérifier si elles sont adjacentes (dx et dy ne dépassent pas 1)
+        if (std::abs(dx) > 1 || std::abs(dy) > 1) {
             return false;
         }
     }
 
     return true;
 }
+
 
 void Controller::chooseGoldenToken(Board&board, Player&player) {
     std::cout << "Veuillez choisir un jeton" << std::endl;
@@ -344,14 +350,20 @@ void Controller::buyJewelryCard(GameTable& gametable) {
         }
     }
     if (not(bought)) {
-        std::cout << gametable.getPyramid() << std::endl;
         unsigned int level = choiceMaker(1, 3);
         unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
+        std::cout << "Cartes de niveau " << level << " : \n";
+        for (auto card: gametable.getPyramid().getLevelCards(level)) {
+            std::cout << *card << std::endl;
+        }
         unsigned int nbCard = choiceMaker(1, nb);
         card = &gametable.getPyramid().takeCard(level, nbCard - 1);
         gametable.getPyramid().drawCard(level);
         if (currentPlayer->canBuyCard(*card)) {
             currentPlayer->actionBuyCard(*card);
+        }
+        else {
+            throw JewelryCardError("Vous ne pouvez pas acheter cette carte");
         }
     }
     applyCardSkills(*game, *currentPlayer, getopposingPlayer(),*card);
@@ -364,7 +376,7 @@ void Controller::buyNobleCard() {
     }
     unsigned int nbCard = choiceMaker(1, Deck_Royal::getInstance()->getCards().size());
     RoyalCard& card = *Deck_Royal::getInstance()->getCards()[nbCard - 1];
-    currentPlayer->addRoyalCard(card);
+    currentPlayer->addRoyalCard(card, nbCard - 1);
     applyRoyalCardSkills(*game,*currentPlayer,getopposingPlayer(),card);
 }
 
@@ -536,12 +548,14 @@ void Controller::play() {
         }
         changeCurrentPlayer();
     }
-    std::cout << "Le joueur " << currentPlayer->getName() << " a gagne !" << std::endl;
+    std::cout << "Le joueur " << getopposingPlayer().getName() << " a gagne !" << std::endl;
 }
 
 void Controller::playTurn() {
     std::cout << "C'est au tour de " << currentPlayer->getName() << std::endl;
     std::cout << *currentPlayer << std::endl;
+    std::cout << "Pyramide: " << std::endl;
+    std::cout << getGame().getGameTable().getPyramid() << std::endl;
     std::vector<CompulsoryActions> compulsoryActions = getCompulsoryActions(*game, *currentPlayer);
     unsigned int choice = 0;
     if (compulsoryActions.empty()) {
@@ -604,7 +618,7 @@ void Controller::playTurn() {
             std::cout << "Choisissez combien vous voulez en retirer " << std::endl;
             unsigned int tot = choiceMaker(1, currentPlayer->getTokenSummary().find(color)->second);
             for (unsigned int i = 0; i < tot; i++) {
-                currentPlayer->removeToken(color);
+                game->getGameTable().getBag().addToken(currentPlayer->removeToken(color));
                 nb--;
             }
         }

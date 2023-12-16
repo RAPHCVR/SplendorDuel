@@ -13,3 +13,9 @@ dist
 source_resource.rc
 *.bak
 .DS_Store
+source/CMakeLists.txt
+*.pro
+source/mainwindow.cpp
+source/mainwindow.h
+source/mainwindow.ui
+build-source-Desktop_Qt_5_15_2_MinGW_64_bit-Debug/

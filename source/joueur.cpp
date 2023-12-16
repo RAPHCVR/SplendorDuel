@@ -71,7 +71,7 @@ const Privilege& Player::removePrivilege() {
 }
 
 void Player::addCrowns(int nbCrowns) {
-    nbCrown+=1;
+    nbCrown+=nbCrowns;
 }
 
 // celine
@@ -259,21 +259,13 @@ void Player::addJewelryCard(JewelryCard &card) {
 
 //Celine
 // ajout de la carte dans royalCards 
-void Player::addRoyalCard(RoyalCard &card){
+void Player::addRoyalCard(RoyalCard &card, int position){
     // ajout de la carte dans la liste de cartes royales
     getRoyalCards().push_back(&card);
     //delete the card
-    for (auto it = Deck_Royal::getInstance()->getCards().begin(); it != Deck_Royal::getInstance()->getCards().end(); it++) {
-        if (*it == &card) {
-            Deck_Royal::getInstance()->getCards().erase(it);
-            break;
-        }
-    }
-
+    Deck_Royal::getInstance()->deleteCard(position);
     // pas de couleur, juste ajout du nb de prestiges
     addPrestige(card.getPrestige(), TokenColor::None);
-
-
 }
 
 // Celine 

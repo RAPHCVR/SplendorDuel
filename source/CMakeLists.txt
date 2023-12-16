@@ -33,6 +33,10 @@ add_executable(projet-lo21-splendor-duel
         joueur.cpp
         QTGame.cpp
         QTGame.h
+        QTQuestion.cpp
+        QTQuestion.h
+        QTCards.cpp
+        QTCards.h
         #"../../../Downloads/Projet_LO21-commun(1)/Projet_LO21-commun/source/back-end/controller.cpp"
         #"../../../Downloads/Projet_LO21-commun(1)/Projet_LO21-commun/source/back-end/controller.hpp"
 )

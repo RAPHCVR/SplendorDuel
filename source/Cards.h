@@ -60,8 +60,8 @@ public:
 
 class JewelryCard {
 public:
-    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a1, Abilities a2, Bonus b) :
-    level(l), cost(c), prestige_points(pp), crowns(cr), ability1(a1), ability2(a2), bonus(b) {}
+    JewelryCard(unsigned int l, std::unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a1, Abilities a2, Bonus b, int i) :
+    level(l), cost(c), prestige_points(pp), crowns(cr), ability1(a1), ability2(a2), bonus(b), id(i) {}
     int getLevel() {return level;}
     std::unordered_map<TokenColor, int> getCost() {return cost;}
     int getPrestige() {return prestige_points;}
@@ -69,6 +69,7 @@ public:
     Abilities getAbility1() {return ability1;}
     Abilities getAbility2() {return ability2;}
     Bonus getBonus() {return bonus;}
+	int getId() {return id;}
     bool operator==(const JewelryCard& other) const {
         return level == other.level && cost == other.cost && prestige_points == other.prestige_points && crowns == other.crowns && ability1 == other.ability1 && ability2 == other.ability2 && bonus == other.bonus;
     }
@@ -80,6 +81,7 @@ private:
     Abilities ability1;
     Abilities ability2;
     Bonus bonus;
+	int id;
 };
 
 std::ostream& operator<<(std::ostream& f, JewelryCard& c);
@@ -243,7 +245,9 @@ public:
     //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);
     void drawCard(unsigned int level);
     JewelryCard& takeCard(unsigned int level, unsigned int position);
-    //void getRow1(){ return row_level_one;}
+    std::vector<JewelryCard*> getRow1() {return row_level_one;}
+    std::vector<JewelryCard*> getRow2() {return row_level_two;}
+    std::vector<JewelryCard*> getRow3() {return row_level_three;}
 
 
     bool isEmpty(unsigned int level) { return (level == 1) ? row_level_one.empty() : (level == 2) ? row_level_two.empty() : row_level_three.empty(); };
