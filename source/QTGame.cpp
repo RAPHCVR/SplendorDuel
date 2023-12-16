@@ -11,7 +11,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
     width = size->width();
-    height = size->height();
+    height = size->height() +50;
     setFixedSize(width, height);
     mainlayout = new QVBoxLayout(this);
     maingrid = new QGridLayout();
@@ -26,10 +26,10 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
 
     maingrid->addWidget(qtrangeepioches, 0, 0, 3, 1);
     maingrid->addWidget(qtpyramid, 0 , 1, 3, 5);
-    maingrid->addWidget(qtboardroyal, 4, 0, 2, 2);
+    maingrid->addWidget(qtboardroyal, 3, 0, 2, 2);
     //Il faut modifier plateview pour que ce soit une grille avec les privilège à gauche (se baser sur le schéma du compte rendu 3)
     //En attendant je print le plateau de jeton dans une autre fenetre
-    maingrid->addWidget(plateView, 4, 3);
+    maingrid->addWidget(plateView, 3, 3);
 
     mainlayout->addLayout(maingrid);
 
