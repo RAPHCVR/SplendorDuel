@@ -24,8 +24,8 @@ int AiStrategy::random(int min, int max){
 // Celine
 // permet de choisir le nombre d'actions optionnelles que fait l'ia
 // et lesquelles il fait 
-std::vector<Controller::OptionalActions> AiStrategy::choseOptionalActions(){
-    std::vector<Controller::OptionalActions> AIsOptionalActions;
+std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
+    std::vector<OptionalActions> AIsOptionalActions;
     // combien d'action optionnelles (entre 0 et 2)
     int nbOptionalAction = random(0,2);
 
@@ -52,8 +52,8 @@ std::vector<Controller::OptionalActions> AiStrategy::choseOptionalActions(){
 
 // Celine
 // permet de choisir l'action optionnelle que fait l'ia
-std::vector<Controller::CompulsoryActions> AiStrategy::choseCompulsoryActions(){
-    std::vector<Controller::CompulsoryActions> AIsCompulsoryAction;
+std::vector<CompulsoryActions> AiStrategy::choseCompulsoryActions(){
+    std::vector<CompulsoryActions> AIsCompulsoryAction;
     int nbCompulsoryActions = random(0,2);
     // prendre entre un et trois jetons
     if(nbCompulsoryActions == 0){
@@ -193,10 +193,6 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 }
 
 
-
-
-
-
 TokenColor AiStrategy::choseTokenColor(){
     int tokenChoice = random(0,6);
     switch (tokenChoice){
@@ -228,4 +224,52 @@ TokenColor AiStrategy::choseTokenColor(){
     
 }
 
+vector<OptionalActions> HumanStrategy::choseOptionalActions(){
+    std::vector<OptionalActions> HumanOptionalActions;
+    OptionalActions choice;
+    int nbOptionalActions;
+    cout << "Combien d'action(s) optionnelle(s) souhaitez vous faire (0, 1 ou 2) : ";
+    cin >> nbOptionalActions;
+    if(nbOptionalActions==0){
+        return {};
+    }
+    else{
+        for(int i = 0; i < nbOptionalActions; i++){
+            while(choice!=OptionalActions::FillBoard||choice!=OptionalActions::UsePrivileges ){
+                cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
+                cin >> choice;
+            }
+            HumanOptionalActions.push_back(choice);
+
+        }
+        return HumanOptionalActions;
+    }
+
+}
+
+
+vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
+    std::vector<CompulsoryActions> HumanCompulsoryActions;
+    CompulsoryActions choice;
+    cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
+    while(choice!=CompulsoryActions::BuyCard || choice!=CompulsoryActions::ReserveCard || choice!=CompulsoryActions::TakeCoins){
+        cout << "Entrez une action valide (BuyCard, ReserveCard ou TakeCoins) : ";
+        cin >> choice;
+    }
+    HumanOptionalActions.push_back(choice);
+    return HumanOptionalActions;
+}
+
+
+
+
+TokenColor HumanStrategy::choseTokenColor(){
+    TokenColor color;
+    while(color!=TokenColor::BLEU || color!=TokenColor::BLANC || color!=TokenColor::VERT || color!=TokenColor::NOIR || color!=TokenColor::ROUGE || color!=TokenColor::PERLE || color!=TokenColor::OR){
+        cout << "Entrez une couleur valide (BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR) : ";
+        cin >> color;
+    }
+    return color;
+        
+}
 

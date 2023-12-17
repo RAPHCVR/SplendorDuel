@@ -30,13 +30,17 @@ public:
     virtual int random(int min, int max)=0 ;
     virtual vector<OptionalActions> choseOptionalActions()=0;
     virtual vector<CompulsoryActions> choseCompulsoryActions()=0;
-    virtual std::vector<const Token*> AiStrategy::choseTokensToTake()=0;
+    virtual std::vector<const Token*> choseTokensToTake()=0;
     virtual TokenColor choseTokenColor()=0;
 };
 
 
 class HumanStrategy : public Strategy{
 public:
+    virtual vector<OptionalActions> choseOptionalActions() override;
+    virtual vector<CompulsoryActions> choseCompulsoryActions() override;
+    //virtual std::vector<const Token*> choseTokensToTake() override;
+    virtual TokenColor choseTokenColor() override;
 
 };
 
