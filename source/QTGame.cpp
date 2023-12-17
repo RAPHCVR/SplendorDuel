@@ -10,23 +10,38 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     controller = new Controller();
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
-    setFixedSize( size->width(), (size->height())*2);
+
     width = size->width();
     height = size->height();
-    mainlayout = new QGridLayout(this);
-    //first = new QVBoxLayout();
-    //second = new QHBoxLayout();
-    plateView = new PlateView(nullptr, (height-100)/1.25,(width/2)/1.25);
+    mainlayout = new QVBoxLayout(this);
+    QHBoxLayout* PyramidPioche = new QHBoxLayout();
+    QVBoxLayout* centre = new QVBoxLayout();
+    QHBoxLayout* total = new QHBoxLayout();
+    QHBoxLayout* CartesRoyalesPrivilegesPlateau= new QHBoxLayout();
+    plateView = new PlateView(nullptr, height-100,width/2);
+
     pyramid = new QTPyramid();
     pioches = new QTRangeePioches(nullptr);
     boardRoyal = new QTBoardRoyal(nullptr);
-    mainlayout->addWidget(plateView,4,2,5,5);
-    mainlayout->addWidget(pioches, 0, 0, 3, 1);
-    mainlayout->addWidget(pyramid, 0 , 1, 3, 5);
-    mainlayout->addWidget(boardRoyal, 4, 0, 2, 2);
-
+    privilegeCounter = new PrivilegeCounter(nullptr);
+    player1 = new PlayerQT(controller->getcurrentPlayer(), nullptr);
+    player2 = new PlayerQT(controller->getopposingPlayer(), nullptr);
+    PyramidPioche->addWidget(pioches);
+    PyramidPioche->addWidget(pyramid);
+    CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
+    boardRoyal->setMaximumWidth(500);
+    CartesRoyalesPrivilegesPlateau->addWidget(privilegeCounter);
+    CartesRoyalesPrivilegesPlateau->addWidget(plateView);
+    centre->addLayout(PyramidPioche);
+    centre->addLayout(CartesRoyalesPrivilegesPlateau);
+    total -> addWidget(player1);
+    total -> addLayout(centre);
+    total -> addWidget(player2);
+    mainlayout->addLayout(total);
     //mainlayout->addLayout(first);
     //mainlayout->addLayout(second);
+    int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
+    setFixedSize(size->width()*2,size->height()*1.5);
     setLayout(mainlayout);
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
@@ -101,7 +116,7 @@ void QTGame::fillBoard() {
 void QTGame::takePrivilege(Player& player) {
     try {
         player.addPrivilege(controller->getGame().getGameTable().getBoard().takePrivilege());
-        plateView->updatePrivilegeCounter();
+        privilegeCounter->updateValue();
     }
     catch (TokenException& err) {
         std::cout << err.getMessage() << "\n";
@@ -113,7 +128,7 @@ void QTGame::placePrivilege(unsigned int nb) {
         for (unsigned int i = 0; i < nb; i++) {
             controller->getGame().getGameTable().getBoard().placePrivilege(controller->getcurrentPlayer().removePrivilege());
         }
-        plateView->updatePrivilegeCounter();
+        privilegeCounter->updateValue();
     }
     catch (TokenException& err) {
         std::cout << err.getMessage() << "\n";

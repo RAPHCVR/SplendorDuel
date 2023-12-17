@@ -16,23 +16,23 @@ std::string typeToString(Type type) {
 QColor convertToQColorFromTokenColor(TokenColor tokenColor) {
     switch (tokenColor) {
     case TokenColor::BLEU:
-        return QColor(0, 0, 255);  // Blue
+        return {0, 0, 255};  // Blue
     case TokenColor::BLANC:
-        return QColor(255, 255, 255);  // White
+        return {255, 255, 255};  // White
     case TokenColor::VERT:
-        return QColor(0, 255, 0);  // Green
+        return {0, 255, 0};  // Green
     case TokenColor::NOIR:
-        return QColor(0, 0, 0);  // Black
+        return {0, 0, 0};  // Black
     case TokenColor::ROUGE:
-        return QColor(255, 0, 0);  // Red
+        return {255, 0, 0};  // Red
     case TokenColor::PERLE:
         // Replace with the desired color values for PERLE
-        return QColor(200, 200, 200);  // Example gray color
+        return {200, 200, 200};  // Example gray color
     case TokenColor::OR:
-        return QColor(255, 215, 0);  // Gold
+        return {255, 215, 0};  // Gold
     case TokenColor::None:
     default:
-        return QColor();  // Default to an invalid color
+        return {};  // Default to an invalid color
     }
 }
 
@@ -58,15 +58,6 @@ void TokenWidget::paintEvent(QPaintEvent* event) {
     painter.drawEllipse(rect().adjusted(2, 2, -2, -2));
 }
 
-void TokenWidget::setColor(const TokenColor* color) {
-    QColor newColor = convertToQColorFromTokenColor(*color);
-    QPalette palette;
-    palette.setColor(QPalette::Base, newColor);
-    setAutoFillBackground(true);
-    setPalette(palette);
-    QWidget::update();
-}
-
 void TokenWidget::updateNumToken(int newNumToken){
     numToken->display(newNumToken);
 
@@ -82,14 +73,14 @@ void CardWidget::updatePrestige(int newPrestige){
     prestige->display(newPrestige);
 };
 
-CardWidget::CardWidget(QWidget *parent, const TokenColor color)
-    : QWidget(parent) {
+CardWidget::CardWidget(QWidget *parent, TokenColor color)
+    : QWidget(parent), color(color) {
 
     // Set la couleur de fond
     QColor newColor=convertToQColorFromTokenColor(color);
     setStyleSheet(QString("background-color: %1;").arg(newColor.name()));
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(10, 10, 10, 10);
 
     bonus = new QLCDNumber(this);
@@ -103,7 +94,7 @@ CardWidget::CardWidget(QWidget *parent, const TokenColor color)
 
 //Methodes Joueur global
 
-PlayerQT::PlayerQT(const Player player, QWidget* parent) : QWidget(parent) {
+PlayerQT::PlayerQT(Player &player, QWidget* parent) : QWidget(parent) {
     setWindowTitle("Player");
 
     QString playerType = QString::fromStdString(typeToString(player.getType()));
@@ -117,7 +108,7 @@ PlayerQT::PlayerQT(const Player player, QWidget* parent) : QWidget(parent) {
     nameJoueur = new QLabel(playerName);
     numCrowns = new QLCDNumber;
     numPrivilege = new QLCDNumber;
-    numPrestige=new QLCDNumber;
+    numPrestige = new QLCDNumber;
     layoutjoueur = new QHBoxLayout;
     layoutprivilege = new QHBoxLayout;
     layoutprestige = new QHBoxLayout;
@@ -125,45 +116,43 @@ PlayerQT::PlayerQT(const Player player, QWidget* parent) : QWidget(parent) {
     layoutCards = new QGridLayout;
     layoutTokens = new QGridLayout;
 
+    blueToken = new TokenWidget(this, TokenColor::BLEU);
+    redToken = new TokenWidget(this, TokenColor::ROUGE);
+    blackToken = new TokenWidget(this, TokenColor::NOIR);
+    whiteToken = new TokenWidget(this, TokenColor::BLANC);
+    pearlToken = new TokenWidget(this, TokenColor::PERLE);
+    greenToken = new TokenWidget(this, TokenColor::VERT);
+    goldToken = new TokenWidget(this, TokenColor::OR);
 
-    CardWidget* blueCard=new CardWidget(this, TokenColor::BLEU);
-    CardWidget* redCard=new CardWidget(this,TokenColor::ROUGE);
-    CardWidget* greenCard=new CardWidget(this, TokenColor::VERT);
-    CardWidget* blackCard=new CardWidget(this, TokenColor::NOIR);
-    CardWidget* whiteCard=new CardWidget(this, TokenColor::BLANC);
-    CardWidget* royalCard=new CardWidget(this, TokenColor::OR);
+    layoutTokens->addWidget(blueToken, 0, 0);
+    layoutTokens->addWidget(redToken, 0, 1);
+    layoutTokens->addWidget(blackToken, 0, 2);
+    layoutTokens->addWidget(whiteToken, 0, 3);
+    layoutTokens->addWidget(greenToken, 1, 0);
+    layoutTokens->addWidget(pearlToken, 1, 1);
+    layoutTokens->addWidget(goldToken, 1, 2);
 
-    layoutCards->addWidget(blueCard,0,0);
-    layoutCards->addWidget(redCard,0,1);
-    layoutCards->addWidget(greenCard,0,2);
-    layoutCards->addWidget(blackCard,1,0);
-    layoutCards->addWidget(whiteCard,1,1);
-    layoutCards->addWidget(royalCard,1,2);
+    blueCard = new CardWidget(this, TokenColor::BLEU);
+    redCard = new CardWidget(this, TokenColor::ROUGE);
+    greenCard = new CardWidget(this, TokenColor::VERT);
+    blackCard = new CardWidget(this, TokenColor::NOIR);
+    whiteCard = new CardWidget(this, TokenColor::BLANC);
 
-    setLayout(layoutCards);
-
-    TokenWidget* blueToken=new TokenWidget(this,TokenColor::BLEU);
-    TokenWidget* redToken=new TokenWidget(this,TokenColor::ROUGE);
-    TokenWidget* blackToken=new TokenWidget(this,TokenColor::NOIR);
-    TokenWidget* whiteToken=new TokenWidget(this,TokenColor::BLANC);
-    TokenWidget* pearlToken=new TokenWidget(this,TokenColor::PERLE);
-    TokenWidget* greenToken=new TokenWidget(this,TokenColor::VERT);
-    TokenWidget* goldToken=new TokenWidget(this,TokenColor::OR);
-
-    layoutTokens->addWidget(blueToken,0,0);
-    layoutTokens->addWidget(redToken,0,1);
-    layoutTokens->addWidget(blackToken,0,2);
-    layoutTokens->addWidget(whiteToken,0,3);
-    layoutTokens->addWidget(greenToken,1,0);
-    layoutTokens->addWidget(pearlToken,1,1);
-    layoutTokens->addWidget(goldToken,1,2);
-
-    setLayout(layoutTokens);
+    layoutCards->addWidget(blueCard, 0, 0);
+    layoutCards->addWidget(redCard, 0, 1);
+    layoutCards->addWidget(greenCard, 0, 2);
+    layoutCards->addWidget(blackCard, 1, 0);
+    layoutCards->addWidget(whiteCard, 1, 1);
 
     layoutMainJoueur = new QVBoxLayout;
 
+    layoutMainJoueur->addLayout(layoutjoueur);
+    layoutMainJoueur->addLayout(layoutcouronne);
+    layoutMainJoueur->addLayout(layoutprivilege);
+    layoutMainJoueur->addLayout(layoutCards);
     layoutMainJoueur->addLayout(layoutTokens);
     setLayout(layoutMainJoueur);
+
     layoutjoueur->addWidget(typeJoueur);
     layoutjoueur->addWidget(nameJoueur);
 
@@ -175,30 +164,25 @@ PlayerQT::PlayerQT(const Player player, QWidget* parent) : QWidget(parent) {
 
     layoutcouronne->addWidget(couronne);
     layoutcouronne->addWidget(numCrowns);
-
-    layoutMainJoueur->addLayout(layoutjoueur);
-    layoutMainJoueur->addLayout(layoutcouronne);
-    layoutMainJoueur->addLayout(layoutprivilege);
-
 }
 
-void PlayerQT::updateCrown(const Player player){
+void PlayerQT::updateCrown( Player &player){
     int newCrown=player.getCrowns();
     numCrowns->display(newCrown);
 }
 
-void PlayerQT::updatePrivilege(const Player player){
-    int newPrivilege=player.getPrivilege();
+void PlayerQT::updatePrivilege( Player &player){
+    int newPrivilege=player.getNbPrivilege();
     numPrivilege->display(newPrivilege);
 }
 
-void PlayerQT::updateTotalPrestige(const Player player){
+void PlayerQT::updateTotalPrestige( Player &player){
     int newPrestige=player.getPrestige();
     numPrestige->display(newPrestige);
 }
 
 
-void PlayerQT::updateTokens(Player player){
+void PlayerQT::updateTokens(Player &player){
     std::unordered_map<TokenColor, int> TokenSummary = player.getTokenSummary();
 
     int newBlueToken=TokenSummary.at(TokenColor::BLEU);
@@ -225,7 +209,7 @@ void PlayerQT::updateTokens(Player player){
 }
 
 
-void PlayerQT::updateCards(Player player) {
+void PlayerQT::updateCards(Player &player) {
     // Blue
     SummaryCard blueCardSummary = player.getBlueSummary();
     blueCard->updateBonus(blueCardSummary.getBonusNumber());

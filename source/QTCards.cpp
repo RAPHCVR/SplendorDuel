@@ -65,7 +65,7 @@ QString Carte::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }
@@ -243,7 +243,7 @@ QString QTPioche::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
+    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
 
     return imagePath;
 }
@@ -323,7 +323,7 @@ QString QTCardRoyal::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }
