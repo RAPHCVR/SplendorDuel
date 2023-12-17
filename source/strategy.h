@@ -44,6 +44,7 @@ class AiStrategy : public Strategy{
 public:
     virtual int random(int min, int max) override;
     virtual vector<OptionalActions> choseOptionalActions() override;
+    virtual vector<CompulsoryActions> choseCompulsoryActions() override;
 
 
 };

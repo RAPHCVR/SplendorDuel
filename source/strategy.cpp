@@ -21,8 +21,11 @@ int AiStrategy::random(int min, int max){
 }
 
 
+// Celine
+// permet de choisir le nombre d'actions optionnelles que fait l'ia
+// et lesquelles il fait 
 std::vector<Controller::OptionalActions> AiStrategy::choseOptionalActions(){
-    std::vector<Controller::OptionalActions> optionalActions;
+    std::vector<Controller::OptionalActions> AIsOptionalActions;
     // combien d'action optionnelles (entre 0 et 2)
     int nbOptionalAction = random(0,2);
 
@@ -31,18 +34,38 @@ std::vector<Controller::OptionalActions> AiStrategy::choseOptionalActions(){
 
     // on ne realise pas d'action optionnelle
     if (nbOptionalAction == 0){
-        optionalActions.push_back(OptionalActions::Empty);
+        AIsOptionalActions.push_back(OptionalActions::Empty);
     }
     //on realise une action optionnelle
     else if(nbOptionalAction==1){
         // choisir laquelle
         int whichOpAction = random(0,1);
-        whichOpAction == 0? optionalActions.push_back(OptionalActions::UsePrivileges) : optionalActions.push_back(OptionalActions::FillBoard);
+        whichOpAction == 0? AIsOptionalActions.push_back(OptionalActions::UsePrivileges) : AIsOptionalActions.push_back(OptionalActions::FillBoard);
     }
     else{
         // faire les deux actions
-        optionalActions.push_back(OptionalActions::UsePrivileges);
-        optionalActions.push_back(OptionalActions::FillBoard);
+        AIsOptionalActions.push_back(OptionalActions::UsePrivileges);
+        AIsOptionalActions.push_back(OptionalActions::FillBoard);
     }
-    return optionalActions;
+    return AIsOptionalActions;
+}
+
+// Celine
+// permet de choisir l'action optionnelle que fait l'ia
+std::vector<Controller::CompulsoryActions> AiStrategy::choseCompulsoryActions(){
+    std::vector<Controller::CompulsoryActions> AIsCompulsoryAction;
+    int nbCompulsoryActions = random(0,2);
+    // prendre entre un et trois jetons
+    if(nbCompulsoryActions == 0){
+        AIsCompulsoryAction.push_back(CompulsoryActions::TakeCoins);
+    }
+    // reserver une carte
+    else if(nbCompulsoryActions == 1){
+        AIsCompulsoryAction.push_back(CompulsoryActions::ReserveCard);
+    }
+    else{
+        AIsCompulsoryAction.push_back(CompulsoryActions::BuyCard);
+    }
+
+    return AIsCompulsoryAction;
 }
