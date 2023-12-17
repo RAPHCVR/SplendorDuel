@@ -137,6 +137,8 @@ public :
         bool hasNext() const {
             return row < board.tokens.size() && col < board.tokens[row].size(); //Vérification si il y a un jeton suivant
         }
+        size_t getRow() const {return row;} //Récupération de la ligne de l'itérateur
+        size_t getCol() const {return col;} //Récupération de la colonne de l'itérateur
         const Token* next(); //Récupération du jeton suivant
     };
 
