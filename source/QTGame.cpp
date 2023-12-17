@@ -10,6 +10,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     controller = new Controller();
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
+
     width = size->width();
     height = size->height();
     mainlayout = new QVBoxLayout(this);
@@ -18,6 +19,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     QHBoxLayout* total = new QHBoxLayout();
     QHBoxLayout* CartesRoyalesPrivilegesPlateau= new QHBoxLayout();
     plateView = new PlateView(nullptr, height-100,width/2);
+
     pyramid = new QTPyramid();
     pioches = new QTRangeePioches(nullptr);
     boardRoyal = new QTBoardRoyal(nullptr);
