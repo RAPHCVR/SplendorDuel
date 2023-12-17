@@ -145,7 +145,7 @@ TokenColor HumanStrategy::choseTokenColor(vector<TokenColor>& chosableColors){
         if (iter != chosableColors.end()) {
             return static_cast<TokenColor>(choice);
         } else {
-            std::cout << "Couleur invalide, veuillez choisir une carte parmis la liste." << std::endl;
+            std::cout << "Couleur invalide, veuillez choisir une couleur parmis la liste." << std::endl;
         }
     }
 }
