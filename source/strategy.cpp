@@ -69,3 +69,163 @@ std::vector<Controller::CompulsoryActions> AiStrategy::choseCompulsoryActions(){
 
     return AIsCompulsoryAction;
 }
+
+
+
+std::vector<const Token*> AiStrategy::choseTokensToTake(){
+    Board::BoardIterator it = iterator();
+    // parcours du plateau
+    while (it.hasNext()) {
+        const Token* firstToken = it.next();
+        // essayer de selectionner 3 jetons
+        for (int count = 3; count >= 1; --count) {
+            std::vector<const Token*> selectedTokens;
+            std::vector<std::pair<int, int>> selectedCoordinates;
+
+            // ajouter le premier jeton
+            selectedTokens.push_back(firstToken);
+
+
+            // !!!!!!!!!!!!!
+            // it.getRow(), it.getCol() --> demander a raph comment y acceder
+            selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+
+
+
+
+            // essayer d'ajouter les jetons restants
+            for (int i = 1; i < count; ++i) {
+                if (it.hasNext()) {
+                    const Token* nextToken = it.next();
+                    selectedTokens.push_back(nextToken);
+
+
+                    // !!!!!!!!!!!!!
+                    // it.getRow(), it.getCol() --> demander a raph comment y acceder
+                    selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+
+
+
+                    // verif si les coordonnees sont alignees et consecutives
+                    if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
+                        // si non on reinit la selection
+                        selectedTokens.clear();
+                        selectedCoordinates.clear();
+                        it.reset();
+                        break;
+                    }
+                } else {
+                    // si plus de jetons disponibles -> reinit la selection
+                    selectedTokens.clear();
+                    selectedCoordinates.clear();
+                    it.reset();
+                    break;
+                }
+            }
+
+            // si la selection est ok -> renvoyer les jetons selectionnes
+            if (selectedCoordinates.size() == count) {
+                return selectedTokens;
+            }
+        }
+    }
+
+    // pas de selection valide --> essayer seulement avec 2 jetons
+    it.reset(); // reinit l'iterateur
+
+    while (it.hasNext()) {
+        const Token* firstToken = it.next();
+
+        // essayer de selectionner 2 jetons
+        for (int count = 2; count >= 1; --count) {
+            std::vector<const Token*> selectedTokens;
+            std::vector<std::pair<int, int>> selectedCoordinates;
+
+            // ajouter le premier jeton
+            selectedTokens.push_back(firstToken);
+            selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+
+            // essayer d'ajouter les jetons restants
+            for (int i = 1; i < count; ++i) {
+                if (it.hasNext()) {
+                    const Token* nextToken = it.next();
+                    selectedTokens.push_back(nextToken);
+                    selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+
+                    // verif si les coord sont alignees et consecutives
+                    if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
+                        // si non -> reinit la selection
+                        selectedTokens.clear();
+                        selectedCoordinates.clear();
+                        it.reset();
+                        break;
+                    }
+                } else {
+                    // si plus de jetons dispo -> reinit la sélection
+                    selectedTokens.clear();
+                    selectedCoordinates.clear();
+                    it.reset();
+                    break;
+                }
+            }
+
+            // la sélection est valide -> renvoyer les jetons a piocher
+            if (selectedCoordinates.size() == count) {
+                return selectedTokens;
+            }
+        }
+    }
+
+    // pas trouve 2 jetons consecutifs, on en prend qu'un
+    it.reset(); // reinit l'iterateur
+
+    while (it.hasNext()) {
+        const Token* currentToken = it.next();
+
+        // verif si le jeton est piochable
+        if (areCoordinatesAlignedAndConsecutive({std::make_pair(it.getRow(), it.getCol())})) {
+            return {currentToken};
+        }
+    }
+
+    // pas de jeton piochable sur la board
+    return {}; 
+}
+
+
+
+
+
+
+TokenColor AiStrategy::choseTokenColor(){
+    int tokenChoice = random(0,6);
+    switch (tokenChoice){
+    case 0:
+        return TokenColor::BLEU;
+        break;
+    case 1:
+        return TokenColor::BLANC;
+        break;
+    case 2:
+        return TokenColor::VERT;
+        break;
+    case 3:
+        return TokenColor::NOIR;
+        break;
+    case 4:
+        return TokenColor::ROUGE;
+        break;
+    case 5:
+        return TokenColor::PERLE;
+        break;
+    case 6:
+        return TokenColor::OR;
+        break;
+    
+    default:
+        break;
+    }
+    
+}
+
+
