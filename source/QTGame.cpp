@@ -10,13 +10,13 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     controller = new Controller();
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
-    setFixedSize( size->width(), size->height()+50);
+    setFixedSize( size->width(), (size->height())*2);
     width = size->width();
     height = size->height();
     mainlayout = new QGridLayout(this);
     //first = new QVBoxLayout();
     //second = new QHBoxLayout();
-    plateView = new PlateView(nullptr, height-100,width/2);
+    plateView = new PlateView(nullptr, (height-100)/1.25,(width/2)/1.25);
     pyramid = new QTPyramid();
     pioches = new QTRangeePioches(nullptr);
     boardRoyal = new QTBoardRoyal(nullptr);
