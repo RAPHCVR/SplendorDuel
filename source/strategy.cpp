@@ -33,27 +33,14 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
             // ajouter le premier jeton
             selectedTokens.push_back(firstToken);
-
-
-            // !!!!!!!!!!!!!
-            // it.getRow(), it.getCol() --> demander a raph comment y acceder
             selectedCoordinates.emplace_back(it.getRow(), it.getCol());
-
-
-
 
             // essayer d'ajouter les jetons restants
             for (int i = 1; i < count; ++i) {
                 if (it.hasNext()) {
                     const Token* nextToken = it.next();
                     selectedTokens.push_back(nextToken);
-
-
-                    // !!!!!!!!!!!!!
-                    // it.getRow(), it.getCol() --> demander a raph comment y acceder
                     selectedCoordinates.emplace_back(it.getRow(), it.getCol());
-
-
 
                     // verif si les coordonnees sont alignees et consecutives
                     if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
