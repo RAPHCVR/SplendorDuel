@@ -178,6 +178,8 @@ void QTGame::handleGameStatus(){
         }
         else if (status == "optionalActions"){
             playOptionalActions();
+            player1->updateAllPlayer();
+            player2->updateAllPlayer();
         }
         else if (status == "compulsoryActions") {
             playCompulsoryActions();
@@ -280,6 +282,8 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
 
 void QTGame::checkEndTurn() {
     if (controller->getcurrentPlayer().getNbTokens()>10) {
+        player1->updateAllPlayer();
+        player2->updateAllPlayer();
         unsigned int nb = - (10 - controller->getcurrentPlayer().getNbTokens());
         std::cout << "Voici vos Jetons, vous devez en retirer " << nb << " pour n'en conserver que 10 : " << std::endl;
         std::cout << controller->getcurrentPlayer() << std::endl;
@@ -301,8 +305,12 @@ void QTGame::checkEndTurn() {
     }
     if(controller->getcurrentPlayer().getCrowns() >=3 && controller->getcurrentPlayer().getRoyalCards().empty() || controller->getcurrentPlayer().getCrowns() >= 6 && controller->getcurrentPlayer().getRoyalCards().size()==1){
         buyNobleCard();
+        player1->updateAllPlayer();
+        player2->updateAllPlayer();
     }
     else {
+        player1->updateAllPlayer();
+        player2->updateAllPlayer();
         status = "end";
         handleGameStatus();
     }
@@ -330,6 +338,8 @@ void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     }
     plateView->updateStatus("gold");
     plateView->updateMaxNbSelectedTokens(1);
+    player1->updateAllPlayer();
+    player2->updateAllPlayer();
 }
 
 
