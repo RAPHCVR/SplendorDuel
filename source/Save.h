@@ -5,6 +5,8 @@
 #include <fstream> 
 #include <string>
 #include "Partie.h"
+#include "Controller.h"
+#include "Cards.h"
 #include "sqlite/sqlite3.h"
 
 class Save {
