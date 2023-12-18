@@ -6,6 +6,7 @@
 #include <QPalette>
 #include "Controller.h"
 #include <QLCDNumber>
+#include "QTCards.h"
 
 //widget pour les tokens résumés
 class TokenWidget : public QWidget {
@@ -46,17 +47,19 @@ class PlayerQT : public QWidget {
     Q_OBJECT
 
 public:
-    PlayerQT(Player &player, QWidget *parent = nullptr);
+    PlayerQT(Player &p, QWidget *parent = nullptr);
 
-    void updatePrivilege(Player &player);
+    void updatePrivilege();
 
-    void updateCrown(Player &player);
+    void updateCrown();
 
-    void updateTotalPrestige(Player &player);
+    void updateTotalPrestige();
 
-    void updateTokens(Player &player);
+    void updateTokens();
 
-    void updateCards(Player &player);
+    void updateCards();
+
+    void updateAllPlayer();
 
 private:
     QLabel* typeJoueur; // texte "Humain ou IA"
@@ -76,10 +79,15 @@ private:
     QGridLayout* layoutCards; // grille des cartes
     QGridLayout* layoutTokens; // grille des jetons
     QVBoxLayout* layoutMainJoueur;
-    QPushButton* accesReserve{}; //boutton donnant acces a la reserve
-    std::vector<CardWidget*> SummaryCards; //tableau des cartes resumes
-    std::vector<TokenWidget*> SummaryTokens; //tableau des jetons resumes
-
+    QVBoxLayout* layoutFullCards;
+    QVBoxLayout* layoutFullTokens;
+    QPushButton* popupButtonReserve; //boutton donnant acces a la reserve
+    QDialog* popupDialog;
+    QHBoxLayout* popupLayout;
+    Carte* carte1;
+    Carte* carte2;
+    Carte* carte3;
+    QLabel* test;
     TokenWidget* blueToken{};
     TokenWidget* redToken{};
     TokenWidget* blackToken{};
@@ -93,6 +101,11 @@ private:
     CardWidget* greenCard{};
     CardWidget* blackCard{};
     CardWidget* whiteCard{};
+
+    Player &player;
+private slots:
+    void showPopup(); // Function to show the popup when the button is clicked
 };
+
 
 #endif // QTJOUEUR_H
