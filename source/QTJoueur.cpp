@@ -27,7 +27,7 @@ QColor convertToQColorFromTokenColor(TokenColor tokenColor) {
         return {255, 0, 0};  // Red
     case TokenColor::PERLE:
         // Replace with the desired color values for PERLE
-        return {200, 200, 200};  // Example gray color
+        return {200, 0, 255};  // Example gray color
     case TokenColor::OR:
         return {255, 215, 0};  // Gold
     case TokenColor::None:
@@ -94,8 +94,24 @@ CardWidget::CardWidget(QWidget *parent, TokenColor color)
 
 //Methodes Joueur global
 
-PlayerQT::PlayerQT(Player &player, QWidget* parent) : QWidget(parent) {
+PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
     setWindowTitle("Player");
+    popupButtonReserve = new QPushButton("Reserve", this);
+    connect(popupButtonReserve, &QPushButton::clicked, this, &PlayerQT::showPopup);
+    popupDialog = new QDialog(this);
+    popupDialog->setWindowTitle("Reserve");
+
+    popupLayout = new QHBoxLayout(popupDialog);
+/*
+    carte1 = new Carte(nullptr, popupDialog);
+    carte2 = new Carte(nullptr, popupDialog);
+    carte3 = new Carte(nullptr, popupDialog);
+
+    popupLayout->addWidget(carte1);
+    popupLayout->addWidget(carte2);
+    popupLayout->addWidget(carte3);
+*/
+    popupDialog->setLayout(popupLayout);
 
     QString playerType = QString::fromStdString(typeToString(player.getType()));
     typeJoueur = new QLabel(playerType);
@@ -108,6 +124,7 @@ PlayerQT::PlayerQT(Player &player, QWidget* parent) : QWidget(parent) {
     nameJoueur = new QLabel(playerName);
     numCrowns = new QLCDNumber;
     numPrivilege = new QLCDNumber;
+    updatePrivilege();
     numPrestige = new QLCDNumber;
     layoutjoueur = new QHBoxLayout;
     layoutprivilege = new QHBoxLayout;
@@ -115,6 +132,8 @@ PlayerQT::PlayerQT(Player &player, QWidget* parent) : QWidget(parent) {
     layoutcouronne = new QHBoxLayout;
     layoutCards = new QGridLayout;
     layoutTokens = new QGridLayout;
+    layoutFullCards=new QVBoxLayout;
+    layoutFullTokens=new QVBoxLayout;
 
     blueToken = new TokenWidget(this, TokenColor::BLEU);
     redToken = new TokenWidget(this, TokenColor::ROUGE);
@@ -146,13 +165,6 @@ PlayerQT::PlayerQT(Player &player, QWidget* parent) : QWidget(parent) {
 
     layoutMainJoueur = new QVBoxLayout;
 
-    layoutMainJoueur->addLayout(layoutjoueur);
-    layoutMainJoueur->addLayout(layoutcouronne);
-    layoutMainJoueur->addLayout(layoutprivilege);
-    layoutMainJoueur->addLayout(layoutCards);
-    layoutMainJoueur->addLayout(layoutTokens);
-    setLayout(layoutMainJoueur);
-
     layoutjoueur->addWidget(typeJoueur);
     layoutjoueur->addWidget(nameJoueur);
 
@@ -164,25 +176,63 @@ PlayerQT::PlayerQT(Player &player, QWidget* parent) : QWidget(parent) {
 
     layoutcouronne->addWidget(couronne);
     layoutcouronne->addWidget(numCrowns);
+
+    layoutFullCards->addWidget(cartes);
+    layoutFullCards->addLayout(layoutCards);
+
+    layoutFullTokens->addWidget(jetons);
+    layoutFullTokens->addLayout(layoutTokens);
+
+    layoutMainJoueur->addLayout(layoutjoueur);
+    layoutMainJoueur->addLayout(layoutFullCards);
+    layoutMainJoueur->addWidget(popupButtonReserve);
+    layoutMainJoueur->addLayout(layoutprestige);
+    layoutMainJoueur->addLayout(layoutcouronne);
+    layoutMainJoueur->addLayout(layoutprivilege);
+    layoutMainJoueur->addLayout(layoutFullTokens);
+    setLayout(layoutMainJoueur);
+
 }
 
-void PlayerQT::updateCrown( Player &player){
+void PlayerQT::showPopup() {
+    QLayoutItem* child;
+    while ((child = popupLayout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
+
+    std::vector<JewelryCard*>& reserveCards = player.getReserve();
+
+    if (!reserveCards.empty()) {
+        for (size_t i = 0; i < reserveCards.size(); ++i) {
+            Carte* carte = new Carte(reserveCards[i], popupDialog);
+            popupLayout->addWidget(carte);
+        }
+    } else {
+        QLabel* emptyLabel = new QLabel("Pas de cartes dans la reserve.", popupDialog);
+        popupLayout->addWidget(emptyLabel);
+    }
+
+    popupDialog->exec();
+}
+
+void PlayerQT::updateCrown(){
     int newCrown=player.getCrowns();
     numCrowns->display(newCrown);
 }
 
-void PlayerQT::updatePrivilege( Player &player){
+void PlayerQT::updatePrivilege(){
     int newPrivilege=player.getNbPrivilege();
     numPrivilege->display(newPrivilege);
 }
 
-void PlayerQT::updateTotalPrestige( Player &player){
+void PlayerQT::updateTotalPrestige(){
     int newPrestige=player.getPrestige();
     numPrestige->display(newPrestige);
 }
 
 
-void PlayerQT::updateTokens(Player &player){
+void PlayerQT::updateTokens(){
     std::unordered_map<TokenColor, int> TokenSummary = player.getTokenSummary();
 
     int newBlueToken=TokenSummary.at(TokenColor::BLEU);
@@ -209,7 +259,7 @@ void PlayerQT::updateTokens(Player &player){
 }
 
 
-void PlayerQT::updateCards(Player &player) {
+void PlayerQT::updateCards() {
     // Blue
     SummaryCard blueCardSummary = player.getBlueSummary();
     blueCard->updateBonus(blueCardSummary.getBonusNumber());
@@ -236,3 +286,11 @@ void PlayerQT::updateCards(Player &player) {
     whiteCard->updatePrestige(whiteCardSummary.getPrestigePoints());
     // a voir pour la carte resume royale (est ce qu'elle est utile ?)
 }
+
+void PlayerQT::updateAllPlayer(){
+    updatePrivilege();
+    updateCrown();
+    updateCards();
+    updateTokens();
+    updateTotalPrestige();
+};
