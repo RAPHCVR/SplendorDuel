@@ -547,7 +547,8 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
     }
     else if (card.getAbility() == Abilities::repeat_turn) {
         status = "start";
-        std::cout << "Vous rejouez" << std::endl;
+        std::string s = "Vous rejouez";
+        MBox({"OK"},"Message", QString::fromStdString(s));
         handleGameStatus();
     }
 }
