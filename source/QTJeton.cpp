@@ -8,6 +8,8 @@
 #include <QPainter>
 #include <QRandomGenerator>
 
+#include "QTGame.h"
+
 
 CircleWidget::CircleWidget(QWidget* parent, const Token* token, unsigned int rad, position* p): QPushButton(parent), token(token), pos(p) {
     color = convertColor(*token);
@@ -206,6 +208,18 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
 
 void PlateView::clickOnToken(unsigned i) {
     unsigned int j = 0;
+    if (status != "gold") {
+        if (buttons[i]->getToken()->getColor() == TokenColor::OR) {
+            MBox({"OK"}, "Erreur", "Vous ne pouvez pas prendre un jeton or");
+            return;
+        }
+    }
+    else {
+        if (buttons[i]->getToken()->getColor() != TokenColor::OR) {
+            MBox({"OK"}, "Erreur", "Vous ne pouvez prendre que des jetons or");
+            return;
+        }
+    }
     if (isSelected(buttons[i])) {
         for (j = 0; j < max_nbSelectedTokens; j++) {
             if (selectedTokens[j] == buttons[i]) {
@@ -246,6 +260,11 @@ void PlateView::validateTokens() {
             if(Board::getInstance().CellColor(selectedTokens[j]->getPosition()->getx(),selectedTokens[j]->getPosition()->gety(),TokenColor::OR)){
                 if (status != "gold") {
                     throw TokenException("Impossible de prendre un jeton or");
+                }
+            }
+            else {
+                if(status == "gold") {
+                    throw TokenException("Impossible de prendre un jeton autre que or");
                 }
             }
             pos->push_back(std::make_pair(selectedTokens[j]->getPosition()->getx(), selectedTokens[j]->getPosition()->gety()));

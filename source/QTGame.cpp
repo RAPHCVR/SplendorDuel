@@ -138,7 +138,8 @@ void QTGame::usePriviledge() {
     unsigned int nbp = controller->getcurrentPlayer().getNbPrivilege();
     unsigned int nbt = Board::getInstance().getNbTokens();
     unsigned int nb = std::min(nbp,nbt);
-    std::cout << "Vous pouvez en utiliser " << nb << " privileges" << std::endl;
+    std::string s ="Vous pouvez en utiliser " + std::to_string(nb) + " privileges";
+    MBox({"OK"},"Message", QString::fromStdString(s));
     plateView->updateMaxNbSelectedTokens(nb);
     plateView->updateStatus("privileges");
 }
@@ -196,13 +197,14 @@ void QTGame::handleGameStatus(){
 }
 
 void QTGame::play() {
-    std::cout << "C'est au tour de " << controller->getcurrentPlayer().getName() << std::endl;
-    std::cout << controller->getcurrentPlayer() << std::endl;
+    std::string s = "C'est au tour de " + controller->getcurrentPlayer().getName();
+    MBox({"OK"},"Message", QString::fromStdString(s));
     std::vector<CompulsoryActions> compulsoryActions = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
     std::cout << "Cartes de la pyramide : " << std::endl;
     std::cout << controller->getGame().getGameTable().getPyramid() << std::endl;
     if (compulsoryActions.empty()) {
-        std::cout << "Pas d'action obligatoires possibles, remplissage du plateau" << std::endl;
+        s = "Pas d'action obligatoires possibles, remplissage du plateau";
+        MBox({"OK"},"Message", QString::fromStdString(s));
         applyOptionalAction(OptionalActions::FillBoard);
     }
     else {
@@ -214,17 +216,19 @@ void QTGame::play() {
 void QTGame::playOptionalActions(){
     std::vector<OptionalActions> optionalActions = controller->getOptionalActions(controller->getGame(), controller->getcurrentPlayer());
     if (optionalActions.size()>1) {
-        std::cout << "Veuillez choisir une action optionnelle" << std::endl;
+        std::string msg = "Veuillez choisir une action optionnelle";
+        /*
+        std::vector<QString> buttonLabels;
         for (auto action : optionalActions) {
             switch (action) {
                 case OptionalActions::Empty:
-                    std::cout << "Ne rien faire" << std::endl;
+                    buttonLabels.push_back("Ne rien faire");
                 break;
                 case OptionalActions::UsePrivileges:
-                    std::cout << "Utiliser des privileges" << std::endl;
+                    buttonLabels.push_back("Utiliser des privilèges");
                 break;
                 case OptionalActions::FillBoard:
-                    std::cout << "Remplir le plateau" << std::endl;
+                    buttonLabels.push_back("Remplir le plateau");
                 break;
             }
         }
@@ -232,7 +236,9 @@ void QTGame::playOptionalActions(){
         QString text = QInputDialog::getText(nullptr, "Choix des actions optionnelles",
                             "Entrez une valeur entre 1 et " + QString::number(optionalActions.size()), QLineEdit::Normal,
                             QDir::home().dirName());
-        applyOptionalAction(optionalActions[text.toInt()-1]);
+        */
+
+        applyOptionalAction(optionalActions[MBox(optionalActions, "Choix des actions optionnelles", QString::fromStdString(msg))]);
     }
     else {
         status = "compulsoryActions";
@@ -242,7 +248,8 @@ void QTGame::playOptionalActions(){
 
 void QTGame::playCompulsoryActions(){
     std::vector<CompulsoryActions> compulsoryActions = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
-    std::cout << "Veuillez choisir une action obligatoire" << std::endl;
+    std::string s = "Veuillez choisir une action obligatoire";
+    /*
     for (auto action : compulsoryActions) {
         switch (action) {
             case CompulsoryActions::TakeCoins:
@@ -259,13 +266,16 @@ void QTGame::playCompulsoryActions(){
     QString text = QInputDialog::getText(nullptr, "Choix des actions obligaroires",
                             "Entrez une valeur entre 1 et " + QString::number(compulsoryActions.size()), QLineEdit::Normal,
                             QDir::home().dirName());
-    applyCompulsoryAction(compulsoryActions[text.toInt()-1]);
+    */
+    applyCompulsoryAction(compulsoryActions[MBox(compulsoryActions, "Choix des actions obligatoires", QString::fromStdString(s))]);
 }
 
 void QTGame::applyCompulsoryAction(CompulsoryActions action) {
+    std::string s;
     switch (action) {
         case CompulsoryActions::TakeCoins:
-            std::cout << "Veuillez choisir des jetons" << std::endl;
+            s = "Veuillez choisir des jetons";
+            MBox({"OK"},"Message", QString::fromStdString(s));
             plateView->updateStatus("take3tokens");
             plateView->updateMaxNbSelectedTokens(3);
             status = "check";
@@ -317,9 +327,9 @@ void QTGame::checkEndTurn() {
 }
 
 void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
-    std::cout << "Voulez vous reserver une carte d'une des pioches (1) ou une carte de la pyramide (2) ?" << std::endl;
-    unsigned int choice = choiceMaker(1, 2);
-    if (choice == 1) {
+    std::vector<QString> buttonLabels = {"Pioche","Pyramide"};
+    QString choice = MBox(buttonLabels, "Choix", "Voulez vous reserver une carte d'une des pioches ou une carte de la pyramide ?");
+    if (choice == "Pioche") {
         std::cout << "Veuillez choisir une pioche" << std::endl;
         std::cout << "1. Pioche niveau 1" << std::endl;
         std::cout << "2. Pioche niveau 2" << std::endl;
@@ -359,7 +369,7 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             status = "check";
             plateView->updateStatus("take3tokens");
             plateView->updateMaxNbSelectedTokens(1);
-            std::cout << "Veuillez choisir un jeton bonus sur le plateau" << std::endl;
+            MBox({"OK"},"Message", "Veuillez choisir un jeton bonus sur le plateau");
         }
         else if (card.getAbility1() == Abilities::steal_token) {
             if (opponent.getNbTokens()!=0) {
@@ -542,3 +552,97 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
     }
 }
 
+QString MBox(const std::vector<QString>& buttonLabels, const QString& title, const QString& content) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(title);
+    msgBox.setText(content);
+
+    // Ajout des boutons personnalisés
+    std::vector<QPushButton*> buttons;
+    for (const auto& label : buttonLabels) {
+        buttons.push_back(msgBox.addButton(label, QMessageBox::NoRole));
+    }
+
+    // Affichage de la boîte de dialogue
+    msgBox.exec();
+
+    // Récupération du bouton cliqué
+    QAbstractButton* clickedButton = msgBox.clickedButton();
+    if (clickedButton) {
+        // Retourne le texte du bouton cliqué
+        return clickedButton->text();
+    }
+
+    // Retourne une chaîne vide si aucun bouton n'a été cliqué
+    return "";
+}
+
+int MBox(const std::vector<OptionalActions>& buttonLabels , const QString& title, const QString& content) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(title);
+    msgBox.setText(content);
+
+    // Ajout des boutons personnalisés
+    std::vector<QPushButton*> buttons;
+    for (const auto& label : buttonLabels) {
+        switch (label) {
+            case OptionalActions::Empty:
+                buttons.push_back(msgBox.addButton("Ne rien faire", QMessageBox::NoRole));
+            break;
+            case OptionalActions::UsePrivileges:
+                buttons.push_back(msgBox.addButton("Utiliser des privilèges", QMessageBox::NoRole));
+            break;
+            case OptionalActions::FillBoard:
+                buttons.push_back(msgBox.addButton("Remplir le plateau", QMessageBox::NoRole));
+            break;
+        }
+    }
+
+    // Affichage de la boîte de dialogue
+    msgBox.exec();
+
+    // Récupération du bouton cliqué
+    QAbstractButton* clickedButton = msgBox.clickedButton();
+    if (clickedButton) {
+        // Retourne le texte du bouton cliqué
+        return std::find(buttons.begin(), buttons.end(), clickedButton) - buttons.begin();
+    }
+
+    // Retourne une chaîne vide si aucun bouton n'a été cliqué
+    return -1;
+}
+
+int MBox(const std::vector<CompulsoryActions>& buttonLabels , const QString& title, const QString& content) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(title);
+    msgBox.setText(content);
+
+    // Ajout des boutons personnalisés
+    std::vector<QPushButton*> buttons;
+    for (const auto& label : buttonLabels) {
+        switch (label) {
+            case CompulsoryActions::TakeCoins:
+                buttons.push_back(msgBox.addButton("Prendre des jetons", QMessageBox::NoRole));
+            break;
+            case CompulsoryActions::ReserveCard:
+                buttons.push_back(msgBox.addButton("Reserver une carte", QMessageBox::NoRole));
+            break;
+            case CompulsoryActions::BuyCard:
+                buttons.push_back(msgBox.addButton("Acheter une carte", QMessageBox::NoRole));
+            break;
+        }
+    }
+
+    // Affichage de la boîte de dialogue
+    msgBox.exec();
+
+    // Récupération du bouton cliqué
+    QAbstractButton* clickedButton = msgBox.clickedButton();
+    if (clickedButton) {
+        // Retourne le texte du bouton cliqué
+        return std::find(buttons.begin(), buttons.end(), clickedButton) - buttons.begin();
+    }
+
+    // Retourne une chaîne vide si aucun bouton n'a été cliqué
+    return -1;
+}

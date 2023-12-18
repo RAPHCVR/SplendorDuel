@@ -56,5 +56,8 @@ public:
     void buyNobleCard();
     void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
 };
+QString MBox(const std::vector<QString>& buttonLabels = {"OK"}, const QString& title = "Message", const QString& text = "Message");
+int MBox(const std::vector<OptionalActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
+int MBox(const std::vector<CompulsoryActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
 
 #endif //QTGAME_H
