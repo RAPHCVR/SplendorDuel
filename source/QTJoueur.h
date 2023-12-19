@@ -24,7 +24,7 @@ private:
 
 //widget pour les cartes résumés
 class CardWidget : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     explicit CardWidget(QWidget *parent = nullptr, TokenColor color=TokenColor::None);
@@ -44,7 +44,7 @@ private:
 
 //Widget regroupant toutes les infos de joueur
 class PlayerQT : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     PlayerQT(Player &p, QWidget *parent = nullptr);
@@ -60,6 +60,8 @@ public:
     void updateCards();
 
     void updateAllPlayer();
+
+    Player& getPlayer() {return player;}
 
 private:
     QLabel* typeJoueur; // texte "Humain ou IA"
@@ -103,8 +105,14 @@ private:
     CardWidget* whiteCard{};
 
     Player &player;
-private slots:
+    Carte* lastClickedCarte;
+public:
+    Carte* getLastClickedCarte(){return lastClickedCarte;};
+    void toggleTextBoldJoueur(bool isBold);
+    void onReserveCardClicked(Carte* clickedCarte);
     void showPopup(); // Function to show the popup when the button is clicked
+signals:
+    void popupClosed();
 };
 
 

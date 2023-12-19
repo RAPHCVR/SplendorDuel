@@ -16,7 +16,7 @@
 #include "QTJoueur.h"
 
 class QTGame : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 private:
     Controller* controller;
     PlateView* plateView;
@@ -32,11 +32,15 @@ private:
     unsigned int width;
     unsigned int height;
     std::string status;
+    bool popupReserveClosed;
 public:
     void quit() {
         this->close();
     }
+    bool getPopupReserveClosed(){return popupReserveClosed;};
+    void setPopupReserveClosed(bool newVar);
     void paintEvent(QPaintEvent* event) override;
+    void handlePopupReserveClosed();
     QTGame(QWidget* parent = nullptr);
     void handleTokenSelection(std::vector<const Token*> tokens);
     void fillBoard();
@@ -55,6 +59,7 @@ public:
     void buyJewelryCard(GameTable& gametable);
     void buyNobleCard();
     void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
+    void setBoldCurrentPlayer();
 
 public slots:
     void handleBuyingJewelryCard(Carte* cardclicked);

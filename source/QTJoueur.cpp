@@ -2,12 +2,12 @@
 
 std::string typeToString(Type type) {
     switch (type) {
-    case Type::IA:
-        return "IA";
-    case Type::Humain:
-        return "Humain";
-    default:
-        return "Unknown";
+        case Type::IA:
+            return "IA";
+        case Type::Humain:
+            return "Humain";
+        default:
+            return "Unknown";
     }
 }
 
@@ -15,24 +15,24 @@ std::string typeToString(Type type) {
 
 QColor convertToQColorFromTokenColor(TokenColor tokenColor) {
     switch (tokenColor) {
-    case TokenColor::BLEU:
-        return {0, 0, 255};  // Blue
-    case TokenColor::BLANC:
-        return {255, 255, 255};  // White
-    case TokenColor::VERT:
-        return {0, 255, 0};  // Green
-    case TokenColor::NOIR:
-        return {0, 0, 0};  // Black
-    case TokenColor::ROUGE:
-        return {255, 0, 0};  // Red
-    case TokenColor::PERLE:
-        // Replace with the desired color values for PERLE
-        return {200, 0, 255};  // Example gray color
-    case TokenColor::OR:
-        return {255, 215, 0};  // Gold
-    case TokenColor::None:
-    default:
-        return {};  // Default to an invalid color
+        case TokenColor::BLEU:
+            return {0, 0, 255};  // Blue
+        case TokenColor::BLANC:
+            return {255, 255, 255};  // White
+        case TokenColor::VERT:
+            return {0, 255, 0};  // Green
+        case TokenColor::NOIR:
+            return {0, 0, 0};  // Black
+        case TokenColor::ROUGE:
+            return {255, 0, 0};  // Red
+        case TokenColor::PERLE:
+            // Replace with the desired color values for PERLE
+            return {200, 0, 255};  // Example gray color
+        case TokenColor::OR:
+            return {255, 215, 0};  // Gold
+        case TokenColor::None:
+        default:
+            return {};  // Default to an invalid color
     }
 }
 
@@ -74,7 +74,7 @@ void CardWidget::updatePrestige(int newPrestige){
 };
 
 CardWidget::CardWidget(QWidget *parent, TokenColor color)
-    : QWidget(parent), color(color) {
+        : QWidget(parent), color(color) {
 
     // Set la couleur de fond
     QColor newColor=convertToQColorFromTokenColor(color);
@@ -112,6 +112,7 @@ PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
     popupLayout->addWidget(carte3);
 */
     popupDialog->setLayout(popupLayout);
+    lastClickedCarte = nullptr;
 
     QString playerType = QString::fromStdString(typeToString(player.getType()));
     typeJoueur = new QLabel(playerType);
@@ -207,12 +208,18 @@ void PlayerQT::showPopup() {
         for (size_t i = 0; i < reserveCards.size(); ++i) {
             Carte* carte = new Carte(reserveCards[i], popupDialog);
             popupLayout->addWidget(carte);
+            QObject::connect(carte, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
+
         }
     } else {
         QLabel* emptyLabel = new QLabel("Pas de cartes dans la reserve.", popupDialog);
         popupLayout->addWidget(emptyLabel);
     }
-
+/*
+    QObject::connect(carte1, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
+    QObject::connect(carte2, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
+    QObject::connect(carte3, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
+*/
     popupDialog->exec();
 }
 
@@ -294,3 +301,32 @@ void PlayerQT::updateAllPlayer(){
     updateTokens();
     updateTotalPrestige();
 };
+
+void PlayerQT::onReserveCardClicked(Carte* clickedCarte) {
+    // Handle the clicked card (e.g., return the address)
+    // Close the popup window
+    popupDialog->accept();  // This will close the dialog
+
+    // Store the address of the last clicked card
+    lastClickedCarte = clickedCarte;
+    emit popupClosed();
+}
+
+void PlayerQT::toggleTextBoldJoueur(bool isBold) {
+    QFont font = typeJoueur->font();
+    QColor color;
+    if (isBold) {
+        // Set the text to bold
+        font.setBold(true);
+        color = Qt::red;
+    } else {
+        // Set the text to normal
+        font.setBold(false);
+        color = palette().color(QPalette::WindowText);
+    }
+
+    typeJoueur->setFont(font);
+    nameJoueur->setFont(font);
+    typeJoueur->setStyleSheet(QString("QLabel { color: %1 }").arg(color.name()));
+    nameJoueur->setStyleSheet(QString("QLabel { color: %1 }").arg(color.name()));
+}
