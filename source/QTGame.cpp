@@ -3,7 +3,7 @@
 //
 
 #include "QTGame.h"
-
+#include "QTQuestion.h"
 #include <string>
 
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
@@ -46,6 +46,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
     connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
+    QString playername = QString::fromStdString(controller->getcurrentPlayer().getName());
     status = "start";
     handleGameStatus();
 }
@@ -553,97 +554,114 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
     }
 }
 
-QString MBox(const std::vector<QString>& buttonLabels, const QString& title, const QString& content) {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(title);
-    msgBox.setText(content);
 
-    // Ajout des boutons personnalisés
-    std::vector<QPushButton*> buttons;
-    for (const auto& label : buttonLabels) {
-        buttons.push_back(msgBox.addButton(label, QMessageBox::NoRole));
-    }
-
-    // Affichage de la boîte de dialogue
-    msgBox.exec();
-
-    // Récupération du bouton cliqué
-    QAbstractButton* clickedButton = msgBox.clickedButton();
-    if (clickedButton) {
-        // Retourne le texte du bouton cliqué
-        return clickedButton->text();
-    }
-
-    // Retourne une chaîne vide si aucun bouton n'a été cliqué
-    return "";
+void showWarningMessage(const QString &title, const QString &content) {
+    QMessageBox::warning(nullptr, title, content);
 }
 
-int MBox(const std::vector<OptionalActions>& buttonLabels , const QString& title, const QString& content) {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(title);
-    msgBox.setText(content);
+QString MBox(const std::vector<QString>& buttonLabels, const QString& title, const QString& content) {
+    CustomDialog dialog(nullptr, CustomDialog::EmitMode::Label); // Set to Label emit mode
+    dialog.setTitle(title);
+    dialog.setContent(content);
 
-    // Ajout des boutons personnalisés
-    std::vector<QPushButton*> buttons;
+    for (const auto& label : buttonLabels) {
+        dialog.addButton(label, 0); // Assume role is 0, modify if needed
+    }
+
+    QString clickedButtonText;
+    QObject::connect(&dialog, &CustomDialog::buttonClickedLabel, [&clickedButtonText](const QString &buttonText) {
+        clickedButtonText = buttonText;
+    });
+
+    dialog.setWindowModality(Qt::NonModal);
+    dialog.show();
+    dialog.exec();
+
+    return clickedButtonText;
+}
+
+int MBox(const std::vector<OptionalActions>& buttonLabels, const QString& title, const QString& content) {
+    CustomDialog dialog(nullptr, CustomDialog::EmitMode::Index); // Set to Index emit mode
+    dialog.setTitle(title);
+    dialog.setContent(content);
+
     for (const auto& label : buttonLabels) {
         switch (label) {
             case OptionalActions::Empty:
-                buttons.push_back(msgBox.addButton("Ne rien faire", QMessageBox::NoRole));
+                dialog.addButton("Ne rien faire",0);
             break;
             case OptionalActions::UsePrivileges:
-                buttons.push_back(msgBox.addButton("Utiliser des privilèges", QMessageBox::NoRole));
+                dialog.addButton("Utiliser des privilèges",1);
             break;
             case OptionalActions::FillBoard:
-                buttons.push_back(msgBox.addButton("Remplir le plateau", QMessageBox::NoRole));
+                dialog.addButton("Remplir le plateau",2);
             break;
         }
     }
 
-    // Affichage de la boîte de dialogue
-    msgBox.exec();
+    int result = -1;
+    QObject::connect(&dialog, &CustomDialog::buttonClicked, [&result](int index) {
+        result = index;
+    });
 
-    // Récupération du bouton cliqué
-    QAbstractButton* clickedButton = msgBox.clickedButton();
-    if (clickedButton) {
-        // Retourne le texte du bouton cliqué
-        return std::find(buttons.begin(), buttons.end(), clickedButton) - buttons.begin();
-    }
+    dialog.setWindowModality(Qt::NonModal);
+    dialog.show();
+    dialog.exec();
 
-    // Retourne une chaîne vide si aucun bouton n'a été cliqué
-    return -1;
+    return result;
 }
 
-int MBox(const std::vector<CompulsoryActions>& buttonLabels , const QString& title, const QString& content) {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(title);
-    msgBox.setText(content);
+int MBox(const std::vector<CompulsoryActions>& buttonLabels, const QString& title, const QString& content) {
+    CustomDialog dialog(nullptr, CustomDialog::EmitMode::Index); // Set to Index emit mode
+    dialog.setTitle(title);
+    dialog.setContent(content);
 
-    // Ajout des boutons personnalisés
-    std::vector<QPushButton*> buttons;
     for (const auto& label : buttonLabels) {
         switch (label) {
             case CompulsoryActions::TakeCoins:
-                buttons.push_back(msgBox.addButton("Prendre des jetons", QMessageBox::NoRole));
+                dialog.addButton("Prendre des jetons",0);
             break;
             case CompulsoryActions::ReserveCard:
-                buttons.push_back(msgBox.addButton("Reserver une carte", QMessageBox::NoRole));
+                dialog.addButton("Reserver une carte",1);
             break;
             case CompulsoryActions::BuyCard:
-                buttons.push_back(msgBox.addButton("Acheter une carte", QMessageBox::NoRole));
+                dialog.addButton("Acheter une carte",2);
             break;
         }
     }
 
-    // Affichage de la boîte de dialogue
-    msgBox.exec();
+    int result = -1;
+    QObject::connect(&dialog, &CustomDialog::buttonClicked, [&result](int index) {
+        result = index;
+    });
 
-    // Récupération du bouton cliqué
-    QAbstractButton* clickedButton = msgBox.clickedButton();
-    if (clickedButton) {
-        // Retourne le texte du bouton cliqué
-        return std::find(buttons.begin(), buttons.end(), clickedButton) - buttons.begin();
-    }
+    dialog.setWindowModality(Qt::NonModal);
+    dialog.show();
+    dialog.exec();
 
-    // Retourne une chaîne vide si aucun bouton n'a été cliqué
-    return -1;
+    return result;
+}
+
+void showVictoryDialog(const QString &playerName) {
+    QDialog victoryDialog;
+    victoryDialog.setWindowTitle("Félicitations !");
+
+    // Create the congratulatory message
+    QLabel *messageLabel = new QLabel(&victoryDialog);
+    messageLabel->setText(QString("Bravo %1, vous avez gagné !").arg(playerName));
+    QFont font = messageLabel->font();
+    font.setPointSize(16);
+    font.setBold(true);
+    messageLabel->setFont(font);
+
+    // Add a close button
+    QPushButton *closeButton = new QPushButton("Fermer", &victoryDialog);
+    QObject::connect(closeButton, &QPushButton::clicked, &victoryDialog, &QDialog::accept);
+
+    // Layout the elements in the dialog
+    QVBoxLayout *layout = new QVBoxLayout(&victoryDialog);
+    layout->addWidget(messageLabel, 0, Qt::AlignCenter);
+    layout->addWidget(closeButton, 0, Qt::AlignCenter);
+
+    victoryDialog.exec();
 }

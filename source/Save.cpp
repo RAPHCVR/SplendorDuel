@@ -2,7 +2,12 @@
 
 void Save::writeToDatabase(const Game& game) {
     sqlite3* db;
-    int rc = sqlite3_open(save_file.c_str(), &db);
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le r√©pertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string pathtodatabase = sourceDirectory.string() + "/Data/save.db";
+    int rc = sqlite3_open(pathtodatabase.c_str(), &db);
 
     if (rc != SQLITE_OK) { //si il y a une erreur lors de l'ouverture de la database, on renvoie un message d'ereur
         std::cerr << "Error opening the database: " << sqlite3_errmsg(db) << std::endl;
@@ -13,32 +18,32 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage de la pyramide
-    for (auto card : game.getGameTable().getPyramid()) {
+    for (auto card : game.getGameTable().getPyramid().getRow1()) { // faire pour chaque row
     /*
     for (size_t i = 0; i < pyramid.getSize(); ++i) {
         const JewelryCard& card = pyramid_cards.getCard(i);
 */
-        // Requete sql pour Ècrire dans la database
+        // Requete sql pour √©crire dans la database
         std::string insertQuery = "INSERT INTO pyramid (idCard, prestige, crown, cost_w, cost_v, cost_n, cost_p, cost_r, cost_b, color, position, ability1, ability2, bonus_nb) VALUES (" +
-            std::to_string(card.getId()) + ", " +
-            std::to_string(card.getPrestige()) + ", " +
-            std::to_string(card.getCrowns()) + ", " +
-            std::to_string(card.getCost(TokenColor::BLANC)) + ", " +
-            std::to_string(card.getCost(TokenColor::VERT)) + ", " +
-            std::to_string(card.getCost(TokenColor::NOIR)) + ", " +
-            std::to_string(card.getCost(TokenColor::PERLE)) + ", " +
-            std::to_string(card.getCost(TokenColor::ROUGE)) + ", " +
-            std::to_string(card.getCost(TokenColor::BLEU)) + ", " +
-            std::to_string(card.getColor()) + ", " +
-            std::to_string(card.getLevelCards()) + " +
-            std::to_string(card.getAbility1()) + ", " +
-            std::to_string(card.getAbility2()) + ", " +
-            std::to_string(card.getBonus()) + ");";
+            std::to_string(card->getId()) + ", " +
+            std::to_string(card->getPrestige()) + ", " +
+            std::to_string(card->getCrowns()) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLANC)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::VERT)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::NOIR)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::PERLE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::ROUGE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLEU)) + ", " +
+            toString(card->getBonus().bonus_color) + ", " +
+            std::to_string(card->getLevel()) + ", " +
+            toString(card->getAbility1()) + ", " +
+            toString(card->getAbility2()) + ", " +
+            std::to_string(card->getBonus().bonus_number) + ");";
 
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
             std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
         }
     }
@@ -46,32 +51,32 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage de la pioche de cartes de level 1
-    for (auto card : Deck_level_one::getInstance()) {
+    for (auto card : Deck_level_one::getInstance()->getPioche()) {
         /*
         for (size_t i = 0; i < pyramid.getSize(); ++i) {
             const JewelryCard& card = pyramid_cards.getCard(i);
     */
-    // Requete sql pour Ècrire dans la database
+    // Requete sql pour √©crire dans la database
         std::string insertQuery = "INSERT INTO deck1 (idCard, prestige, crown, cost_w, cost_v, cost_n, cost_p, cost_r, cost_b, color, position, ability1, ability2, bonus_nb) VALUES (" +
-            std::to_string(card.getId()) + ", " +
-            std::to_string(card.getPrestige()) + ", " +
-            std::to_string(card.getCrowns()) + ", " +
-            std::to_string(card.getCost(TokenColor::BLANC)) + ", " +
-            std::to_string(card.getCost(TokenColor::VERT)) + ", " +
-            std::to_string(card.getCost(TokenColor::NOIR)) + ", " +
-            std::to_string(card.getCost(TokenColor::PERLE)) + ", " +
-            std::to_string(card.getCost(TokenColor::ROUGE)) + ", " +
-            std::to_string(card.getCost(TokenColor::BLEU)) + ", " +
-            std::to_string(card.getColor()) + ", " +
-            std::to_string(card.getLevelCards()) + " +
-            std::to_string(card.getAbility1()) + ", " +
-            std::to_string(card.getAbility2()) + ", " +
-            std::to_string(card.getBonus()) + ");";
+            std::to_string(card->getId()) + ", " +
+            std::to_string(card->getPrestige()) + ", " +
+            std::to_string(card->getCrowns()) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLANC)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::VERT)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::NOIR)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::PERLE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::ROUGE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLEU)) + ", " +
+            toString(card->getBonus().bonus_color) + ", " +
+            std::to_string(card->getLevel()) + ", " +
+            toString(card->getAbility1()) + ", " +
+            toString(card->getAbility2()) + ", " +
+            std::to_string(card->getBonus().bonus_number) + ");";
 
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
             std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
         }
     }
@@ -79,32 +84,32 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage de la pioche de cartes de level 2
-    for (auto card : Deck_level_two::getInstance()) {
+    for (auto card : Deck_level_two::getInstance()->getPioche()) {
         /*
         for (size_t i = 0; i < pyramid.getSize(); ++i) {
             const JewelryCard& card = pyramid_cards.getCard(i);
     */
-    // Requete sql pour Ècrire dans la database
+        // Requete sql pour √©crire dans la database
         std::string insertQuery = "INSERT INTO deck2 (idCard, prestige, crown, cost_w, cost_v, cost_n, cost_p, cost_r, cost_b, color, position, ability1, ability2, bonus_nb) VALUES (" +
-            std::to_string(card.getId()) + ", " +
-            std::to_string(card.getPrestige()) + ", " +
-            std::to_string(card.getCrowns()) + ", " +
-            std::to_string(card.getCost(TokenColor::BLANC)) + ", " +
-            std::to_string(card.getCost(TokenColor::VERT)) + ", " +
-            std::to_string(card.getCost(TokenColor::NOIR)) + ", " +
-            std::to_string(card.getCost(TokenColor::PERLE)) + ", " +
-            std::to_string(card.getCost(TokenColor::ROUGE)) + ", " +
-            std::to_string(card.getCost(TokenColor::BLEU)) + ", " +
-            std::to_string(card.getColor()) + ", " +
-            std::to_string(card.getLevelCards()) + " +
-            std::to_string(card.getAbility1()) + ", " +
-            std::to_string(card.getAbility2()) + ", " +
-            std::to_string(card.getBonus()) + ");";
+            std::to_string(card->getId()) + ", " +
+            std::to_string(card->getPrestige()) + ", " +
+            std::to_string(card->getCrowns()) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLANC)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::VERT)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::NOIR)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::PERLE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::ROUGE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLEU)) + ", " +
+            toString(card->getBonus().bonus_color) + ", " +
+            std::to_string(card->getLevel()) + ", " +
+            toString(card->getAbility1()) + ", " +
+            toString(card->getAbility2()) + ", " +
+            std::to_string(card->getBonus().bonus_number) + ");";
 
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
             std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
         }
     }
@@ -112,32 +117,32 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage de la pioche de cartes de level 3
-    for (auto card : Deck_level_three::getInstance()) {
+    for (auto card : Deck_level_three::getInstance()->getPioche()) {
         /*
         for (size_t i = 0; i < pyramid.getSize(); ++i) {
             const JewelryCard& card = pyramid_cards.getCard(i);
     */
-    // Requete sql pour Ècrire dans la database
+        // Requete sql pour √©crire dans la database
         std::string insertQuery = "INSERT INTO deck3 (idCard, prestige, crown, cost_w, cost_v, cost_n, cost_p, cost_r, cost_b, color, position, ability1, ability2, bonus_nb) VALUES (" +
-            std::to_string(card.getId()) + ", " +
-            std::to_string(card.getPrestige()) + ", " +
-            std::to_string(card.getCrowns()) + ", " +
-            std::to_string(card.getCost(TokenColor::BLANC)) + ", " +
-            std::to_string(card.getCost(TokenColor::VERT)) + ", " +
-            std::to_string(card.getCost(TokenColor::NOIR)) + ", " +
-            std::to_string(card.getCost(TokenColor::PERLE)) + ", " +
-            std::to_string(card.getCost(TokenColor::ROUGE)) + ", " +
-            std::to_string(card.getCost(TokenColor::BLEU)) + ", " +
-            std::to_string(card.getColor()) + ", " +
-            std::to_string(card.getLevelCards()) + " +
-            std::to_string(card.getAbility1()) + ", " +
-            std::to_string(card.getAbility2()) + ", " +
-            std::to_string(card.getBonus()) + ");";
+            std::to_string(card->getId()) + ", " +
+            std::to_string(card->getPrestige()) + ", " +
+            std::to_string(card->getCrowns()) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLANC)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::VERT)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::NOIR)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::PERLE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::ROUGE)) + ", " +
+            std::to_string(card->getCost().at(TokenColor::BLEU)) + ", " +
+            toString(card->getBonus().bonus_color) + ", " +
+            std::to_string(card->getLevel()) + ", " +
+            toString(card->getAbility1()) + ", " +
+            toString(card->getAbility2()) + ", " +
+            std::to_string(card->getBonus().bonus_number) + ");";
 
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
             std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
         }
     }
@@ -145,17 +150,17 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage du deck royal
-    for (size_t i = 0; i < Deck_Royal.getSize(); ++i) {
-        const RoyalCard& card = Deck_Royal.getCard(i);
+    for (size_t i = 0; i < Deck_Royal::getInstance()->getCards().size(); ++i) {
+        RoyalCard& card = *Deck_Royal::getInstance()->getCards()[i];
 
-        // Requete sql pour Ècrire dans la database
+        // Requete sql pour √©crire dans la database
         std::string insertQuery = "INSERT INTO boardRoyal (idCard) VALUES (" +
             std::to_string(card.getId()) + ");";
 
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
             std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
         }
     }
@@ -163,12 +168,12 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage des informations du joueur dans la table player de la database save.db
-    for (size_t i = 0; i < 2; ++i) { // il y a deux joueurs donc on rÈpËte les opÈrations 2 fois
-        const Player* player = game.getPlayer(i);
+    for (size_t i = 0; i < 2; ++i) { // il y a deux joueurs donc on r√©p√®te les op√©rations 2 fois
+        Player* player = game.getPlayer(i);
 
         if (player) {
             std::string playerName = player->getName();
-            std::string playerType = player->getType();
+            std::string playerType = toString(player->getType());
             int playerPrivileges = player->getNbPrivilege();
             int playerPrestiges = player->getPrestige();
             int playerCrowns = player->getCrowns();
@@ -178,24 +183,24 @@ void Save::writeToDatabase(const Game& game) {
             SummaryCard& playerBlack = player->getBlackSummary();
             SummaryCard& playerRed = player->getRedSummary();
 
-            // Requete sql pour Ècrire dans la database
+            // Requete sql pour √©crire dans la database
             std::string insertQuery = "INSERT INTO player (idPlayer, name, type, privileges, prestiges, crowns, tokenBlue, tokenWhite, tokenGreen, tokenBlack, tokenRed, tokenPerle, tokenGold) VALUES ('" +
-                i + "', '" +
+                std::to_string(i) + "', '" +
                 playerName + "', '" + 
                 playerType + "', " +
                 std::to_string(playerPrivileges) + ", " +
                 std::to_string(playerPrestiges) + ", " +
                 std::to_string(playerCrowns) + ", " +
-                std::to_string(playerBlue) + ", " +
-                std::to_string(playerWhite) + ", " +
-                std::to_string(playerGreen) + ", " +
-                std::to_string(playerBlack) + ", " +
-                std::to_string(playerRed) + ");";
+                std::to_string(playerBlue.getBonusNumber()) + ", " +
+                std::to_string(playerWhite.getBonusNumber()) + ", " +
+                std::to_string(playerGreen.getBonusNumber()) + ", " +
+                std::to_string(playerBlack.getBonusNumber()) + ", " +
+                std::to_string(playerRed.getBonusNumber()) + ");";
 
             // Execution de la requete sql
             rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-            if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+            if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
                 std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
             }
         }
@@ -204,7 +209,7 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage des jetons du plateau dans la table boardToken de la database save.db
-    Board::BoardIterator it = iterator();
+    Board::BoardIterator it = Board::getInstance().iterator();
     while (it.hasNext()) {
 
         const Token* token = it.next();
@@ -214,7 +219,7 @@ void Save::writeToDatabase(const Game& game) {
             size_t posX = it.getCol(); 
             size_t posY = it.getRow(); 
 
-            // Requete sql pour Ècrire dans la database
+            // Requete sql pour √©crire dans la database
             std::string insertQuery = "INSERT INTO boardToken (xToken, yToken, colorToken) VALUES (" +
                 std::to_string(posX) + ", " + 
                 std::to_string(posY) + ", '" + 
@@ -223,7 +228,7 @@ void Save::writeToDatabase(const Game& game) {
             // Execution de la requete sql
             rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-            if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+            if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
                 std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
             }
         }
@@ -239,7 +244,7 @@ void Save::writeToDatabase(const Game& game) {
                 size_t posX = i;
                 size_t posY = j;
 
-                // Requete sql pour Ècrire dans la database
+                // Requete sql pour √©crire dans la database
                 std::string insertQuery = "INSERT INTO boardToken (xToken, yToken, colorToken) VALUES (" +
                     std::to_string(posX) + ", " +
                     std::to_string(posY) + " +
@@ -248,7 +253,7 @@ void Save::writeToDatabase(const Game& game) {
                 // Execution de la requete sql
                 rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-                if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+                if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
                     std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
                 }
             }
@@ -261,11 +266,10 @@ void Save::writeToDatabase(const Game& game) {
 
     std::map<TokenColor, size_t> colorCounts;  // Map asociant chaque couleur de jeton au nombre d'instances de ce type de couleur
 
-    const Bag& bag = Bag::getInstance();
-
-    for (size_t i = 0; i < bag.getNbTokens(); ++i) { // On boucle sur tous les jetons du bag
-        const Token& token = bag.getToken(i);
-        TokenColor color = token.getColor();
+    Bag::BagIterator itbag = Bag::getInstance().iterator();
+    while (itbag.hasNext()) {
+        const Token* tokenbag = itbag.next();
+        TokenColor color = tokenbag->getColor();
 
         // Update du nombre de jeton pour cette couleur
         colorCounts[color]++;
@@ -276,7 +280,7 @@ void Save::writeToDatabase(const Game& game) {
         TokenColor color = entry.first;
         size_t count = entry.second;
 
-        // Requete sql pour Ècrire le nombre de tokens de chaque couleur dans la database
+        // Requete sql pour √©crire le nombre de tokens de chaque couleur dans la database
         std::string insertCountQuery = "INSERT INTO bag2 (color, count) VALUES ('" +
             toString(color) + "', " +
             std::to_string(count) + ");";
@@ -284,7 +288,7 @@ void Save::writeToDatabase(const Game& game) {
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertCountQuery.c_str(), nullptr, nullptr, nullptr);
 
-        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+        if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
             std::cerr << "Error executing count query: " << sqlite3_errmsg(db) << std::endl;
         }
     }
@@ -292,17 +296,17 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage des informations de la partie dans la table infopartie de la database save.db
-    // Requete sql pour Ècrire dans la database
+    // Requete sql pour √©crire dans la database
     std::string insertQuery = "INSERT INTO infopartie (turn, currentPlayer, opposingPlayer, nbPrivileges) VALUES ('" +
         std::to_string(game.getRound()) + ", '" +
-        std::to_string(currentPlayer.getName()) + "', '" +
-        std::to_string(opposingPlayer.getName()) + "', '" +
-        Board::getNbPrivileges() + "');";
+        game.getPlayer(0)->getName() + "', '" +
+        game.getPlayer(1)->getName() + "', '" +
+        std::to_string(Board::getInstance().getNbPrivileges()) + "');";
 
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);
 
-    if (rc != SQLITE_OK) { // si il y a une erreur lors de l'Ècriture des donnÈes, on renvoie un message d'erreur
+    if (rc != SQLITE_OK) { // si il y a une erreur lors de l'√©criture des donn√©es, on renvoie un message d'erreur
         std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
     }
 

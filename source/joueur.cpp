@@ -310,3 +310,12 @@ std::ostream& operator<<(std::ostream& f, Player& p) {
     }
     return f;
 }
+
+std::string toString(Type t) {
+    switch (t) {
+        case Type::Humain:
+            return "Humain";
+        case Type::IA:
+            return "IA";
+    }
+}
