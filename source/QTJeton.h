@@ -37,13 +37,13 @@ protected:
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
 
-        int diameter = qMin(width(), height());
+        int diameter = qMin(width()/2, height()/2); // The diameter of the circle
 
-        // Créer un rectangle pour définir les limites du cercle
+        // Create a rectangle to define the boundaries of the circle
         QRect circleRect(0, 0, diameter, diameter);
-        circleRect.moveCenter(rect().center()); // Centrer le cercle dans le widget
+        circleRect.moveCenter(rect().center()); // Center the circle in the widget
 
-        // Dessiner le fond circulaire
+        // Draw the circular background
         QLinearGradient gradient(circleRect.topLeft(), circleRect.bottomRight());
         gradient.setColorAt(0, Qt::lightGray);
         gradient.setColorAt(1, Qt::darkGray);
@@ -51,13 +51,37 @@ protected:
         painter.setPen(Qt::black);
         painter.drawEllipse(circleRect);
 
-        // Configurer la police et la taille
+        // Set up the font and size
         QFont font("Arial", 30, QFont::Bold);
         painter.setFont(font);
-        painter.setPen(Qt::white); // Couleur du texte
+        painter.setPen(Qt::white); // Text color
 
-        // Dessiner le texte
+        // Draw the text
         painter.drawText(circleRect, Qt::AlignCenter, QString::number(valeur));
+
+        // Draw the "Privilege" text around the circle
+        QFont privilegeFont("Arial", 15, QFont::Bold);
+        painter.setFont(privilegeFont);
+        painter.setPen(Qt::black); // Text color
+
+        // Create a QPainterPath along which the text will be drawn
+        QPainterPath textPath;
+        QString text = "PRIVILEGES";
+        int n = text.length();
+        for (int i = 0; i < n; ++i) {
+            QPainterPath tempPath;
+            tempPath.addText(0, 0, privilegeFont, text.mid(i, 1));
+            QRectF textBounds = tempPath.boundingRect();
+            double angle = 360.0 / n * i;
+            QTransform transform;
+            transform.translate(circleRect.center().x(), circleRect.center().y());
+            transform.rotate(angle);
+            transform.translate(-textBounds.width() / 2, -diameter / 2);
+            textPath.addPath(transform.map(tempPath));
+        }
+
+        // Draw the text along the path
+        painter.drawPath(textPath);
     }
 private:
     unsigned int valeur;

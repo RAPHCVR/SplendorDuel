@@ -29,7 +29,8 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     PyramidPioche->addWidget(pioches);
     PyramidPioche->addWidget(pyramid);
     CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
-    boardRoyal->setMaximumWidth(500);
+    boardRoyal->setMaximumWidth(400);
+    pioches->setMaximumWidth(200);
     CartesRoyalesPrivilegesPlateau->addWidget(privilegeCounter);
     CartesRoyalesPrivilegesPlateau->addWidget(plateView);
     centre->addLayout(PyramidPioche);
@@ -41,12 +42,11 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     //mainlayout->addLayout(first);
     //mainlayout->addLayout(second);
     int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
-    setFixedSize(size->width()*2,size->height()*1.5);
+    setFixedSize(size->width()*2,size->height()*1.75);
     setLayout(mainlayout);
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
     connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
-    QString playername = QString::fromStdString(controller->getcurrentPlayer().getName());
     status = "start";
     handleGameStatus();
 }
@@ -172,7 +172,7 @@ void QTGame::applyOptionalAction(OptionalActions action) {
 void QTGame::handleGameStatus(){
     if (controller->checkIfPlayerWins(controller->getGame(),controller->getcurrentPlayer())) {
         status = "win";
-        std::cout << "Le joueur " << controller->getcurrentPlayer().getName() << " a gagné" << std::endl;
+        showVictoryDialog(QString::fromStdString(controller->getcurrentPlayer().getName()));
     }
     else {
         if (status == "start") {
@@ -275,8 +275,6 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
     std::string s;
     switch (action) {
         case CompulsoryActions::TakeCoins:
-            s = "Veuillez choisir des jetons";
-            MBox({"OK"},"Message", QString::fromStdString(s));
             plateView->updateStatus("take3tokens");
             plateView->updateMaxNbSelectedTokens(3);
             status = "check";
@@ -295,19 +293,22 @@ void QTGame::checkEndTurn() {
     if (controller->getcurrentPlayer().getNbTokens()>10) {
         player1->updateAllPlayer();
         player2->updateAllPlayer();
-        unsigned int nb = - (10 - controller->getcurrentPlayer().getNbTokens());
-        std::cout << "Voici vos Jetons, vous devez en retirer " << nb << " pour n'en conserver que 10 : " << std::endl;
-        std::cout << controller->getcurrentPlayer() << std::endl;
+        int nb = - (10 - controller->getcurrentPlayer().getNbTokens());
+        QString s=  "Vous devez retirer " + QString::number(nb) + " jetons pour n'en conserver que 10";
+        MBox({"OK"},"Message", s);
         while (nb != 0) {
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE, OR)" << std::endl;
-            std::string rep;
-            std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE" && rep != "OR") {
-                throw TokenException("Couleur invalide");
+            std::vector<QString> colors;
+            //add all the clor that are not null in the player
+            for (auto color : controller->getcurrentPlayer().getTokenSummary()) {
+                if (color.second != 0) {
+                    colors.push_back(QString::fromStdString(toString(color.first)));
+                }
             }
-            TokenColor color = toTokenColor(rep);
-            std::cout << "Choisissez combien vous voulez en retirer " << std::endl;
-            unsigned int tot = choiceMaker(1, controller->getcurrentPlayer().getTokenSummary().find(color)->second);
+            std::string rep = "Veuillez choisir une couleur de jeton";
+            QString choice = MBox(colors,"Choix", QString::fromStdString(rep));
+            TokenColor color = toTokenColor(choice.toStdString());
+            s ="Choisissez combien vous voulez en retirer ";
+            unsigned int tot = getNumberBetween(1,std::min(controller->getcurrentPlayer().getTokenSummary().find(color)->second,nb),s);
             for (unsigned int i = 0; i < tot; i++) {
                 controller->getGame().getGameTable().getBag().addToken(controller->getcurrentPlayer().removeToken(color));
                 nb--;
@@ -349,6 +350,7 @@ void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     }
     plateView->updateStatus("gold");
     plateView->updateMaxNbSelectedTokens(1);
+    MBox({"OK"},"Message", "Veuillez choisir un jeton or");
     player1->updateAllPlayer();
     player2->updateAllPlayer();
 }
@@ -373,16 +375,12 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             MBox({"OK"},"Message", "Veuillez choisir un jeton bonus sur le plateau");
         }
         else if (card.getAbility1() == Abilities::steal_token) {
+            QString s;
             if (opponent.getNbTokens()!=0) {
-                std::cout << "Voici les jetons du joueur advrese : \n";
-                std::cout << opponent << std::endl;
-                std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
-                std::string rep;
-                std::cin >> rep;
-                if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
-                    throw TokenException("Couleur invalide");
-                }
-                TokenColor color = toTokenColor(rep);
+                s = "Veuillez choisir une couleur de jeton à retirer du joueur adverse :";
+                std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC", "PERLE"};
+                QString rep = MBox(colors,"Choix", s);
+                TokenColor color = toTokenColor(rep.toStdString());
                 if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
                     std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
                 }
@@ -392,18 +390,16 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
                 }
             }
             else {
-                std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+                s = "Le joueur adverse n'a pas de jetons";
+                MBox({"OK"},"Message", s);
             }
             status = "check";
             handleGameStatus();
         }
         else if (card.getAbility1() == Abilities::cameleon) {
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
-            std::string rep;
-            std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
-                throw TokenException("Couleur invalide");
-            }
+            QString s = "Veuillez choisir une couleur de bonus";
+            std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC"};
+            std::string rep = MBox(colors,"Choix", s).toStdString();
             TokenColor color = toTokenColor(rep);
 
             if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
@@ -418,17 +414,15 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
         }
         else if (card.getAbility1() == Abilities::repeat_turn) {
             status = "start";
-            std::cout << "Vous rejouez" << std::endl;
+            QString s ="Vous rejouez";
+            MBox({"OK"},"Message", s);
             handleGameStatus();
         }
     }
     else {
-        std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
-        std::string rep;
-        std::cin >> rep;
-        if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
-            throw TokenException("Couleur invalide");
-        }
+        QString s = "Veuillez choisir une couleur de bonus";
+        std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC"};
+        std::string rep = MBox(colors,"Choix", s).toStdString();
         TokenColor color = toTokenColor(rep);
 
         if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
@@ -439,7 +433,8 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             cardOwner.addPrestige(1,color);
         }
         status = "start";
-        std::cout << "Vous rejouez" << std::endl;
+        s = "Vous rejouez";
+        MBox({"OK"},"Message", s);
         handleGameStatus();
     }
 }
@@ -522,16 +517,12 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
         handleGameStatus();
     }
     else if (card.getAbility() == Abilities::steal_token) {
+        QString s;
         if (opponent.getNbTokens()!=0) {
-            std::cout << "Voici les jetons du joueur advrese : \n";
-            std::cout << opponent << std::endl;
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
-            std::string rep;
-            std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
-                throw TokenException("Couleur invalide");
-            }
-            TokenColor color = toTokenColor(rep);
+            s = "Veuillez choisir une couleur de jeton à retirer du joueur adverse :";
+            std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC", "PERLE"};
+            QString rep = MBox(colors,"Choix", s);
+            TokenColor color = toTokenColor(rep.toStdString());
             if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
                 std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
             }
@@ -541,7 +532,8 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
             }
         }
         else {
-            std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+            s = "Le joueur adverse n'a pas de jetons";
+            MBox({"OK"},"Message", s);
         }
         status = "check";
         handleGameStatus();
@@ -664,4 +656,21 @@ void showVictoryDialog(const QString &playerName) {
     layout->addWidget(closeButton, 0, Qt::AlignCenter);
 
     victoryDialog.exec();
+}
+
+int getNumberBetween(int x, int y, const QString &message, QWidget *parent) {
+    QInputDialog dialog(parent);
+    dialog.setInputMode(QInputDialog::IntInput);
+    dialog.setIntRange(x, y);
+    dialog.setWindowTitle("Enter Number");
+
+    // Use the custom message
+    dialog.setLabelText(message);
+
+    int result = x; // Default value
+    if (dialog.exec() == QDialog::Accepted) {
+        result = dialog.intValue();
+    }
+
+    return result;
 }
