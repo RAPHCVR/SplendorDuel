@@ -41,7 +41,7 @@ public:
     void handleTokenSelection(std::vector<const Token*> tokens);
     void fillBoard();
     void takePrivilege(Player& player);
-    void bookCard(Pyramid_Cards& pyramid, GameTable& gametable);
+    void bookCard(GameTable& gametable);
     void usePriviledge();
     void placePrivilege(unsigned int nb);
     void applyOptionalAction(OptionalActions action);
@@ -55,6 +55,12 @@ public:
     void buyJewelryCard(GameTable& gametable);
     void buyNobleCard();
     void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
+
+public slots:
+    void handleBuyingJewelryCard(Carte* cardclicked);
+    void handleBookingJewelryCardFromPyramid(Carte* clickedCard);
+    void handleBookingJewelryCardFromPioche(QTPioche* piocheclicked);
+    void handleBuyingRoyalCard(QTCardRoyal* cardclicked);
 };
 
 #endif //QTGAME_H

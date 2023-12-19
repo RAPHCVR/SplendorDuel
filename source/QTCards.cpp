@@ -37,7 +37,7 @@ namespace Utility {
 
 
 Carte::Carte(JewelryCard* jewelrycard, QWidget *parent)
-    : jewelryCard(jewelrycard), QLabel(parent) {
+    : jewelryCard(jewelrycard), QLabel(parent), status(Carte::notClickable){
     afficher();
 }
 
@@ -65,14 +65,24 @@ QString Carte::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }
 
+bool Carte::isCardBuyable(Carte* card) const{
+    return card->getStatus() == Carte::buyable;
+}
+
+bool Carte::isCardReservable(Carte* card) const{
+    return card->getStatus() == Carte::reservable;
+}
+
 void Carte::mousePressEvent(QMouseEvent* event) {
     // Émet le signal clicked lorsque la carte est cliquée
-    emit clicked(this);
+    if (isCardBuyable(this) || isCardReservable(this)){
+        emit clicked(this);
+    }
 }
 
 
@@ -184,31 +194,96 @@ int QTPyramid::retirerCarte(Carte* carte){
 }
 
 void QTPyramid::carteClicked(Carte* carte) {
-
     qDebug() << "Carte cliquée : Level : " << carte->getJewelryCard()->getLevel() << " et id : " << carte->getJewelryCard()->getId();
+
+    /*
+    Carte::CardStatus status = carte->getStatus();
+    if (status == Carte::buyable) {
+        emit acheterCarteClicked(carte);
+        //int row = retirerCarte(carte);
+        //int level = abs(row - 3); // Convertir la ligne en level
+        //pyramidcard->Pyramid_Cards::drawCard(level);
+        //ajouterCarte(row);
+    }
+    else if (status == Carte::reservable) {
+        std::cout << "Test carteClicked from Pioche" << std::endl;
+        emit reserverCarteClicked(carte);
+    }
+    */
 
     QMessageBox messageBox;
     messageBox.setText("Que voulez-vous faire avec cette carte?");
-    messageBox.addButton("Acheter", QMessageBox::AcceptRole);
-    messageBox.addButton("Réserver", QMessageBox::RejectRole);
-    int choix = messageBox.exec();
-    if (choix == QMessageBox::AcceptRole) {
-        int row = retirerCarte(carte);
-        int level = abs(row - 3); //Convertir la ligne en level
-        pyramidcard->Pyramid_Cards::drawCard(level);
 
-        ajouterCarte(row);
-    } else if (choix == QMessageBox::RejectRole) {
-        int row = retirerCarte(carte);
-        int level = abs(row - 3); //Convertir la ligne en level
-        pyramidcard->Pyramid_Cards::drawCard(level);
-        ajouterCarte(row);
+    QPushButton* acheterButton = messageBox.addButton("Acheter", QMessageBox::ActionRole);
+    QPushButton* reserverButton = messageBox.addButton("Réserver", QMessageBox::ActionRole);
+    QPushButton* annulerButton = messageBox.addButton("Annuler", QMessageBox::RejectRole);
+    // Obtenez l'état de la carte
+    Carte::CardStatus status = carte->getStatus();
+
+    if (status == Carte::buyable && status == Carte::reservable) {
+        acheterButton->setText("Acheter");
+        reserverButton->setText("Réserver");
+    } else if (status == Carte::buyable) {
+        acheterButton->setText("Acheter");
+        messageBox.removeButton(reserverButton);
+    } else if (status == Carte::reservable) {
+        reserverButton->setText("Réserver");
+            messageBox.removeButton(acheterButton);
+    } else {
+        messageBox.setText("Aucune action possible avec cette carte.");
+        messageBox.removeButton(acheterButton);
+        messageBox.removeButton(reserverButton);
     }
+
+    int choix = messageBox.exec();
+    std::cout << choix << std::endl;
+    if (messageBox.clickedButton() == acheterButton) {
+        // Action "Acheter"
+        if (status == Carte::buyable) {
+            emit acheterCarteClicked(carte);
+            int row = retirerCarte(carte);
+            ajouterCarte(row);
+            //Partie qui gérait le back end (mtn dans QTGame)
+            //int level = abs(row - 3); // Convertir la ligne en level
+            //pyramidcard->Pyramid_Cards::drawCard(level);
+
+        }
+    } else if (messageBox.clickedButton() == reserverButton) {
+        // Actions "Réserver" ou "Annuler"
+        if (status == Carte::reservable) {
+            std::cout << "Test carteClicked from Pioche" << std::endl;
+            emit reserverCarteClicked(carte);
+            int row = retirerCarte(carte);
+            ajouterCarte(row);
+            //Partie qui gérait le back end (mtn dans QTGame)
+            //int level = abs(row - 3); // Convertir la ligne en level
+            //pyramidcard->Pyramid_Cards::drawCard(level);
+
+        }
+    }
+
 }
 
 
+void QTPyramid::updateAllCardStatus(Carte::CardStatus newStatus){
+
+    for (int i = 0; i < grille->rowCount(); i++) {
+        for (int j = 0; j < grille->columnCount(); j++) {
+            if((i == 0 && j<3) || (i==1 && j<4) || (i == 2 && j<5)){
+                QLayoutItem* item = grille->itemAtPosition(i, j);
+                if(item){
+                    Carte* carte = dynamic_cast<Carte*>(grille->itemAtPosition(i, j)->widget());
+                    if (carte) {
+                        carte->setStatus(newStatus);
+                    }
+                }
+            }
+        }
+    }
+}
+
 QTPioche::QTPioche(Deck_level_one* Deck1, Deck_level_two* Deck2, Deck_level_three* Deck3, QWidget *parent)
-    : Deck1(Deck1), Deck2(Deck2), Deck3(Deck3){
+    : Deck1(Deck1), Deck2(Deck2), Deck3(Deck3), status(PiocheStatus::notClickable){
 
     afficher();
 
@@ -243,14 +318,19 @@ QString QTPioche::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
+    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(backnumber);
 
     return imagePath;
 }
 
+bool QTPioche::isCardReservable(QTPioche* pioche) const{
+    return pioche->getStatus() == PiocheStatus::reservable;
+}
 void QTPioche::mousePressEvent(QMouseEvent* event) {
     // Émet le signal clicked lorsque la carte est cliquée
-    emit clicked(this);
+    if (isCardReservable(this)){
+        emit clicked(this);
+    }
 }
 
 QTRangeePioches::QTRangeePioches(QWidget *parent){
@@ -276,7 +356,7 @@ void QTRangeePioches::afficher(){
 
 }
 
-bool QTRangeePioches::piocheClicked(QTPioche* pioche) {
+void QTRangeePioches::piocheClicked(QTPioche* pioche) {
 
     //qDebug() << "Pioche cliquée : Level : " << pioche->getDeck1()->getPioche().front()->getLevel() << endl;
 
@@ -284,16 +364,27 @@ bool QTRangeePioches::piocheClicked(QTPioche* pioche) {
     messageBox.setText("Que voulez-vous faire ?");
     messageBox.addButton("Réserver la première carte de la pioche", QMessageBox::AcceptRole);
     messageBox.addButton("Annuler", QMessageBox::RejectRole);
-        int choix = messageBox.exec();
+    int choix = messageBox.exec();
     if (choix == QMessageBox::AcceptRole) {
-        return true;
+        emit reserverCarteClicked(pioche);
     } else if (choix == QMessageBox::RejectRole) {
-        //qDebug() << "Annulation, rien ne se passe" << endl;
-        return false;
+
     }
 }
 
-QTCardRoyal::QTCardRoyal(RoyalCard* rc, QLabel* parent):royalcard(rc), QLabel(parent){
+void QTRangeePioches::updateAllPiocheStatus(QTPioche::PiocheStatus newStatus){
+
+    for (int i = 0; i < grille->rowCount(); i++) {
+        for (int j = 0; j < grille->columnCount(); j++) {
+            QTPioche* pioche = dynamic_cast<QTPioche*>(grille->itemAtPosition(i, j)->widget());
+            if (pioche) {
+                pioche->setStatus(newStatus);
+            }
+        }
+    }
+}
+
+QTCardRoyal::QTCardRoyal(RoyalCard* rc, QLabel* parent):royalcard(rc), QLabel(parent), status(QTCardRoyal::notClickable){
     afficher();
 }
 
@@ -323,14 +414,20 @@ QString QTCardRoyal::getImagePath() const {
     //Répertoire courant
     QString pathbeforeproject = QFileInfo(".").absolutePath();
     //Récupération de l'image
-    QString imagePath = QString("%1/Cards/%2.png").arg(pathbeforeproject).arg(id);
+    QString imagePath = QString("%1/source/Cards/%2.png").arg(pathbeforeproject).arg(id);
 
     return imagePath;
 }
 
+bool QTCardRoyal::isCardBuyable(QTCardRoyal* card) const{
+    return card->getStatus() == QTCardRoyal::buyable;
+}
+
 void QTCardRoyal::mousePressEvent(QMouseEvent* event) {
     // Émet le signal clicked lorsque la carte est cliquée
-    emit clicked(this);
+    if (isCardBuyable(this)){
+        emit clicked(this);
+    }
 }
 
 QTBoardRoyal::QTBoardRoyal(QWidget *parent) : QWidget(parent), deckroyal(Deck_Royal::getInstance()) {
@@ -362,5 +459,66 @@ void QTBoardRoyal::afficher(){
 
 void QTBoardRoyal::carteClicked(QTCardRoyal* carte){
 
+    QMessageBox messageBox;
+    messageBox.setText("Voulez-vous acheter cette carte Royale ?");
+    messageBox.addButton("Oui", QMessageBox::AcceptRole);
+    messageBox.addButton("Annuler", QMessageBox::RejectRole);
+        int choix = messageBox.exec();
+        if (choix == QMessageBox::AcceptRole) {
+            emit acheterCarteClicked(carte);
+        } else if (choix == QMessageBox::RejectRole) {
+
+        }
 }
 
+void QTBoardRoyal::updateAllCardStatus(QTCardRoyal::CardRoyalStatus newStatus){
+
+    for (int i = 0; i < grille->rowCount(); i++) {
+        for (int j = 0; j < grille->columnCount(); j++) {
+            QLayoutItem* item = grille->itemAtPosition(i, j);
+            if(item){
+                QTCardRoyal* carte = dynamic_cast<QTCardRoyal*>(grille->itemAtPosition(i, j)->widget());
+                if (carte) {
+                    carte->setStatus(newStatus);
+                }
+            }
+        }
+    }
+}
+
+void QTBoardRoyal::retirerCarte(QTCardRoyal* carte){
+
+    int row, col, rowspan, columnspan;
+    grille->getItemPosition(grille->indexOf(carte), &row, &col, &rowspan, &columnspan);
+    int rowCount = grille->rowCount();
+    int columnCount = grille->columnCount();
+
+    // Retirez la carte du layout
+    grille->removeWidget(carte);
+
+    // Supprimez l'objet Carte après que la carte est retirée de la grille
+    carte->deleteLater();
+
+
+    // Mettez à jour la disposition pour refléter les modifications
+    grille->update();
+
+    // Déplacez les cartes à droite et comblez l'espace
+    for (int i=row; i<2-rowCount; ++i){
+        for(int j=col; j<2-columnCount; ++j){
+
+            QWidget* widget = grille->itemAtPosition(i+1, j+1)->widget();
+            if(widget){
+                grille->removeWidget(widget);
+                grille->addWidget(widget, i, j);
+            }
+        }
+    }
+
+
+    grille->update();
+
+
+    //qDebug() << "Carte supprimée : " << carte->getJewelryCard()->getId() << " à la position [" << row << ", " << col << "]";
+
+}
