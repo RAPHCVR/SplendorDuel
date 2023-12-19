@@ -2,6 +2,7 @@
 #define TEST_JOUEUR_H
 #include "Jeton.h"
 #include "Cards.h"
+#include "strategy.h"
 
 #include <iostream>
 #include <map>
@@ -37,7 +38,8 @@ private:
     SummaryCard redSummary;
     SummaryCard whiteSummary;
     SummaryCard blackSummary;
-
+    
+    Strategy* strategy;
 
 public:
     std::string getName() const {return name;};
@@ -61,7 +63,7 @@ public:
     std::vector<JewelryCard*>& getJewelryCards(){ return jewelryCards;}
     std::vector<RoyalCard*>& getRoyalCards(){ return royalCards;}
     std::vector<JewelryCard*>& getReserve(){ return reserve;}
-
+    Strategy& getStrategy(){return strategy;}
     // ostream
 
 
