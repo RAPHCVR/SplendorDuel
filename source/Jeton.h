@@ -74,6 +74,29 @@ public :
     Bag(const Bag&) = delete;
     Bag& operator=(const Bag&) = delete;
 
+    class BagIterator {
+    private:
+        Bag& bag;
+        size_t index;
+
+    public:
+        explicit BagIterator(Bag& bag) : bag(bag), index(0) {}
+
+        bool hasNext() const {
+            return index < bag.tokens.size();
+        }
+
+        const Token* next() {
+            if (!hasNext()) {
+                throw std::out_of_range("No more tokens in the bag.");
+            }
+            return bag.tokens[index++];
+        }
+    };
+    BagIterator iterator() {
+        return BagIterator(*this);
+    }
+
     static Bag& getInstance(); //Récupération de l'instance unique
     size_t getNbTokens() const { return tokens.size(); } //Récupération du nombre de jetons
     void addToken(const Token& j); //Ajout d'un jeton dans le sac
@@ -137,6 +160,8 @@ public :
         bool hasNext() const {
             return row < board.tokens.size() && col < board.tokens[row].size(); //Vérification si il y a un jeton suivant
         }
+        size_t getRow() const {return row;} //Récupération de la ligne de l'itérateur
+        size_t getCol() const {return col;} //Récupération de la colonne de l'itérateur
         const Token* next(); //Récupération du jeton suivant
     };
 

@@ -3,6 +3,7 @@
 //
 
 #include "Controller.h"
+#include "strategy.h"
 
 Controller::Controller() {
     auto* director = new Director();
@@ -184,8 +185,18 @@ void Controller::usePriviledge(Board& board) {
     unsigned int nbp = currentPlayer->getNbPrivilege();
     unsigned int nbt = board.getNbTokens();
     unsigned int nb = std::min(nbp,nbt);
-    std::cout << "Combien de privileges voulez vous utiliser ? Vous pouvez en utiliser " << nb << std::endl;
-    unsigned int nbPrivilege = choiceMaker(0, nb);
+    unsigned int nbPrivilege; // nombre de privilege a utiliser
+
+    // le joueur est humain
+    if (currentPlayer->getType()==Type::Humain){
+        std::cout << "Combien de privileges voulez vous utiliser ? Vous pouvez en utiliser " << nb << std::endl;
+        std::cin >>nbPrivilege;
+    }
+    // le joueur est IA
+    else{
+        nbPrivilege = AiStrategy::random(0, nb);
+    }
+    //unsigned int nbPrivilege = choiceMaker(0, nb);
     for (unsigned int i = 0; i < nbPrivilege; i++) {
         board.placePrivilege(currentPlayer->removePrivilege());
         chooseToken(board, *currentPlayer);
@@ -304,25 +315,66 @@ void Controller::fillBoard(Board&board, Bag&bag) {
 
 void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     std::cout << "Voulez vous reserver une carte d'une des pioches (1) ou une carte de la pyramide (2) ?" << std::endl;
-    unsigned int choice = choiceMaker(1, 2);
-    if (choice == 1) {
+    unsigned int choiceDeckOrPyramid;
+    // le joueur est un humain
+    if(currentPlayer->getType == Type::Humain){
+        std::cin >> choiceDeckOrPyramid;
+    }
+    // le joueur est une ia
+    else{
+        choiceDeckOrPyramid = AiStrategy::random(1,2);
+    }
+    
+    //unsigned int choice = choiceMaker(1, 2);
+    if (choiceDeckOrPyramid == 1) {
         std::cout << "Veuillez choisir une pioche" << std::endl;
         std::cout << "1. Pioche niveau 1" << std::endl;
         std::cout << "2. Pioche niveau 2" << std::endl;
         std::cout << "3. Pioche niveau 3" << std::endl;
-        unsigned int choice2 = choiceMaker(1, 3);
-        JewelryCard& card = takeCard(choice2);
+        unsigned int choiceDeckLevel;
+        //unsigned int choice2 = choiceMaker(1, 3);
+
+        // le joueur est un humain
+        if(currentPlayer->getType == Type::Humain){
+            std::cin >> choiceDeckLevel;
+        }
+        // le joueur est une ia
+        else{
+            choiceDeckLevel = AiStrategy::random(1,3);
+        }
+        JewelryCard& card = takeCard(choiceDeckLevel);
         chooseGoldenToken(gametable.getBoard(), *currentPlayer);
         currentPlayer->reserveOneCard(card);
     }
     else {
         std::cout << gametable.getPyramid() << std::endl;
-        unsigned int level = choiceMaker(1, 3);
-        unsigned int nb = pyramid.getLevelCards(level).size();
-        unsigned int nbCard = choiceMaker(1, nb);
+        // choix du level de la carte a prendre
+        unsigned int cardLevel;
+        //unsigned int level = choiceMaker(1, 3);
+        // le joueur est un humain
+        if(currentPlayer->getType == Type::Humain){
+            std::cin >> cardLevel;
+        }
+        // le joueur est une ia
+        else{
+            cardLevel = AiStrategy::random(1,3);
+        }
+        unsigned int nb = pyramid.getLevelCards(cardLevel).size(); // nombre de cartes de niveau level dans pyramid
+        //faire un ia humain pour le choix de la position de la carte
+
+        // choix de la position de la carte dans la ligne
+        unsigned int cardPosition;
+        //unsigned int nbCard = choiceMaker(1, nb); 
+        if(currentPlayer->getType == Type::Humain){
+            std::cin >> cardPosition;
+        }
+        // le joueur est une ia
+        else{
+            cardPosition = AiStrategy::random(1, nb);
+        }
         chooseGoldenToken(gametable.getBoard(), *currentPlayer);
-        currentPlayer->reserveOneCard(pyramid.takeCard(level,nbCard-1));
-        pyramid.drawCard(level);
+        currentPlayer->reserveOneCard(pyramid.takeCard(cardLevel,nbCard-1));
+        pyramid.drawCard(cardLevel);
     }
 }
 

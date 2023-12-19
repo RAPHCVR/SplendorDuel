@@ -2,6 +2,7 @@
 #define TEST_JOUEUR_H
 #include "Jeton.h"
 #include "Cards.h"
+#include "strategy.h"
 
 #include <iostream>
 #include <map>
@@ -12,7 +13,7 @@
 
 
 enum class Type {IA, Humain};
-
+std::string toString(Type t);
 
 
 class Player {
@@ -37,7 +38,8 @@ private:
     SummaryCard redSummary;
     SummaryCard whiteSummary;
     SummaryCard blackSummary;
-
+    
+    Strategy* strategy;
 
 public:
     std::string getName() const {return name;};
@@ -61,7 +63,7 @@ public:
     std::vector<JewelryCard*>& getJewelryCards(){ return jewelryCards;}
     std::vector<RoyalCard*>& getRoyalCards(){ return royalCards;}
     std::vector<JewelryCard*>& getReserve(){ return reserve;}
-
+    Strategy& getStrategy(){return strategy;}
     // ostream
 
 
@@ -96,6 +98,20 @@ public:
 
     // voler jeton
     //
+    bool operator==(const Player& other) const {
+        return name == other.name &&
+               privileges == other.privileges &&
+               type == other.type &&
+               nbCrown == other.nbCrown &&
+               prestigePoints == other.prestigePoints &&
+               nbTokens == other.nbTokens &&
+               jewelryCards == other.jewelryCards &&
+               reserve == other.reserve &&
+               royalCards == other.royalCards &&
+               tokenSummary == other.tokenSummary &&
+               tokens == other.tokens;
+    }
 };
 std::ostream& operator<<(std::ostream& f, Player& j);
+
 #endif //TEST_JOUEUR_H

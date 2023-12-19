@@ -520,5 +520,4 @@ void QTBoardRoyal::retirerCarte(QTCardRoyal* carte){
 
 
     //qDebug() << "Carte supprimée : " << carte->getJewelryCard()->getId() << " à la position [" << row << ", " << col << "]";
-
 }

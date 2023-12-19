@@ -1,35 +1,36 @@
-//
-// Created by utcpret on 15/12/2023.
-//
-
 #include "QTQuestion.h"
 
-askPopUp::askPopUp(QWidget* parent, std::string info) : QWidget(parent){ //PopUp pour faire des validations
-    yes = new QPushButton("oui"); //Bouton Oui
-    no = new QPushButton("non"); //Bouton Non
 
-    std::string tempPhrase = texte1 + info + texte3; //Def la question qui sera poser
-    this->info = new QLabel;
-    this->info->setText(QString::fromStdString(tempPhrase)); //Def le texte sur le QLabel
-
-    boutonLayout = new QHBoxLayout;
-    layout = new QVBoxLayout;
-
-    boutonLayout->addWidget(yes);
-    boutonLayout->addWidget(no);
-
-    layout -> addWidget(this->info);
-    layout -> addLayout(boutonLayout);
-
-    setLayout(layout);
+CustomDialog::CustomDialog(QWidget *parent, EmitMode mode) : QDialog(parent), emitMode(mode) {
+    layout = new QVBoxLayout(this);
+    contentLabel = new QLabel(this);
+    layout->addWidget(contentLabel);
 }
 
-popUpInfo::popUpInfo(QWidget* parent, std::string info) : QWidget(parent){ //PopUp pour montrer des infos
-    this->info = new QLabel;
-    this->info->setText(QString::fromStdString(info));
+void CustomDialog::setTitle(const QString &title) {
+    setWindowTitle(title);
+}
 
-    layout = new QVBoxLayout;
-    layout -> addWidget(this->info);
+void CustomDialog::setContent(const QString &content) {
+    contentLabel->setText(content);
+}
 
-    setLayout(layout);
+void CustomDialog::addButton(const QString &label, int role) {
+    QPushButton *button = new QPushButton(label, this);
+    buttons.push_back(button);
+    layout->addWidget(button);
+    connect(button, &QPushButton::clicked, this, &CustomDialog::handleButtonClicked);
+}
+
+void CustomDialog::handleButtonClicked() {
+    QPushButton *clickedButton = qobject_cast<QPushButton*>(sender());
+    int index = std::find(buttons.begin(), buttons.end(), clickedButton) - buttons.begin();
+
+    if (emitMode == EmitMode::Index) {
+        emit buttonClicked(index);
+    } else if (emitMode == EmitMode::Label) {
+        QString label = clickedButton->text();
+        emit buttonClickedLabel(label);
+    }
+    accept(); // Close the dialog when a button is clicked
 }

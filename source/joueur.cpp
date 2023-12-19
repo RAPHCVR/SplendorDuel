@@ -211,7 +211,6 @@ bool Player::canBuyCard(JewelryCard &card){
 
 //Celine
 // retire et place dans le sac les jetons dépensés lors de l’achat,
-// retire la carte de la pyramide 
 // et ajoute la carte à la liste des cartes possédées par le joueur. 
 //void Player::actionBuyCard(JewelryCard &card, int position, std::unordered_map<TokenColor, int> tokensToSpend){
 void Player::actionBuyCard(JewelryCard &card){
@@ -221,16 +220,6 @@ void Player::actionBuyCard(JewelryCard &card){
 
     // Ajouter la carte au joueur
     addJewelryCard(card);
-
-    // Retirer la carte du plateau de jeu
-    
-    // recup decks
-    //Deck_level_one* Deck1 = Deck_level_one::getInstance();
-    //Deck_level_two* Deck2 = Deck_level_two::getInstance();
-    //Deck_level_three* Deck3 = Deck_level_three::getInstance();
-    //Pyramid_Cards* pyramide = Pyramid_Cards::getInstance(Deck_level_one::getInstance(), Deck_level_two::getInstance(), Deck_level_three::getInstance()).takeCard(card.getLevel(), position);
-    //Pyramid_Cards* pyramide = Pyramid_Cards::getInstance(Deck1, Deck2, Deck3);
-    //pyramide.takeCard(card.getLevel(), position);
 }
 
 
@@ -297,6 +286,7 @@ Player::Player(std::string& n, Type t) {
     greenSummary = SummaryCard(0, 0);
     redSummary = SummaryCard(0, 0);
     whiteSummary = SummaryCard(0, 0);
+    strategy = 0 ;
 }
 
 std::ostream& operator<<(std::ostream& f, Player& p) {
@@ -320,4 +310,13 @@ std::ostream& operator<<(std::ostream& f, Player& p) {
         f << *card << std::endl;
     }
     return f;
+}
+
+std::string toString(Type t) {
+    switch (t) {
+        case Type::Humain:
+            return "Humain";
+        case Type::IA:
+            return "IA";
+    }
 }

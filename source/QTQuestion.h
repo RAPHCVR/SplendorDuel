@@ -1,40 +1,35 @@
-//
-// Created by utcpret on 15/12/2023.
-//
-
 #ifndef QTQUESTION_H
 #define QTQUESTION_H
 
+#include <QDialog>
 #include <QPushButton>
-#include <QLabel>
-#include <string>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <vector>
 
-class askPopUp : public QWidget{
+class CustomDialog : public QDialog {
     Q_OBJECT
-private:
-    QPushButton* yes;
-    QPushButton* no;
-    std::string texte1 = "Voulez-vous ";
-    std::string texte3 = " ?";
 
-    QLabel* info; //Recupere les infos a donner dans la question
-
-    QHBoxLayout* boutonLayout; //Layout avec les boutons
-    QVBoxLayout* layout; //Layout principal
 public:
-    askPopUp(QWidget* parent, std::string info);
-    QPushButton* getButtonYes(){return yes;}
-    QPushButton* getButtonNo(){return no;}
+    enum class EmitMode { Index, Label }; // Added mode enumeration
+
+    explicit CustomDialog(QWidget *parent = nullptr, EmitMode mode = EmitMode::Index);
+    void setTitle(const QString &title);
+    void setContent(const QString &content);
+    void addButton(const QString &label, int role);
+
+    signals:
+        void buttonClicked(int index);        // Signal for index
+    void buttonClickedLabel(const QString &label); // Signal for label
+
+    private slots:
+        void handleButtonClicked();
+
+private:
+    QVBoxLayout *layout;
+    QLabel *contentLabel;
+    std::vector<QPushButton*> buttons;
+    EmitMode emitMode; // Added member to store the mode
 };
 
-class popUpInfo : public QWidget{
-    Q_OBJECT
-private:
-    QLabel* info;
-    QVBoxLayout* layout;
-public:
-    popUpInfo(QWidget* parent, std::string info);
-};
-
-#endif //QTQUESTION_H
+#endif // QTQUESTION_H
