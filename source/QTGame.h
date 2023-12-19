@@ -59,5 +59,7 @@ public:
 QString MBox(const std::vector<QString>& buttonLabels = {"OK"}, const QString& title = "Message", const QString& text = "Message");
 int MBox(const std::vector<OptionalActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
 int MBox(const std::vector<CompulsoryActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
-
+void showWarningMessage(const QString &title, const QString &content);
+void showVictoryDialog(const QString &playerName);
+int getNumberBetween(int x, int y, const QString &message, QWidget *parent = nullptr);
 #endif //QTGAME_H

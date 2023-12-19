@@ -210,13 +210,13 @@ void PlateView::clickOnToken(unsigned i) {
     unsigned int j = 0;
     if (status != "gold") {
         if (buttons[i]->getToken()->getColor() == TokenColor::OR) {
-            MBox({"OK"}, "Erreur", "Vous ne pouvez pas prendre un jeton or");
+            showWarningMessage("Erreur", "Vous ne pouvez pas prendre un jeton or");
             return;
         }
     }
     else {
         if (buttons[i]->getToken()->getColor() != TokenColor::OR) {
-            MBox({"OK"}, "Erreur", "Vous ne pouvez prendre que des jetons or");
+            showWarningMessage("Erreur", "Vous ne pouvez prendre que des jetons or");
             return;
         }
     }

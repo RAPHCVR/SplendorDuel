@@ -3,7 +3,7 @@
 //
 
 #include "QTGame.h"
-
+#include "QTQuestion.h"
 #include <string>
 
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
@@ -29,7 +29,8 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     PyramidPioche->addWidget(pioches);
     PyramidPioche->addWidget(pyramid);
     CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
-    boardRoyal->setMaximumWidth(500);
+    boardRoyal->setMaximumWidth(400);
+    pioches->setMaximumWidth(200);
     CartesRoyalesPrivilegesPlateau->addWidget(privilegeCounter);
     CartesRoyalesPrivilegesPlateau->addWidget(plateView);
     centre->addLayout(PyramidPioche);
@@ -41,7 +42,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     //mainlayout->addLayout(first);
     //mainlayout->addLayout(second);
     int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
-    setFixedSize(size->width()*2,size->height()*1.5);
+    setFixedSize(size->width()*2,size->height()*1.75);
     setLayout(mainlayout);
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
@@ -171,7 +172,7 @@ void QTGame::applyOptionalAction(OptionalActions action) {
 void QTGame::handleGameStatus(){
     if (controller->checkIfPlayerWins(controller->getGame(),controller->getcurrentPlayer())) {
         status = "win";
-        std::cout << "Le joueur " << controller->getcurrentPlayer().getName() << " a gagné" << std::endl;
+        showVictoryDialog(QString::fromStdString(controller->getcurrentPlayer().getName()));
     }
     else {
         if (status == "start") {
@@ -274,8 +275,6 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
     std::string s;
     switch (action) {
         case CompulsoryActions::TakeCoins:
-            s = "Veuillez choisir des jetons";
-            MBox({"OK"},"Message", QString::fromStdString(s));
             plateView->updateStatus("take3tokens");
             plateView->updateMaxNbSelectedTokens(3);
             status = "check";
@@ -294,19 +293,22 @@ void QTGame::checkEndTurn() {
     if (controller->getcurrentPlayer().getNbTokens()>10) {
         player1->updateAllPlayer();
         player2->updateAllPlayer();
-        unsigned int nb = - (10 - controller->getcurrentPlayer().getNbTokens());
-        std::cout << "Voici vos Jetons, vous devez en retirer " << nb << " pour n'en conserver que 10 : " << std::endl;
-        std::cout << controller->getcurrentPlayer() << std::endl;
+        int nb = - (10 - controller->getcurrentPlayer().getNbTokens());
+        QString s=  "Vous devez retirer " + QString::number(nb) + " jetons pour n'en conserver que 10";
+        MBox({"OK"},"Message", s);
         while (nb != 0) {
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE, OR)" << std::endl;
-            std::string rep;
-            std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE" && rep != "OR") {
-                throw TokenException("Couleur invalide");
+            std::vector<QString> colors;
+            //add all the clor that are not null in the player
+            for (auto color : controller->getcurrentPlayer().getTokenSummary()) {
+                if (color.second != 0) {
+                    colors.push_back(QString::fromStdString(toString(color.first)));
+                }
             }
-            TokenColor color = toTokenColor(rep);
-            std::cout << "Choisissez combien vous voulez en retirer " << std::endl;
-            unsigned int tot = choiceMaker(1, controller->getcurrentPlayer().getTokenSummary().find(color)->second);
+            std::string rep = "Veuillez choisir une couleur de jeton";
+            QString choice = MBox(colors,"Choix", QString::fromStdString(rep));
+            TokenColor color = toTokenColor(choice.toStdString());
+            s ="Choisissez combien vous voulez en retirer ";
+            unsigned int tot = getNumberBetween(1,std::min(controller->getcurrentPlayer().getTokenSummary().find(color)->second,nb),s);
             for (unsigned int i = 0; i < tot; i++) {
                 controller->getGame().getGameTable().getBag().addToken(controller->getcurrentPlayer().removeToken(color));
                 nb--;
@@ -348,6 +350,7 @@ void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     }
     plateView->updateStatus("gold");
     plateView->updateMaxNbSelectedTokens(1);
+    MBox({"OK"},"Message", "Veuillez choisir un jeton or");
     player1->updateAllPlayer();
     player2->updateAllPlayer();
 }
@@ -372,16 +375,12 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             MBox({"OK"},"Message", "Veuillez choisir un jeton bonus sur le plateau");
         }
         else if (card.getAbility1() == Abilities::steal_token) {
+            QString s;
             if (opponent.getNbTokens()!=0) {
-                std::cout << "Voici les jetons du joueur advrese : \n";
-                std::cout << opponent << std::endl;
-                std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
-                std::string rep;
-                std::cin >> rep;
-                if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
-                    throw TokenException("Couleur invalide");
-                }
-                TokenColor color = toTokenColor(rep);
+                s = "Veuillez choisir une couleur de jeton à retirer du joueur adverse :";
+                std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC", "PERLE"};
+                QString rep = MBox(colors,"Choix", s);
+                TokenColor color = toTokenColor(rep.toStdString());
                 if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
                     std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
                 }
@@ -391,18 +390,16 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
                 }
             }
             else {
-                std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+                s = "Le joueur adverse n'a pas de jetons";
+                MBox({"OK"},"Message", s);
             }
             status = "check";
             handleGameStatus();
         }
         else if (card.getAbility1() == Abilities::cameleon) {
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
-            std::string rep;
-            std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
-                throw TokenException("Couleur invalide");
-            }
+            QString s = "Veuillez choisir une couleur de bonus";
+            std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC"};
+            std::string rep = MBox(colors,"Choix", s).toStdString();
             TokenColor color = toTokenColor(rep);
 
             if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
@@ -417,17 +414,15 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
         }
         else if (card.getAbility1() == Abilities::repeat_turn) {
             status = "start";
-            std::cout << "Vous rejouez" << std::endl;
+            QString s ="Vous rejouez";
+            MBox({"OK"},"Message", s);
             handleGameStatus();
         }
     }
     else {
-        std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
-        std::string rep;
-        std::cin >> rep;
-        if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
-            throw TokenException("Couleur invalide");
-        }
+        QString s = "Veuillez choisir une couleur de bonus";
+        std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC"};
+        std::string rep = MBox(colors,"Choix", s).toStdString();
         TokenColor color = toTokenColor(rep);
 
         if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
@@ -438,7 +433,8 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             cardOwner.addPrestige(1,color);
         }
         status = "start";
-        std::cout << "Vous rejouez" << std::endl;
+        s = "Vous rejouez";
+        MBox({"OK"},"Message", s);
         handleGameStatus();
     }
 }
@@ -521,16 +517,12 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
         handleGameStatus();
     }
     else if (card.getAbility() == Abilities::steal_token) {
+        QString s;
         if (opponent.getNbTokens()!=0) {
-            std::cout << "Voici les jetons du joueur advrese : \n";
-            std::cout << opponent << std::endl;
-            std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
-            std::string rep;
-            std::cin >> rep;
-            if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
-                throw TokenException("Couleur invalide");
-            }
-            TokenColor color = toTokenColor(rep);
+            s = "Veuillez choisir une couleur de jeton à retirer du joueur adverse :";
+            std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC", "PERLE"};
+            QString rep = MBox(colors,"Choix", s);
+            TokenColor color = toTokenColor(rep.toStdString());
             if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
                 std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
             }
@@ -540,7 +532,8 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
             }
         }
         else {
-            std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+            s = "Le joueur adverse n'a pas de jetons";
+            MBox({"OK"},"Message", s);
         }
         status = "check";
         handleGameStatus();
@@ -553,97 +546,131 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
     }
 }
 
-QString MBox(const std::vector<QString>& buttonLabels, const QString& title, const QString& content) {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(title);
-    msgBox.setText(content);
 
-    // Ajout des boutons personnalisés
-    std::vector<QPushButton*> buttons;
-    for (const auto& label : buttonLabels) {
-        buttons.push_back(msgBox.addButton(label, QMessageBox::NoRole));
-    }
-
-    // Affichage de la boîte de dialogue
-    msgBox.exec();
-
-    // Récupération du bouton cliqué
-    QAbstractButton* clickedButton = msgBox.clickedButton();
-    if (clickedButton) {
-        // Retourne le texte du bouton cliqué
-        return clickedButton->text();
-    }
-
-    // Retourne une chaîne vide si aucun bouton n'a été cliqué
-    return "";
+void showWarningMessage(const QString &title, const QString &content) {
+    QMessageBox::warning(nullptr, title, content);
 }
 
-int MBox(const std::vector<OptionalActions>& buttonLabels , const QString& title, const QString& content) {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(title);
-    msgBox.setText(content);
+QString MBox(const std::vector<QString>& buttonLabels, const QString& title, const QString& content) {
+    CustomDialog dialog(nullptr, CustomDialog::EmitMode::Label); // Set to Label emit mode
+    dialog.setTitle(title);
+    dialog.setContent(content);
 
-    // Ajout des boutons personnalisés
-    std::vector<QPushButton*> buttons;
+    for (const auto& label : buttonLabels) {
+        dialog.addButton(label, 0); // Assume role is 0, modify if needed
+    }
+
+    QString clickedButtonText;
+    QObject::connect(&dialog, &CustomDialog::buttonClickedLabel, [&clickedButtonText](const QString &buttonText) {
+        clickedButtonText = buttonText;
+    });
+
+    dialog.setWindowModality(Qt::NonModal);
+    dialog.show();
+    dialog.exec();
+
+    return clickedButtonText;
+}
+
+int MBox(const std::vector<OptionalActions>& buttonLabels, const QString& title, const QString& content) {
+    CustomDialog dialog(nullptr, CustomDialog::EmitMode::Index); // Set to Index emit mode
+    dialog.setTitle(title);
+    dialog.setContent(content);
+
     for (const auto& label : buttonLabels) {
         switch (label) {
             case OptionalActions::Empty:
-                buttons.push_back(msgBox.addButton("Ne rien faire", QMessageBox::NoRole));
+                dialog.addButton("Ne rien faire",0);
             break;
             case OptionalActions::UsePrivileges:
-                buttons.push_back(msgBox.addButton("Utiliser des privilèges", QMessageBox::NoRole));
+                dialog.addButton("Utiliser des privilèges",1);
             break;
             case OptionalActions::FillBoard:
-                buttons.push_back(msgBox.addButton("Remplir le plateau", QMessageBox::NoRole));
+                dialog.addButton("Remplir le plateau",2);
             break;
         }
     }
 
-    // Affichage de la boîte de dialogue
-    msgBox.exec();
+    int result = -1;
+    QObject::connect(&dialog, &CustomDialog::buttonClicked, [&result](int index) {
+        result = index;
+    });
 
-    // Récupération du bouton cliqué
-    QAbstractButton* clickedButton = msgBox.clickedButton();
-    if (clickedButton) {
-        // Retourne le texte du bouton cliqué
-        return std::find(buttons.begin(), buttons.end(), clickedButton) - buttons.begin();
-    }
+    dialog.setWindowModality(Qt::NonModal);
+    dialog.show();
+    dialog.exec();
 
-    // Retourne une chaîne vide si aucun bouton n'a été cliqué
-    return -1;
+    return result;
 }
 
-int MBox(const std::vector<CompulsoryActions>& buttonLabels , const QString& title, const QString& content) {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(title);
-    msgBox.setText(content);
+int MBox(const std::vector<CompulsoryActions>& buttonLabels, const QString& title, const QString& content) {
+    CustomDialog dialog(nullptr, CustomDialog::EmitMode::Index); // Set to Index emit mode
+    dialog.setTitle(title);
+    dialog.setContent(content);
 
-    // Ajout des boutons personnalisés
-    std::vector<QPushButton*> buttons;
     for (const auto& label : buttonLabels) {
         switch (label) {
             case CompulsoryActions::TakeCoins:
-                buttons.push_back(msgBox.addButton("Prendre des jetons", QMessageBox::NoRole));
+                dialog.addButton("Prendre des jetons",0);
             break;
             case CompulsoryActions::ReserveCard:
-                buttons.push_back(msgBox.addButton("Reserver une carte", QMessageBox::NoRole));
+                dialog.addButton("Reserver une carte",1);
             break;
             case CompulsoryActions::BuyCard:
-                buttons.push_back(msgBox.addButton("Acheter une carte", QMessageBox::NoRole));
+                dialog.addButton("Acheter une carte",2);
             break;
         }
     }
 
-    // Affichage de la boîte de dialogue
-    msgBox.exec();
+    int result = -1;
+    QObject::connect(&dialog, &CustomDialog::buttonClicked, [&result](int index) {
+        result = index;
+    });
 
-    // Récupération du bouton cliqué
-    QAbstractButton* clickedButton = msgBox.clickedButton();
-    if (clickedButton) {
-        // Retourne le texte du bouton cliqué
-        return std::find(buttons.begin(), buttons.end(), clickedButton) - buttons.begin();
+    dialog.setWindowModality(Qt::NonModal);
+    dialog.show();
+    dialog.exec();
+
+    return result;
+}
+
+void showVictoryDialog(const QString &playerName) {
+    QDialog victoryDialog;
+    victoryDialog.setWindowTitle("Félicitations !");
+
+    // Create the congratulatory message
+    QLabel *messageLabel = new QLabel(&victoryDialog);
+    messageLabel->setText(QString("Bravo %1, vous avez gagné !").arg(playerName));
+    QFont font = messageLabel->font();
+    font.setPointSize(16);
+    font.setBold(true);
+    messageLabel->setFont(font);
+
+    // Add a close button
+    QPushButton *closeButton = new QPushButton("Fermer", &victoryDialog);
+    QObject::connect(closeButton, &QPushButton::clicked, &victoryDialog, &QDialog::accept);
+
+    // Layout the elements in the dialog
+    QVBoxLayout *layout = new QVBoxLayout(&victoryDialog);
+    layout->addWidget(messageLabel, 0, Qt::AlignCenter);
+    layout->addWidget(closeButton, 0, Qt::AlignCenter);
+
+    victoryDialog.exec();
+}
+
+int getNumberBetween(int x, int y, const QString &message, QWidget *parent) {
+    QInputDialog dialog(parent);
+    dialog.setInputMode(QInputDialog::IntInput);
+    dialog.setIntRange(x, y);
+    dialog.setWindowTitle("Enter Number");
+
+    // Use the custom message
+    dialog.setLabelText(message);
+
+    int result = x; // Default value
+    if (dialog.exec() == QDialog::Accepted) {
+        result = dialog.intValue();
     }
 
-    // Retourne une chaîne vide si aucun bouton n'a été cliqué
-    return -1;
+    return result;
 }
