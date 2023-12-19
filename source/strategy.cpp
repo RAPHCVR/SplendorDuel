@@ -214,10 +214,10 @@ std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
 vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
     std::vector<CompulsoryActions> HumanCompulsoryActions;
     CompulsoryActions choice;
-    cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
+    std::cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
     while(choice!=CompulsoryActions::BuyCard || choice!=CompulsoryActions::ReserveCard || choice!=CompulsoryActions::TakeCoins){
-        cout << "Entrez une action valide (BuyCard, ReserveCard ou TakeCoins) : ";
-        cin >> choice;
+        std::cout << "Entrez une action valide (BuyCard, ReserveCard ou TakeCoins) : ";
+        std::cin >> choice;
     }
     HumanOptionalActions.push_back(choice);
     return HumanOptionalActions;
