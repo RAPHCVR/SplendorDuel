@@ -62,6 +62,41 @@ public slots:
     void handleBookingJewelryCardFromPioche(QTPioche* piocheclicked);
     void handleBuyingRoyalCard(QTCardRoyal* cardclicked);
 };
+
+
+class QTStartingMenu : public QDialog {
+    Q_OBJECT
+
+public:
+    QTStartingMenu(QWidget *parent = nullptr);
+
+    QString getPlayerName1() {return playerName1;}
+    QString getPlayerName2() {return playerName2;}
+
+private:
+    QString playerName1;
+    QString playerName2;
+
+public slots:
+    void startNewGame() {
+        // Obtenir les noms des joueurs
+        QString playerName1 = QInputDialog::getText(this, "Nouvelle partie", "Nom du joueur 1 :");
+        QString playerName2 = QInputDialog::getText(this, "Nouvelle partie", "Nom du joueur 2 :");
+
+        accept();
+        qDebug() << "Nouvelle partie avec les joueurs : " << playerName1 << " et " << playerName2;
+    }
+
+    void loadGame() {
+        // Logique pour charger une partie sauvegardée
+        qDebug() << "Charger une partie sauvegardée";
+    }
+
+    void quitGame() {
+        std::exit(0);
+    }
+};
+
 QString MBox(const std::vector<QString>& buttonLabels = {"OK"}, const QString& title = "Message", const QString& text = "Message");
 int MBox(const std::vector<OptionalActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
 int MBox(const std::vector<CompulsoryActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
@@ -69,3 +104,4 @@ void showWarningMessage(const QString &title, const QString &content);
 void showVictoryDialog(const QString &playerName);
 int getNumberBetween(int x, int y, const QString &message, QWidget *parent = nullptr);
 #endif //QTGAME_H
+

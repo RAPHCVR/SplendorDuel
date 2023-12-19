@@ -7,6 +7,8 @@
 #include <string>
 
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
+    QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
+    startingmenu->exec();
     controller = new Controller();
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
@@ -57,6 +59,26 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     //handleBuyingJewelryCard();
     //handleBookingJewelryCard();
     handleGameStatus();
+}
+
+QTStartingMenu::QTStartingMenu(QWidget *parent) : QDialog(parent) {
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    //Nouvelle partie
+    QPushButton *newGameButton = new QPushButton("Nouvelle partie", this);
+    connect(newGameButton, &QPushButton::clicked, this, &QTStartingMenu::startNewGame);
+    layout->addWidget(newGameButton);
+
+    //Charger une partie sauvegardée
+    QPushButton *loadGameButton = new QPushButton("Charger une partie sauvegardée", this);
+        connect(loadGameButton, &QPushButton::clicked, this, &QTStartingMenu::loadGame);
+    layout->addWidget(loadGameButton);
+
+    //Quitter le jeu
+    QPushButton *quitButton = new QPushButton("Quitter le jeu", this);
+    connect(quitButton, &QPushButton::clicked, this, &QTStartingMenu::quitGame);
+
+    setFixedSize(400, 200);
 }
 
 void QTGame::paintEvent(QPaintEvent* event) {
