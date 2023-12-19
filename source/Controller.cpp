@@ -3,6 +3,7 @@
 //
 
 #include "Controller.h"
+#include "strategy.h"
 
 Controller::Controller() {
     auto* director = new Director();
@@ -184,8 +185,18 @@ void Controller::usePriviledge(Board& board) {
     unsigned int nbp = currentPlayer->getNbPrivilege();
     unsigned int nbt = board.getNbTokens();
     unsigned int nb = std::min(nbp,nbt);
-    std::cout << "Combien de privileges voulez vous utiliser ? Vous pouvez en utiliser " << nb << std::endl;
-    unsigned int nbPrivilege = choiceMaker(0, nb);
+    unsigned int nbPrivilege; // nombre de privilege a utiliser
+
+    // le joueur est humain
+    if (currentPlayer->getType()==Type::Humain){
+        std::cout << "Combien de privileges voulez vous utiliser ? Vous pouvez en utiliser " << nb << std::endl;
+        std::cin >>nbPrivilege;
+    }
+    // le joueur est IA
+    else{
+        nbPrivilege = AiStrategy::random(0, nb);
+    }
+    //unsigned int nbPrivilege = choiceMaker(0, nb);
     for (unsigned int i = 0; i < nbPrivilege; i++) {
         board.placePrivilege(currentPlayer->removePrivilege());
         chooseToken(board, *currentPlayer);
