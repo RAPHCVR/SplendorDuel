@@ -348,14 +348,33 @@ void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     }
     else {
         std::cout << gametable.getPyramid() << std::endl;
-        //faire un ia humain pour le choix du level
-        unsigned int level = choiceMaker(1, 3);
-        unsigned int nb = pyramid.getLevelCards(level).size(); // nombre de carte de niveau level dans pyramid
+        // choix du level de la carte a prendre
+        unsigned int cardLevel;
+        //unsigned int level = choiceMaker(1, 3);
+        // le joueur est un humain
+        if(currentPlayer->getType == Type::Humain){
+            std::cin >> cardLevel;
+        }
+        // le joueur est une ia
+        else{
+            cardLevel = AiStrategy::random(1,3);
+        }
+        unsigned int nb = pyramid.getLevelCards(cardLevel).size(); // nombre de cartes de niveau level dans pyramid
         //faire un ia humain pour le choix de la position de la carte
-        unsigned int nbCard = choiceMaker(1, nb); // position de la carte dans la ligne
+
+        // choix de la position de la carte dans la ligne
+        unsigned int cardPosition;
+        //unsigned int nbCard = choiceMaker(1, nb); 
+        if(currentPlayer->getType == Type::Humain){
+            std::cin >> cardPosition;
+        }
+        // le joueur est une ia
+        else{
+            cardPosition = AiStrategy::random(1, nb);
+        }
         chooseGoldenToken(gametable.getBoard(), *currentPlayer);
-        currentPlayer->reserveOneCard(pyramid.takeCard(level,nbCard-1));
-        pyramid.drawCard(level);
+        currentPlayer->reserveOneCard(pyramid.takeCard(cardLevel,nbCard-1));
+        pyramid.drawCard(cardLevel);
     }
 }
 
