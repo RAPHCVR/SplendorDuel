@@ -286,7 +286,7 @@ Player::Player(std::string& n, Type t) {
     greenSummary = SummaryCard(0, 0);
     redSummary = SummaryCard(0, 0);
     whiteSummary = SummaryCard(0, 0);
-    strategy = 0 ;
+    //strategy = 0 ;
 }
 
 std::ostream& operator<<(std::ostream& f, Player& p) {
