@@ -5,11 +5,6 @@
 #ifndef QTGAME_H
 #define QTGAME_H
 #include <QWidget>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QScreen>
-#include <QSize>
 #include "Controller.h"
 #include "QTJeton.h"
 #include "QTCards.h"

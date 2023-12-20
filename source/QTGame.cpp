@@ -245,8 +245,6 @@ void QTGame::play() {
     std::string s = "C'est au tour de " + controller->getcurrentPlayer().getName();
     MBox({"OK"},"Message", QString::fromStdString(s));
     std::vector<CompulsoryActions> compulsoryActions = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
-    std::cout << "Cartes de la pyramide : " << std::endl;
-    std::cout << controller->getGame().getGameTable().getPyramid() << std::endl;
     if (compulsoryActions.empty()) {
         s = "Pas d'action obligatoires possibles, remplissage du plateau";
         MBox({"OK"},"Message", QString::fromStdString(s));

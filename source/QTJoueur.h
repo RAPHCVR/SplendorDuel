@@ -2,8 +2,6 @@
 #define QTJOUEUR_H
 
 #include <QtWidgets>
-#include <QColor>
-#include <QPalette>
 #include "Controller.h"
 #include <QLCDNumber>
 #include "QTCards.h"

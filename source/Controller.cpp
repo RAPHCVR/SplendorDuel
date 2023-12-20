@@ -302,30 +302,37 @@ const Token& Controller::chooseToken(Board&board, Player&player, std::vector<std
 }
 
 bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>* coordinates) {
-    if (coordinates->size() < 2 || coordinates->size() > 3) {
+    if (!coordinates || coordinates->size() < 2 || coordinates->size() > 3) {
         return false;
     }
 
     // Créer une copie des coordonnées pour les trier
     std::vector<std::pair<int, int>> sortedCoords = *coordinates;
 
-    // Trier les coordonnées
+    // Trier les coordonnées selon x, puis selon y si x est le même
     std::sort(sortedCoords.begin(), sortedCoords.end());
 
-    // Vérifier si les coordonnées triées sont alignées et consécutives
-    for (size_t i = 0; i < sortedCoords.size() - 1; ++i) {
-        int dx = sortedCoords[i + 1].first - sortedCoords[i].first;
-        int dy = sortedCoords[i + 1].second - sortedCoords[i].second;
+    // Calculer la différence initiale entre les premières coordonnées
+    int dx = sortedCoords[1].first - sortedCoords[0].first;
+    int dy = sortedCoords[1].second - sortedCoords[0].second;
 
-        // Vérifier si elles sont adjacentes (dx et dy ne dépassent pas 1)
-        if (std::abs(dx) > 1 || std::abs(dy) > 1) {
+    // Vérifier si les coordonnées sont alignées horizontalement, verticalement, ou diagonalement
+    if (!(dx == 0 || dy == 0 || std::abs(dx) == std::abs(dy))) {
+        return false;
+    }
+
+    for (size_t i = 0; i < sortedCoords.size() - 1; ++i) {
+        int currentDx = sortedCoords[i + 1].first - sortedCoords[i].first;
+        int currentDy = sortedCoords[i + 1].second - sortedCoords[i].second;
+
+        // Vérifier si les coordonnées sont consécutives et suivent la même direction
+        if (std::abs(currentDx) > 1 || std::abs(currentDy) > 1 || currentDx != dx || currentDy != dy) {
             return false;
         }
     }
 
     return true;
 }
-
 
 void Controller::chooseGoldenToken(Board&board, Player&player) {
     std::cout << "Veuillez choisir un jeton" << std::endl;
