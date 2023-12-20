@@ -179,6 +179,10 @@ public :
         size_t getRow() const {return row;} //Récupération de la ligne de l'itérateur
         size_t getCol() const {return col;} //Récupération de la colonne de l'itérateur
         const Token* next(); //Récupération du jeton suivant
+        void reset() {
+            row = 0;
+            col = 0;
+        }
     };
 
     BoardIterator iterator() { //Récupération de l'itérateur du plateau
