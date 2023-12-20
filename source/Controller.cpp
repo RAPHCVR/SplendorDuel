@@ -5,22 +5,58 @@
 #include "Controller.h"
 //#include "strategy.h"
 
-Controller::Controller() {
+std::string toString(OptionalActions a) {
+    switch (a) {
+        case OptionalActions::UsePrivileges: return "UsePrivileges";
+        case OptionalActions::FillBoard: return "FillBoard";
+        case OptionalActions::Empty: return "Empty";
+        default: throw std::invalid_argument("Action inconnue");
+    }
+}
+
+OptionalActions toOptionalActions(std::string s) {
+    if (s==("UsePrivileges")) {
+        return OptionalActions::UsePrivileges;
+    }
+    else if (s==("FillBoard")) {
+        return OptionalActions::FillBoard;
+    }
+    else if (s==("Empty")) {
+        return OptionalActions::Empty;
+    }
+}
+
+std::string toString(CompulsoryActions a) {
+    switch (a) {
+        case CompulsoryActions::TakeCoins: return "TakeCoins";
+        case CompulsoryActions::ReserveCard: return "ReserveCard";
+        case CompulsoryActions::BuyCard: return "BuyCard";
+        default: throw std::invalid_argument("Action inconnue");
+    }
+}
+
+CompulsoryActions toCompulsoryActions(std::string s) {
+    if (s==("TakeCoins")) {
+        return CompulsoryActions::TakeCoins;
+    }
+    else if (s==("ReserveCard")) {
+        return CompulsoryActions::ReserveCard;
+    }
+    else if (s==("BuyCard")) {
+        return CompulsoryActions::BuyCard;
+    }
+}
+
+
+Controller::Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2) {
     auto* director = new Director();
     //A MODIF: Sauvegarde de la partie/Nouvelle partie
-    std::string statut_partie="New";
 
     if (statut_partie == "New") {
         GameBuilder* builder = new GameBuilder();
         director->set_builder(builder);
         std::cout<<"HUMAIN vs HUMAIN"<<std::endl;
-        //std::cout<<"Veuillez saisir le pseudo du joueur 1"<<std::endl;
-        std::string pseudo1 = "Joueur 1";
-        //std::cin>>pseudo1;
-        //std::cout<<"Veuillez saisir le pseudo du joueur 2"<<std::endl;
-        std::string pseudo2 = "Joueur 2";
-        //std::cin>>pseudo2;
-        director->BuildGame(pseudo1, Type::Humain, pseudo2, Type::Humain);
+        director->BuildGame(pseudo1, type1, pseudo2, type2);
         Game* p = builder->GetProduct();
         delete director;
         game = p;
@@ -266,30 +302,37 @@ const Token& Controller::chooseToken(Board&board, Player&player, std::vector<std
 }
 
 bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>* coordinates) {
-    if (coordinates->size() < 2 || coordinates->size() > 3) {
+    if (!coordinates || coordinates->size() < 2 || coordinates->size() > 3) {
         return false;
     }
 
     // Créer une copie des coordonnées pour les trier
     std::vector<std::pair<int, int>> sortedCoords = *coordinates;
 
-    // Trier les coordonnées
+    // Trier les coordonnées selon x, puis selon y si x est le même
     std::sort(sortedCoords.begin(), sortedCoords.end());
 
-    // Vérifier si les coordonnées triées sont alignées et consécutives
-    for (size_t i = 0; i < sortedCoords.size() - 1; ++i) {
-        int dx = sortedCoords[i + 1].first - sortedCoords[i].first;
-        int dy = sortedCoords[i + 1].second - sortedCoords[i].second;
+    // Calculer la différence initiale entre les premières coordonnées
+    int dx = sortedCoords[1].first - sortedCoords[0].first;
+    int dy = sortedCoords[1].second - sortedCoords[0].second;
 
-        // Vérifier si elles sont adjacentes (dx et dy ne dépassent pas 1)
-        if (std::abs(dx) > 1 || std::abs(dy) > 1) {
+    // Vérifier si les coordonnées sont alignées horizontalement, verticalement, ou diagonalement
+    if (!(dx == 0 || dy == 0 || std::abs(dx) == std::abs(dy))) {
+        return false;
+    }
+
+    for (size_t i = 0; i < sortedCoords.size() - 1; ++i) {
+        int currentDx = sortedCoords[i + 1].first - sortedCoords[i].first;
+        int currentDy = sortedCoords[i + 1].second - sortedCoords[i].second;
+
+        // Vérifier si les coordonnées sont consécutives et suivent la même direction
+        if (std::abs(currentDx) > 1 || std::abs(currentDy) > 1 || currentDx != dx || currentDy != dy) {
             return false;
         }
     }
 
     return true;
 }
-
 
 void Controller::chooseGoldenToken(Board&board, Player&player) {
     std::cout << "Veuillez choisir un jeton" << std::endl;
@@ -698,4 +741,15 @@ bool Controller::checkIfPlayerWins(Game& game, Player& player) {
     }
 
     return false;
+}
+
+void Controller::reinit() {
+    // Reset all the instances as needed
+    this->getGame().getGameTable().getDeckRoyal().resetInstance();
+    this->getGame().getGameTable().getDeckLevelOne().resetInstance();
+    this->getGame().getGameTable().getDeckLevelTwo().resetInstance();
+    this->getGame().getGameTable().getDeckLevelThree().resetInstance();
+    this->getGame().getGameTable().getBag().resetInstance();
+    this->getGame().getGameTable().getBoard().resetInstance();
+    this->getGame().getGameTable().getPyramid().resetInstance();
 }

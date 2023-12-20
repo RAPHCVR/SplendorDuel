@@ -69,6 +69,7 @@ private :
     std::vector<const Token*> tokens; //Liste des jetons
     //design pattern singleton
     explicit Bag(const TotalTokens& total); //Constructeur de sac avec tous les jetons
+    static Bag* instance; //Instance unique du sac
 public :
     //Le sac de jeton est unique, pas de duplication
     Bag(const Bag&) = delete;
@@ -97,7 +98,16 @@ public :
         return BagIterator(*this);
     }
 
-    static Bag& getInstance(); //Récupération de l'instance unique
+    static Bag* getInstance() {
+        if (instance == nullptr) {
+            instance = new Bag(TotalTokens::getInstance());  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    } //Récupération de l'instance unique
+        static void resetInstance() {
+        delete instance;
+        instance = nullptr;
+    }
     size_t getNbTokens() const { return tokens.size(); } //Récupération du nombre de jetons
     void addToken(const Token& j); //Ajout d'un jeton dans le sac
     const Token& drawToken(); //Pioche d'un jeton dans le sac
@@ -127,12 +137,6 @@ public :
     const static TotalPrivileges& getInstance(); //Récupération de l'instance unique
 };
 
-class Observer {
-public:
-    virtual ~Observer() = default;
-    virtual void update() = 0;
-};
-
 class Board {
     //Classe plateau contenant les jetons et les privilèges en jeu
 private :
@@ -140,6 +144,8 @@ private :
     std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
     //design pattern singleton
     Board(); //Instanciation du plateau avec tous les jetons et le sac de jetons (Constructeur)
+
+    static Board* instance ;
 public :
     //pas de duplication du plateau
     Board(const Board&) = delete;
@@ -147,7 +153,17 @@ public :
 
     const Token& takeToken(size_t i, size_t j); //Récupération d'un jeton sur le plateau, supprimé du plateau, à l'indice i,j
 
-    static Board& getInstance(); //Récupération de l'instance unique
+    static Board* getInstance() {
+        if (instance == nullptr) {
+            instance = new Board();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    } //Récupération de l'instance unique
+
+    static void resetInstance() {
+        delete instance;
+        instance = nullptr;
+    }
 
     class BoardIterator {
         //Classe itérateur pour parcourir le plateau
@@ -163,6 +179,7 @@ public :
         size_t getRow() const {return row;} //Récupération de la ligne de l'itérateur
         size_t getCol() const {return col;} //Récupération de la colonne de l'itérateur
         const Token* next(); //Récupération du jeton suivant
+        void reset() {row = 0; col = 0;}
     };
 
     BoardIterator iterator() { //Récupération de l'itérateur du plateau

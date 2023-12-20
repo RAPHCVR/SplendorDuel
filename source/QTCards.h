@@ -2,13 +2,8 @@
 #define QTCARDS_H
 
 #include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QColor>
-#include <QGraphicsEllipseItem>
 #include <QGraphicsLineItem>
-#include "sqlite/sqlite3.h"
 #include <QString>
-#include <QPixmap>
 #include <QGridLayout>
 #include <QLabel>
 // Inclure cstddef pour utiliser std::byte de manière explicite

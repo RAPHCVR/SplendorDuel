@@ -9,7 +9,8 @@
 #include <vector>
 #include <unordered_map>
 
-
+// Celine
+// nombre aleatoire entre min et max
 int AiStrategy::random(int min, int max){
     int random;
     // générateur de nombres aléatoires avec le temps actuel
@@ -20,39 +21,41 @@ int AiStrategy::random(int min, int max){
     return random;
 }
 
+// Celine
+// permet a l'ia de choisir des jetons sur le plateau
+std::vector<std::pair<int, int>> AiStrategy::choseTokensToTake(){
+    Board::BoardIterator it = Board::getInstance()->iterator();
+    std::vector<std::pair<int, int>> selectedCoordinates;
 
-std::vector<const Token*> AiStrategy::choseTokensToTake(){
-    Board::BoardIterator it = iterator();
     // parcours du plateau
     while (it.hasNext()) {
         const Token* firstToken = it.next();
         // essayer de selectionner 3 jetons
-        for (int count = 3; count >= 1; --count) {
-            std::vector<const Token*> selectedTokens;
-            std::vector<std::pair<int, int>> selectedCoordinates;
+        for (int count = 3; count >= 1; count--) {
+            //std::vector<const Token*> selectedTokens;
 
             // ajouter le premier jeton
-            selectedTokens.push_back(firstToken);
+            //selectedTokens.push_back(firstToken);
             selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
             // essayer d'ajouter les jetons restants
-            for (int i = 1; i < count; ++i) {
+            for (int i = 1; i < count; i++) {
                 if (it.hasNext()) {
                     const Token* nextToken = it.next();
-                    selectedTokens.push_back(nextToken);
+                    //selectedTokens.push_back(nextToken);
                     selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
                     // verif si les coordonnees sont alignees et consecutives
                     if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
                         // si non on reinit la selection
-                        selectedTokens.clear();
+                        //selectedTokens.clear();
                         selectedCoordinates.clear();
                         it.reset();
                         break;
                     }
                 } else {
                     // si plus de jetons disponibles -> reinit la selection
-                    selectedTokens.clear();
+                    //selectedTokens.clear();
                     selectedCoordinates.clear();
                     it.reset();
                     break;
@@ -61,7 +64,7 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
             // si la selection est ok -> renvoyer les jetons selectionnes
             if (selectedCoordinates.size() == count) {
-                return selectedTokens;
+                return selectedCoordinates;
             }
         }
     }
@@ -73,41 +76,41 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
         const Token* firstToken = it.next();
 
         // essayer de selectionner 2 jetons
-        for (int count = 2; count >= 1; --count) {
-            std::vector<const Token*> selectedTokens;
+        for (int count = 2; count >= 1; count--) {
+            //std::vector<const Token*> selectedTokens;
             std::vector<std::pair<int, int>> selectedCoordinates;
 
             // ajouter le premier jeton
-            selectedTokens.push_back(firstToken);
+            //selectedTokens.push_back(firstToken);
             selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
             // essayer d'ajouter les jetons restants
-            for (int i = 1; i < count; ++i) {
+            for (int i = 1; i < count; i++) {
                 if (it.hasNext()) {
                     const Token* nextToken = it.next();
-                    selectedTokens.push_back(nextToken);
+                    //selectedTokens.push_back(nextToken);
                     selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
                     // verif si les coord sont alignees et consecutives
                     if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
                         // si non -> reinit la selection
-                        selectedTokens.clear();
+                        //selectedTokens.clear();
                         selectedCoordinates.clear();
                         it.reset();
                         break;
                     }
                 } else {
                     // si plus de jetons dispo -> reinit la sélection
-                    selectedTokens.clear();
+                    //selectedTokens.clear();
                     selectedCoordinates.clear();
                     it.reset();
                     break;
                 }
             }
 
-            // la sélection est valide -> renvoyer les jetons a piocher
+            // la selection est valide -> renvoyer les jetons a piocher
             if (selectedCoordinates.size() == count) {
-                return selectedTokens;
+                return selectedCoordinates;
             }
         }
     }
@@ -117,11 +120,9 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
     while (it.hasNext()) {
         const Token* currentToken = it.next();
-
-        // verif si le jeton est piochable
-        if (areCoordinatesAlignedAndConsecutive({std::make_pair(it.getRow(), it.getCol())})) {
-            return {currentToken};
-        }
+        selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+        return {selectedCoordinates};
+        
     }
 
     // pas de jeton piochable sur la board
@@ -129,21 +130,59 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 }
 
 
-TokenColor HumanStrategy::choseTokenColor(vector<TokenColor>& chosableColors){
-    while (true) {
-        // Display available colors
-        std::cout << "Couleurs possibles : ";
-        for (const auto& color : chosableColors) {
-            std::cout << static_cast<int>(color) << ": " << color << ";\n";
+// Celine
+// permet a l'huamin de choisir des jetons sur le plateau
+std::vector<std::pair<int, int>> HumanStrategy::choseTokensToTake(){
+    int x;
+    int y;
+    int nbOfToken = 0;
+    while(nbOfToken != 1 && nbOfToken != 2 && nbOfToken != 3){
+        std::cout << "Nombre de jetons (entre 1 et 3) que vous souhaitez prendre : ";
+        std::cin >> nbOfToken;
+    }
+    std::vector<std::pair<int, int>> selectedTokensCoordinates;
+    for(int i = 0; i < nbOfToken; i++){
+        while (x!=1 && x!=2 && x!=3 && x!=4 && x!=5){
+        std::cout << "Coordonnée x du jeton (entre 1 et 5) : ";
+        std::cin >> x;
+        }
+    
+        while (y!=1 && y!=2 && y!=3 && y!=4 && y!=5){
+            std::cout << "Coordonnée y du jeton (entre 1 et 5) : ";
+            std::cin >> y;
         }
 
-        int choice;
-        std::cout << "Entrez le nombre correspondant a la couleur choisie : ";
+        selectedTokensCoordinates.emplace_back(x, y);
+
+        // reinit les coordonnes
+        x=0;
+        y=0;
+
+    }
+    return selectedTokensCoordinates;
+    
+}
+
+
+// Celine
+// permet a l'humain de choisir une couleur parmis les couleurs proposes
+TokenColor HumanStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
+    while(true){   
+        // afficher les couleurs
+        std::cout << "Couleurs possibles : \n";
+        for (const auto& color : chosableColors) {
+            std::cout << toString(color) << " ";
+        }
+
+        // choix de la couleur
+        std::string choice;
+        std::cout << "\nEntrez la couleur choisie (respecter la casse): ";
         std::cin >> choice;
 
-        auto iter = std::find(chosableColors.begin(), chosableColors.end(), static_cast<TokenColor>(choice));
+        // test si couleur valide
+        auto iter = std::find(chosableColors.begin(), chosableColors.end(), toTokenColor(choice));
         if (iter != chosableColors.end()) {
-            return static_cast<TokenColor>(choice);
+            return toTokenColor(choice);
         } else {
             std::cout << "Couleur invalide, veuillez choisir une couleur parmis la liste." << std::endl;
         }
@@ -152,33 +191,47 @@ TokenColor HumanStrategy::choseTokenColor(vector<TokenColor>& chosableColors){
 
 
 
-TokenColor AiStrategy::choseTokenColor(vector<TokenColor>& chosableColors){
+// Celine
+// permet a l'IA de choisir une couleur parmis les couleurs proposes
+TokenColor AiStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
     int randomIndex = random(0, chosableColors.size()-1);
     return chosableColors[randomIndex];
 }
 
-
-vector<OptionalActions> HumanStrategy::choseOptionalActions(){
+// Celine
+// permet a l'humain d'entrer les actions optionnelles qu'il souhaite realiser
+std::vector<OptionalActions> HumanStrategy::choseOptionalActions(){
     std::vector<OptionalActions> HumanOptionalActions;
-    OptionalActions choice;
-    int nbOptionalActions;
-    cout << "Combien d'action(s) optionnelle(s) souhaitez vous faire (0, 1 ou 2) : ";
-    cin >> nbOptionalActions;
-    if(nbOptionalActions==0){
-        return {};
-    }
-    else{
-        for(int i = 0; i < nbOptionalActions; i++){
-            while(choice!=OptionalActions::FillBoard||choice!=OptionalActions::UsePrivileges ){
-                cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
-                cin >> choice;
-            }
-            HumanOptionalActions.push_back(choice);
+    int choice = 0;
+    int nbOptionalActions = -1;
 
-        }
+    while(nbOptionalActions != 0 && nbOptionalActions != 1 && nbOptionalActions != 2){
+        std::cout << "Combien d'action(s) optionnelle(s) souhaitez vous faire (0, 1 ou 2) : ";
+        std::cin >> nbOptionalActions;
+    }
+    if(nbOptionalActions==0){
+        HumanOptionalActions.push_back(OptionalActions::Empty);
         return HumanOptionalActions;
     }
-
+    else if(nbOptionalActions==1){
+        while(choice!=1 && choice!=2){
+            std::cout << "Entrez l'action que vous souhaitez faire (1 pour remplir le plateau ou 2 pour utiliser vos privileges) : ";
+            std::cin >> choice;
+        }
+        if(choice == 1){
+            HumanOptionalActions.push_back(OptionalActions::FillBoard);
+            return HumanOptionalActions;
+        }
+        else{
+            HumanOptionalActions.push_back(OptionalActions::UsePrivileges);
+            return HumanOptionalActions;
+        }
+    }
+    else{
+        HumanOptionalActions.push_back(OptionalActions::FillBoard);
+        HumanOptionalActions.push_back(OptionalActions::UsePrivileges);
+        return HumanOptionalActions;
+    }
 }
 
 // Celine
@@ -210,36 +263,41 @@ std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
     return AIsOptionalActions;
 }
 
-
-vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
-    std::vector<CompulsoryActions> HumanCompulsoryActions;
-    CompulsoryActions choice;
-    std::cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
-    while(choice!=CompulsoryActions::BuyCard || choice!=CompulsoryActions::ReserveCard || choice!=CompulsoryActions::TakeCoins){
-        std::cout << "Entrez une action valide (BuyCard, ReserveCard ou TakeCoins) : ";
+// Celine
+// permet de choisir l'action obligatoire que fait l'humain
+CompulsoryActions HumanStrategy::choseCompulsoryAction(){
+    int choice = 0;
+    while(choice!=1 && choice!=2 && choice!=3){
+        std::cout << "Entrez l'action obligatoire que vous souhaitez realiser. \n1 pour acheter une carte, 2 pour reserver une carte ou 3 pour prendre des jetons : ";
         std::cin >> choice;
     }
-    HumanOptionalActions.push_back(choice);
-    return HumanOptionalActions;
+    if(choice==1){
+        return CompulsoryActions::BuyCard;
+    }
+    else if(choice == 2){
+        return CompulsoryActions::ReserveCard;
+    }
+    else{
+        return CompulsoryActions::TakeCoins;
+    }
 }
 
 // Celine
-// permet de choisir l'action optionnelle que fait l'ia
-std::vector<CompulsoryActions> AiStrategy::choseCompulsoryActions(){
-    std::vector<CompulsoryActions> AIsCompulsoryAction;
-    int nbCompulsoryActions = random(0,2);
+// permet de choisir l'action obligatoire que fait l'ia
+CompulsoryActions AiStrategy::choseCompulsoryAction(){
+    CompulsoryActions AIsCompulsoryAction;
+    int whichCompulsoryAction = random(0,2);
     // prendre entre un et trois jetons
-    if(nbCompulsoryActions == 0){
-        AIsCompulsoryAction.push_back(CompulsoryActions::TakeCoins);
+    if(whichCompulsoryAction == 0){
+        return CompulsoryActions::BuyCard;
     }
     // reserver une carte
-    else if(nbCompulsoryActions == 1){
-        AIsCompulsoryAction.push_back(CompulsoryActions::ReserveCard);
+    else if(whichCompulsoryAction == 1){
+        return CompulsoryActions::ReserveCard;
     }
+    // acheter carte
     else{
-        AIsCompulsoryAction.push_back(CompulsoryActions::BuyCard);
+        return CompulsoryActions::TakeCoins;
     }
 
-    return AIsCompulsoryAction;
 }
-
