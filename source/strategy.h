@@ -30,7 +30,7 @@ public:
     virtual int random(int min, int max)=0 ;
     virtual std::vector<OptionalActions> choseOptionalActions()=0;
     virtual CompulsoryActions choseCompulsoryAction()=0;
-    virtual std::vector<const Token*> choseTokensToTake()=0;
+    virtual std::vector<std::pair<int, int>> choseTokensToTake()=0;
     virtual TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors)=0;
 };
 
@@ -39,7 +39,7 @@ class HumanStrategy : public Strategy{
 public:
     virtual std::vector<OptionalActions> choseOptionalActions() override;
     virtual CompulsoryActions choseCompulsoryAction() override;
-    virtual std::vector<const Token*> choseTokensToTake() override;
+    virtual std::vector<std::pair<int, int>> choseTokensToTake() override;
     virtual TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors) override;
 };
 
@@ -48,7 +48,7 @@ public:
     virtual int random(int min, int max) override;
     virtual std::vector<OptionalActions> choseOptionalActions() override;
     virtual CompulsoryActions choseCompulsoryAction() override;
-    virtual std::vector<const Token*> AiStrategy::choseTokensToTake() override;
+    virtual std::vector<std::pair<int, int>> AiStrategy::choseTokensToTake() override;
     virtual TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors) override;
 };
 
