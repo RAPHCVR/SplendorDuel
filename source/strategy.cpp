@@ -9,7 +9,8 @@
 #include <vector>
 #include <unordered_map>
 
-
+// Celine
+// nombre aleatoire entre min et max
 int AiStrategy::random(int min, int max){
     int random;
     // générateur de nombres aléatoires avec le temps actuel
@@ -20,7 +21,8 @@ int AiStrategy::random(int min, int max){
     return random;
 }
 
-
+// Celine
+// permet a l'ia de choisir des jetons sur le plateau
 std::vector<const Token*> AiStrategy::choseTokensToTake(){
     Board::BoardIterator it = iterator();
     // parcours du plateau
@@ -126,9 +128,17 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
     return {}; 
 }
 
+
+// Celine
+// permet a l'huamin de choisir des jetons sur le plateau
 std::vector<const Token*> HumanStrategy::choseTokensToTake(){
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
+    int nbOfToken = 0;
+    while(nbOfToken != 1 || nbOfToken != 2 || nbOfToken != 3){
+        std::cout << "Nombre de jetons (entre 1 et 3) que vous souhaitez prendre : ";
+        std::cin >> nbOfToken;
+    }
     while (x!=1 || x!=2 || x!=3 || x!=4 || x!=5){
         std::cout << "Coordonnée x du jeton (entre 1 et 5) : ";
         std::cin >> x;
@@ -142,6 +152,8 @@ std::vector<const Token*> HumanStrategy::choseTokensToTake(){
 }
 
 
+// Celine
+// permet a l'humain de choisir une couleur parmis les couleurs proposes
 TokenColor HumanStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
     while (true) {
         // Display available colors
@@ -164,13 +176,15 @@ TokenColor HumanStrategy::choseTokenColor(std::vector<TokenColor>& chosableColor
 }
 
 
-
+// Celine
+// permet a l'IA de choisir une couleur parmis les couleurs proposes
 TokenColor AiStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
     int randomIndex = random(0, chosableColors.size()-1);
     return chosableColors[randomIndex];
 }
 
-
+// Celine
+// permet a l'humain d'entrer les actions optionnelles qu'il souhaite realiser
 std::vector<OptionalActions> HumanStrategy::choseOptionalActions(){
     std::vector<OptionalActions> HumanOptionalActions;
     OptionalActions choice;
@@ -223,7 +237,8 @@ std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
     return AIsOptionalActions;
 }
 
-
+// Celine
+// permet de choisir l'action obligatoire que fait l'humain
 std::vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
     std::vector<CompulsoryActions> HumanCompulsoryActions;
     CompulsoryActions choice;
@@ -237,7 +252,7 @@ std::vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
 }
 
 // Celine
-// permet de choisir l'action optionnelle que fait l'ia
+// permet de choisir l'action obligatoire que fait l'ia
 std::vector<CompulsoryActions> AiStrategy::choseCompulsoryActions(){
     std::vector<CompulsoryActions> AIsCompulsoryAction;
     int nbCompulsoryActions = random(0,2);
