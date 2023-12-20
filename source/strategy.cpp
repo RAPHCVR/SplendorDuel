@@ -23,13 +23,13 @@ int AiStrategy::random(int min, int max){
 
 // Celine
 // permet a l'ia de choisir des jetons sur le plateau
-std::vector<const Token*> AiStrategy::choseTokensToTake(){
+std::vector<std::pair<int, int>> AiStrategy::choseTokensToTake(){
     Board::BoardIterator it = iterator();
     // parcours du plateau
     while (it.hasNext()) {
         const Token* firstToken = it.next();
         // essayer de selectionner 3 jetons
-        for (int count = 3; count >= 1; --count) {
+        for (int count = 3; count >= 1; count--) {
             //std::vector<const Token*> selectedTokens;
             std::vector<std::pair<int, int>> selectedCoordinates;
 
@@ -38,7 +38,7 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
             selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
             // essayer d'ajouter les jetons restants
-            for (int i = 1; i < count; ++i) {
+            for (int i = 1; i < count; i++) {
                 if (it.hasNext()) {
                     const Token* nextToken = it.next();
                     //selectedTokens.push_back(nextToken);
@@ -75,7 +75,7 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
         const Token* firstToken = it.next();
 
         // essayer de selectionner 2 jetons
-        for (int count = 2; count >= 1; --count) {
+        for (int count = 2; count >= 1; count--) {
             //std::vector<const Token*> selectedTokens;
             std::vector<std::pair<int, int>> selectedCoordinates;
 
@@ -84,7 +84,7 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
             selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
             // essayer d'ajouter les jetons restants
-            for (int i = 1; i < count; ++i) {
+            for (int i = 1; i < count; i++) {
                 if (it.hasNext()) {
                     const Token* nextToken = it.next();
                     //selectedTokens.push_back(nextToken);
@@ -107,7 +107,7 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
                 }
             }
 
-            // la sélection est valide -> renvoyer les jetons a piocher
+            // la selection est valide -> renvoyer les jetons a piocher
             if (selectedCoordinates.size() == count) {
                 return selectedCoordinates;
             }
@@ -131,23 +131,34 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
 // Celine
 // permet a l'huamin de choisir des jetons sur le plateau
-std::vector<const Token*> HumanStrategy::choseTokensToTake(){
-    int x = 0;
-    int y = 0;
+std::vector<std::pair<int, int>> HumanStrategy::choseTokensToTake(){
+    int x;
+    int y;
     int nbOfToken = 0;
-    while(nbOfToken != 1 || nbOfToken != 2 || nbOfToken != 3){
+    while(nbOfToken != 1 && nbOfToken != 2 && nbOfToken != 3){
         std::cout << "Nombre de jetons (entre 1 et 3) que vous souhaitez prendre : ";
         std::cin >> nbOfToken;
     }
-    while (x!=1 || x!=2 || x!=3 || x!=4 || x!=5){
+    std::vector<std::pair<int, int>> selectedTokensCoordinates;
+    for(int i = 0; i < nbOfToken; i++){
+        while (x!=1 && x!=2 && x!=3 && x!=4 && x!=5){
         std::cout << "Coordonnée x du jeton (entre 1 et 5) : ";
         std::cin >> x;
-    }
+        }
     
-    while (x!=1 || x!=2 || x!=3 || x!=4 || x!=5){
-        std::cout << "Coordonnée y du jeton (entre 1 et 5) : ";
-        std::cin >> y;
+        while (y!=1 && y!=2 && y!=3 && y!=4 && y!=5){
+            std::cout << "Coordonnée y du jeton (entre 1 et 5) : ";
+            std::cin >> y;
+        }
+
+        selectedTokensCoordinates.emplace_back(x, y);
+
+        // reinit les coordonnes
+        x=0;
+        y=0;
+
     }
+    return selectedTokensCoordinates;
     
 }
 
