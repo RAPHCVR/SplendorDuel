@@ -201,25 +201,36 @@ TokenColor AiStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
 // permet a l'humain d'entrer les actions optionnelles qu'il souhaite realiser
 std::vector<OptionalActions> HumanStrategy::choseOptionalActions(){
     std::vector<OptionalActions> HumanOptionalActions;
-    OptionalActions choice;
-    int nbOptionalActions;
-    std::cout << "Combien d'action(s) optionnelle(s) souhaitez vous faire (0, 1 ou 2) : ";
-    std::cin >> nbOptionalActions;
-    if(nbOptionalActions==0){
-        return {};
-    }
-    else{
-        for(int i = 0; i < nbOptionalActions; i++){
-            while(choice!=OptionalActions::FillBoard||choice!=OptionalActions::UsePrivileges ){
-                std::cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
-                std::cin >> choice;
-            }
-            HumanOptionalActions.push_back(choice);
+    int choice = 0;
+    int nbOptionalActions = -1;
 
-        }
+    while(nbOptionalActions != 0 && nbOptionalActions != 1 && nbOptionalActions != 2){
+        std::cout << "Combien d'action(s) optionnelle(s) souhaitez vous faire (0, 1 ou 2) : ";
+        std::cin >> nbOptionalActions;
+    }
+    if(nbOptionalActions==0){
+        HumanOptionalActions.push_back(OptionalActions::Empty);
         return HumanOptionalActions;
     }
-
+    else if(nbOptionalActions==1){
+        while(choice!=1 && choice!=2){
+            std::cout << "Entrez l'action que vous souhaitez faire (1 pour FillBoard ou 2 pour UsePrivileges) : ";
+            std::cin >> choice;
+        }
+        if(choice == 1){
+            HumanOptionalActions.push_back(OptionalActions::FillBoard);
+            return HumanOptionalActions;
+        }
+        else{
+            HumanOptionalActions.push_back(OptionalActions::UsePrivileges);
+            return HumanOptionalActions;
+        }
+    }
+    else{
+        HumanOptionalActions.push_back(OptionalActions::FillBoard);
+        HumanOptionalActions.push_back(OptionalActions::UsePrivileges);
+        return HumanOptionalActions;
+    }
 }
 
 // Celine
