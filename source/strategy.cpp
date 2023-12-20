@@ -214,7 +214,7 @@ std::vector<OptionalActions> HumanStrategy::choseOptionalActions(){
     }
     else if(nbOptionalActions==1){
         while(choice!=1 && choice!=2){
-            std::cout << "Entrez l'action que vous souhaitez faire (1 pour FillBoard ou 2 pour UsePrivileges) : ";
+            std::cout << "Entrez l'action que vous souhaitez faire (1 pour remplir le plateau ou 2 pour utiliser vos privileges) : ";
             std::cin >> choice;
         }
         if(choice == 1){
@@ -264,16 +264,21 @@ std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
 
 // Celine
 // permet de choisir l'action obligatoire que fait l'humain
-std::vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
-    std::vector<CompulsoryActions> HumanCompulsoryActions;
-    CompulsoryActions choice;
-    std::cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
-    while(choice!=CompulsoryActions::BuyCard || choice!=CompulsoryActions::ReserveCard || choice!=CompulsoryActions::TakeCoins){
-        std::cout << "Entrez une action valide (BuyCard, ReserveCard ou TakeCoins) : ";
+CompulsoryActions HumanStrategy::choseCompulsoryActions(){
+    int choice = 0;
+    while(choice!=1 && choice!=2 && choice!=3){
+        std::cout << "Entrez l'action obligatoire que vous souhaitez realiser. \n1 pour acheter une carte, 2 pour reserver une carte ou 3 pour prendre des jetons : ";
         std::cin >> choice;
     }
-    HumanOptionalActions.push_back(choice);
-    return HumanOptionalActions;
+    if(choice==1){
+        return CompulsoryActions::BuyCard;
+    }
+    else if(choice == 2){
+        return CompulsoryActions::ReserveCard;
+    }
+    else{
+        return CompulsoryActions::TakeCoins;
+    }
 }
 
 // Celine
