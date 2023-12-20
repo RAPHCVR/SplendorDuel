@@ -28,31 +28,31 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
         const Token* firstToken = it.next();
         // essayer de selectionner 3 jetons
         for (int count = 3; count >= 1; --count) {
-            std::vector<const Token*> selectedTokens;
+            //std::vector<const Token*> selectedTokens;
             std::vector<std::pair<int, int>> selectedCoordinates;
 
             // ajouter le premier jeton
-            selectedTokens.push_back(firstToken);
+            //selectedTokens.push_back(firstToken);
             selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
             // essayer d'ajouter les jetons restants
             for (int i = 1; i < count; ++i) {
                 if (it.hasNext()) {
                     const Token* nextToken = it.next();
-                    selectedTokens.push_back(nextToken);
+                    //selectedTokens.push_back(nextToken);
                     selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
                     // verif si les coordonnees sont alignees et consecutives
                     if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
                         // si non on reinit la selection
-                        selectedTokens.clear();
+                        //selectedTokens.clear();
                         selectedCoordinates.clear();
                         it.reset();
                         break;
                     }
                 } else {
                     // si plus de jetons disponibles -> reinit la selection
-                    selectedTokens.clear();
+                    //selectedTokens.clear();
                     selectedCoordinates.clear();
                     it.reset();
                     break;
@@ -61,7 +61,7 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
             // si la selection est ok -> renvoyer les jetons selectionnes
             if (selectedCoordinates.size() == count) {
-                return selectedTokens;
+                return selectedCoordinates;
             }
         }
     }
@@ -74,31 +74,31 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
         // essayer de selectionner 2 jetons
         for (int count = 2; count >= 1; --count) {
-            std::vector<const Token*> selectedTokens;
+            //std::vector<const Token*> selectedTokens;
             std::vector<std::pair<int, int>> selectedCoordinates;
 
             // ajouter le premier jeton
-            selectedTokens.push_back(firstToken);
+            //selectedTokens.push_back(firstToken);
             selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
             // essayer d'ajouter les jetons restants
             for (int i = 1; i < count; ++i) {
                 if (it.hasNext()) {
                     const Token* nextToken = it.next();
-                    selectedTokens.push_back(nextToken);
+                    //selectedTokens.push_back(nextToken);
                     selectedCoordinates.emplace_back(it.getRow(), it.getCol());
 
                     // verif si les coord sont alignees et consecutives
                     if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
                         // si non -> reinit la selection
-                        selectedTokens.clear();
+                        //selectedTokens.clear();
                         selectedCoordinates.clear();
                         it.reset();
                         break;
                     }
                 } else {
                     // si plus de jetons dispo -> reinit la sélection
-                    selectedTokens.clear();
+                    //selectedTokens.clear();
                     selectedCoordinates.clear();
                     it.reset();
                     break;
@@ -107,7 +107,7 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
             // la sélection est valide -> renvoyer les jetons a piocher
             if (selectedCoordinates.size() == count) {
-                return selectedTokens;
+                return selectedCoordinates;
             }
         }
     }
@@ -117,19 +117,32 @@ std::vector<const Token*> AiStrategy::choseTokensToTake(){
 
     while (it.hasNext()) {
         const Token* currentToken = it.next();
-
-        // verif si le jeton est piochable
-        if (areCoordinatesAlignedAndConsecutive({std::make_pair(it.getRow(), it.getCol())})) {
-            return {currentToken};
-        }
+        selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+        return {currentToken};
+        
     }
 
     // pas de jeton piochable sur la board
     return {}; 
 }
 
+std::vector<const Token*> HumanStrategy::choseTokensToTake(){
+    int x;
+    int y;
+    while (x!=1 || x!=2 || x!=3 || x!=4 || x!=5){
+        std::cout << "Coordonnée x du jeton (entre 1 et 5) : ";
+        std::cin >> x;
+    }
+    
+    while (x!=1 || x!=2 || x!=3 || x!=4 || x!=5){
+        std::cout << "Coordonnée y du jeton (entre 1 et 5) : ";
+        std::cin >> y;
+    }
+    
+}
 
-TokenColor HumanStrategy::choseTokenColor(vector<TokenColor>& chosableColors){
+
+TokenColor HumanStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
     while (true) {
         // Display available colors
         std::cout << "Couleurs possibles : ";
@@ -152,26 +165,26 @@ TokenColor HumanStrategy::choseTokenColor(vector<TokenColor>& chosableColors){
 
 
 
-TokenColor AiStrategy::choseTokenColor(vector<TokenColor>& chosableColors){
+TokenColor AiStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
     int randomIndex = random(0, chosableColors.size()-1);
     return chosableColors[randomIndex];
 }
 
 
-vector<OptionalActions> HumanStrategy::choseOptionalActions(){
+std::vector<OptionalActions> HumanStrategy::choseOptionalActions(){
     std::vector<OptionalActions> HumanOptionalActions;
     OptionalActions choice;
     int nbOptionalActions;
-    cout << "Combien d'action(s) optionnelle(s) souhaitez vous faire (0, 1 ou 2) : ";
-    cin >> nbOptionalActions;
+    std::cout << "Combien d'action(s) optionnelle(s) souhaitez vous faire (0, 1 ou 2) : ";
+    std::cin >> nbOptionalActions;
     if(nbOptionalActions==0){
         return {};
     }
     else{
         for(int i = 0; i < nbOptionalActions; i++){
             while(choice!=OptionalActions::FillBoard||choice!=OptionalActions::UsePrivileges ){
-                cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
-                cin >> choice;
+                std::cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
+                std::cin >> choice;
             }
             HumanOptionalActions.push_back(choice);
 
@@ -211,7 +224,7 @@ std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
 }
 
 
-vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
+std::vector<CompulsoryActions> HumanStrategy::choseCompulsoryActions(){
     std::vector<CompulsoryActions> HumanCompulsoryActions;
     CompulsoryActions choice;
     std::cout << "Entrez une action valide (FillBoard ou UsePrivileges) : ";
