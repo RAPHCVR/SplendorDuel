@@ -48,7 +48,7 @@ public:
     virtual int random(int min, int max) override;
     virtual std::vector<OptionalActions> choseOptionalActions() override;
     virtual CompulsoryActions choseCompulsoryAction() override;
-    virtual std::vector<std::pair<int, int>> AiStrategy::choseTokensToTake() override;
+    virtual std::vector<std::pair<int, int>> choseTokensToTake() override;
     virtual TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors) override;
 };
 
