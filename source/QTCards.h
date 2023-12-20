@@ -27,12 +27,24 @@ namespace Utility {
 
     public:
 
+        enum CardStatus {
+            buyable,
+            reservable,
+            notClickable
+
+        };
+
+        CardStatus getStatus() const {return status;}
+        void setStatus(CardStatus newStatus) {status = newStatus;}
+
         Carte(JewelryCard* jewelrycard, QWidget *parent = nullptr);
         ~Carte();
 
         void afficher();
         JewelryCard* getJewelryCard() {return jewelryCard;}
 
+        bool isCardBuyable(Carte* card) const;
+        bool isCardReservable(Carte* card) const;
         void mousePressEvent(QMouseEvent* event);
 
 
@@ -40,6 +52,7 @@ namespace Utility {
     private:
         QString getImagePath() const;
         JewelryCard* jewelryCard;
+        CardStatus status;
 
     signals:
         void clicked(Carte* carte);
@@ -54,12 +67,10 @@ namespace Utility {
     public:
         QTPyramid(QWidget *parent = nullptr);
 
-        void ajouterRangee(const QStringList& valeurs, const QStringList& couleurs);
-
-        void ajouterPioche();
         void afficher();
 
         Pyramid_Cards* getPyramidCard() {return pyramidcard;}
+        QGridLayout* getgrid() {return grille;}
 
         void ajouterCarte(int rowlevel);
 
@@ -69,11 +80,17 @@ namespace Utility {
 
         void carteClicked(Carte* carte);
 
+        void updateAllCardStatus(Carte::CardStatus newStatus);
+
     private:
         void ajouterCarte(int row, int col);
 
         Pyramid_Cards* pyramidcard;
         QGridLayout *grille;
+
+    signals:
+        void acheterCarteClicked(Carte* carte);
+        void reserverCarteClicked(Carte* carte);
     };
 
 
@@ -81,6 +98,16 @@ namespace Utility {
         Q_OBJECT
 
     public:
+
+        enum PiocheStatus {
+            reservable,
+            notClickable
+
+        };
+
+        PiocheStatus getStatus() const {return status;}
+        void setStatus(PiocheStatus newStatus) {status = newStatus;}
+
 
         QTPioche(Deck_level_one* Deck1 = nullptr, Deck_level_two* Deck2 = nullptr, Deck_level_three* Deck3 = nullptr, QWidget *parent = nullptr);
         ~QTPioche();
@@ -90,6 +117,8 @@ namespace Utility {
         Deck_level_two* getDeck2() {return Deck2;}
         Deck_level_three* getDeck3() {return Deck3;}
 
+
+        bool isCardReservable(QTPioche* pioche) const;
         void mousePressEvent(QMouseEvent* event);
 
 
@@ -99,9 +128,12 @@ namespace Utility {
         Deck_level_one* Deck1;
         Deck_level_two* Deck2;
         Deck_level_three* Deck3;
+        PiocheStatus status;
 
     signals:
-        void clicked(QTPioche* pioche);
+        void clicked(QTPioche *pioche);
+
+
     };
 
 
@@ -118,12 +150,18 @@ namespace Utility {
 
         //int retirerPioche(Carte* carte); Pas besoin pour le moment
 
-        bool piocheClicked(QTPioche* pioche);
+        QGridLayout* getGrid() const {return grille;}
+
+        void piocheClicked(QTPioche* pioche);
+        void updateAllPiocheStatus(QTPioche::PiocheStatus newStatus);
 
     private:
         void ajouterPioche(int row, int col);
 
         QGridLayout *grille;
+
+    signals:
+        void reserverCarteClicked(QTPioche* pioche);
 
     };
 
@@ -131,16 +169,27 @@ namespace Utility {
     Q_OBJECT
 
     public:
+
+        enum CardRoyalStatus {
+            buyable,
+            notClickable
+        };
+
+        CardRoyalStatus getStatus() const {return status;}
+        void setStatus(CardRoyalStatus newStatus) {status = newStatus;}
+
         QTCardRoyal(RoyalCard* rc, QLabel* parent = nullptr);
         ~QTCardRoyal();
         void afficher();
         RoyalCard* getRoyalCard() {return royalcard;}
 
+        bool isCardBuyable(QTCardRoyal* card) const;
         void mousePressEvent(QMouseEvent* event);
 
     private:
         QString getImagePath() const;
         RoyalCard* royalcard;
+        CardRoyalStatus status;
 
     signals:
         void clicked(QTCardRoyal* carte);
@@ -162,17 +211,23 @@ namespace Utility {
 
         //void ajouterCarte(int rowlevel);
 
-        int retirerCarte(Carte* carte);
+        void retirerCarte(QTCardRoyal* carte);
 
-
+        QGridLayout* getGrid() {return grille;}
 
         void carteClicked(QTCardRoyal* carte);
+
+        void updateAllCardStatus(QTCardRoyal::CardRoyalStatus newStatus);
 
     private:
         void ajouterCarte(int row, int col);
 
         Deck_Royal* deckroyal;
         QGridLayout *grille;
+
+    signals:
+        void acheterCarteClicked(QTCardRoyal* carte);
+
 
 
     };

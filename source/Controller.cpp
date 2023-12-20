@@ -3,24 +3,17 @@
 //
 
 #include "Controller.h"
-#include "strategy.h"
+//#include "strategy.h"
 
-Controller::Controller() {
+Controller::Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2) {
     auto* director = new Director();
     //A MODIF: Sauvegarde de la partie/Nouvelle partie
-    std::string statut_partie="New";
 
     if (statut_partie == "New") {
         GameBuilder* builder = new GameBuilder();
         director->set_builder(builder);
         std::cout<<"HUMAIN vs HUMAIN"<<std::endl;
-        //std::cout<<"Veuillez saisir le pseudo du joueur 1"<<std::endl;
-        std::string pseudo1 = "Joueur 1";
-        //std::cin>>pseudo1;
-        //std::cout<<"Veuillez saisir le pseudo du joueur 2"<<std::endl;
-        std::string pseudo2 = "Joueur 2";
-        //std::cin>>pseudo2;
-        director->BuildGame(pseudo1, Type::Humain, pseudo2, Type::Humain);
+        director->BuildGame(pseudo1, type1, pseudo2, type2);
         Game* p = builder->GetProduct();
         delete director;
         game = p;
@@ -193,10 +186,12 @@ void Controller::usePriviledge(Board& board) {
         std::cin >>nbPrivilege;
     }
     // le joueur est IA
+    /*
     else{
         nbPrivilege = AiStrategy::random(0, nb);
     }
-    //unsigned int nbPrivilege = choiceMaker(0, nb);
+    */
+    nbPrivilege = choiceMaker(0, nb);
     for (unsigned int i = 0; i < nbPrivilege; i++) {
         board.placePrivilege(currentPlayer->removePrivilege());
         chooseToken(board, *currentPlayer);
@@ -317,31 +312,34 @@ void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     std::cout << "Voulez vous reserver une carte d'une des pioches (1) ou une carte de la pyramide (2) ?" << std::endl;
     unsigned int choiceDeckOrPyramid;
     // le joueur est un humain
-    if(currentPlayer->getType == Type::Humain){
+    if(currentPlayer->getType() == Type::Humain){
         std::cin >> choiceDeckOrPyramid;
     }
     // le joueur est une ia
+    /*
     else{
         choiceDeckOrPyramid = AiStrategy::random(1,2);
     }
-    
-    //unsigned int choice = choiceMaker(1, 2);
+    */
+    unsigned int choice = choiceMaker(1, 2);
     if (choiceDeckOrPyramid == 1) {
         std::cout << "Veuillez choisir une pioche" << std::endl;
         std::cout << "1. Pioche niveau 1" << std::endl;
         std::cout << "2. Pioche niveau 2" << std::endl;
         std::cout << "3. Pioche niveau 3" << std::endl;
         unsigned int choiceDeckLevel;
-        //unsigned int choice2 = choiceMaker(1, 3);
+        unsigned int choice2 = choiceMaker(1, 3);
 
         // le joueur est un humain
-        if(currentPlayer->getType == Type::Humain){
+        if(currentPlayer->getType() == Type::Humain){
             std::cin >> choiceDeckLevel;
         }
         // le joueur est une ia
+        /*
         else{
             choiceDeckLevel = AiStrategy::random(1,3);
         }
+        */
         JewelryCard& card = takeCard(choiceDeckLevel);
         chooseGoldenToken(gametable.getBoard(), *currentPlayer);
         currentPlayer->reserveOneCard(card);
@@ -350,28 +348,32 @@ void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
         std::cout << gametable.getPyramid() << std::endl;
         // choix du level de la carte a prendre
         unsigned int cardLevel;
-        //unsigned int level = choiceMaker(1, 3);
+        unsigned int level = choiceMaker(1, 3);
         // le joueur est un humain
-        if(currentPlayer->getType == Type::Humain){
+        if(currentPlayer->getType() == Type::Humain){
             std::cin >> cardLevel;
         }
+        /*
         // le joueur est une ia
         else{
             cardLevel = AiStrategy::random(1,3);
         }
+        */
         unsigned int nb = pyramid.getLevelCards(cardLevel).size(); // nombre de cartes de niveau level dans pyramid
         //faire un ia humain pour le choix de la position de la carte
 
         // choix de la position de la carte dans la ligne
         unsigned int cardPosition;
-        //unsigned int nbCard = choiceMaker(1, nb); 
-        if(currentPlayer->getType == Type::Humain){
+        unsigned int nbCard = choiceMaker(1, nb);
+        if(currentPlayer->getType() == Type::Humain){
             std::cin >> cardPosition;
         }
         // le joueur est une ia
+        /*
         else{
             cardPosition = AiStrategy::random(1, nb);
         }
+        */
         chooseGoldenToken(gametable.getBoard(), *currentPlayer);
         currentPlayer->reserveOneCard(pyramid.takeCard(cardLevel,nbCard-1));
         pyramid.drawCard(cardLevel);
@@ -689,4 +691,15 @@ bool Controller::checkIfPlayerWins(Game& game, Player& player) {
     }
 
     return false;
+}
+
+void Controller::reinit() {
+    // Reset all the instances as needed
+    this->getGame().getGameTable().getDeckRoyal().resetInstance();
+    this->getGame().getGameTable().getDeckLevelOne().resetInstance();
+    this->getGame().getGameTable().getDeckLevelTwo().resetInstance();
+    this->getGame().getGameTable().getDeckLevelThree().resetInstance();
+    this->getGame().getGameTable().getBag().resetInstance();
+    this->getGame().getGameTable().getBoard().resetInstance();
+    this->getGame().getGameTable().getPyramid().resetInstance();
 }

@@ -38,7 +38,7 @@ void Player::reserveOneCard(JewelryCard& card){
 //verifie que le joueur a moins de 3 cartes dans sa reserve et qu'il y a au moins un or sur le plateau
 bool Player::canReserveCard(){
     if (reserve.size()<3){
-        if (Board::getInstance().hasTokenOfColor(TokenColor::OR)){
+        if (Board::getInstance()->hasTokenOfColor(TokenColor::OR)){
             return true;
         }
     }
@@ -110,12 +110,12 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
                     tokenSummary[TokenColor::OR] -= tokenGap;
                     nbTokens -= tokenGap;
                     for(int i = 0; i < finalCost - tokenGap; i++) {
-                        Bag::getInstance().addToken(*tokens[color].back());
+                        Bag::getInstance()->addToken(*tokens[color].back());
                         tokens[color].pop_back();
                         nbTokens--;
                     }
                     for (int i = 0; i < tokenGap; i++) {
-                        Bag::getInstance().addToken(*tokens[TokenColor::OR].back());
+                        Bag::getInstance()->addToken(*tokens[TokenColor::OR].back());
                         tokens[TokenColor::OR].pop_back();
                         nbTokens--;
                     }
@@ -131,7 +131,7 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
                     tokenSummary[color] -= finalCost;
                     // Return the tokens to the bag
                     for(int i = 0; i < finalCost; i++) {
-                        Bag::getInstance().addToken(*tokens[color].back());
+                        Bag::getInstance()->addToken(*tokens[color].back());
                         tokens[color].pop_back();
                         nbTokens--;
                     }
@@ -286,7 +286,7 @@ Player::Player(std::string& n, Type t) {
     greenSummary = SummaryCard(0, 0);
     redSummary = SummaryCard(0, 0);
     whiteSummary = SummaryCard(0, 0);
-    strategy = 0 ;
+    //strategy = 0 ;
 }
 
 std::ostream& operator<<(std::ostream& f, Player& p) {

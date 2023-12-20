@@ -171,7 +171,7 @@ PlateView::PlateView(QWidget* parent, unsigned height, unsigned width): h(height
     //privilegeCounter=counter;
     //privilegeCounter->setFixedWidth(35);
     plateWidget = new PlateWidget(nullptr, h-100, w, nbTokens, TokenSize, &buttons);
-    Board::BoardIterator it = Board::getInstance().iterator();
+    Board::BoardIterator it = Board::getInstance()->iterator();
     unsigned int j = 0;
     for(int i = 0; i < nbTokens; i++){
         //Creer un getteur pour les Jetons
@@ -257,7 +257,7 @@ void PlateView::validateTokens() {
     std::vector<const Token*> tokens;
     for(int j = 0; j < 3; j++){
         if(selectedTokens[j] != nullptr) {
-            if(Board::getInstance().CellColor(selectedTokens[j]->getPosition()->getx(),selectedTokens[j]->getPosition()->gety(),TokenColor::OR)){
+            if(Board::getInstance()->CellColor(selectedTokens[j]->getPosition()->getx(),selectedTokens[j]->getPosition()->gety(),TokenColor::OR)){
                 if (status != "gold") {
                     throw TokenException("Impossible de prendre un jeton or");
                 }
@@ -272,7 +272,7 @@ void PlateView::validateTokens() {
     }
     if ((areCoordinatesAlignedAndConsecutive(pos) || pos->size()==1) &&status=="take3tokens") {
         for (auto pair: *pos) {
-            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+            tokens.push_back(&Board::getInstance()->takeToken(pair.first, pair.second));
         }
         unselectToken();
         emit tokensValidated(tokens);
@@ -280,7 +280,7 @@ void PlateView::validateTokens() {
     }
     else if (status == "privileges") {
         for (auto pair: *pos) {
-            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+            tokens.push_back(&Board::getInstance()->takeToken(pair.first, pair.second));
         }
         unselectToken();
         emit tokensValidated(tokens);
@@ -289,7 +289,7 @@ void PlateView::validateTokens() {
     }
     else if (status == "gold") {
         for (auto pair: *pos) {
-            tokens.push_back(&Board::getInstance().takeToken(pair.first, pair.second));
+            tokens.push_back(&Board::getInstance()->takeToken(pair.first, pair.second));
         }
         unselectToken();
         emit tokensValidated(tokens);
@@ -320,7 +320,7 @@ void PlateView::hideElements() {
 
 void PlateView::updateWidgetsFromBoard() {
     // Get the Board instance and create a BoardIterator
-    Board& board = Board::getInstance();
+    Board& board = *Board::getInstance();
     Board::BoardIterator it = board.iterator();
 
     // Iterate over the tokens in the Board

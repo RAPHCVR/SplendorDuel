@@ -124,6 +124,11 @@ public:
         }
         return instance;
     }
+
+    static void resetInstance() {
+        delete instance;
+        instance = nullptr;
+    }
     //Deck_Royal();
 
     std::vector<RoyalCard*> getCards() { return cards; }
@@ -157,6 +162,11 @@ public:
         return instance;
     }
 
+    static void resetInstance() {
+        delete instance;
+        instance = nullptr;
+    }
+
     //Deck_level_one();
     std::vector<JewelryCard*> getPioche() { return pioche; }
 
@@ -183,6 +193,11 @@ public:
             instance = new Deck_level_two();  // Crée l'instance si elle n'existe pas encore
         }
         return instance;
+    }
+
+    static void resetInstance() {
+        delete instance;
+        instance = nullptr;
     }
 
     //Deck_level_two();
@@ -213,6 +228,11 @@ public:
         return instance;
     }
 
+    static void resetInstance() {
+        delete instance;
+        instance = nullptr;
+    }
+
     //Deck_level_three();
     std::vector<JewelryCard*> getPioche() { return pioche; }
 
@@ -240,6 +260,11 @@ public:
             instance = new Pyramid_Cards();  // Crée l'instance si elle n'existe pas encore
         }
         return instance;
+    }
+
+    static void resetInstance() {
+        delete instance;
+        instance = nullptr;
     }
 
     //Pyramid_Cards(Deck_level_one Deck_one, Deck_level_two Deck_two, Deck_level_three Deck_three);

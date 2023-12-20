@@ -32,13 +32,17 @@ private:
     Board *board;
 
 public:
-    GameTable() : bag(&Bag::getInstance()), board(&Board::getInstance()),  deckroyal(Deck_Royal::getInstance()), decklv1(Deck_level_one::getInstance()), decklv2(Deck_level_two::getInstance()), decklv3(Deck_level_three::getInstance()), pyramid(Pyramid_Cards::getInstance()) {}
+    GameTable() : bag(Bag::getInstance()), board(Board::getInstance()),  deckroyal(Deck_Royal::getInstance()), decklv1(Deck_level_one::getInstance()), decklv2(Deck_level_two::getInstance()), decklv3(Deck_level_three::getInstance()), pyramid(Pyramid_Cards::getInstance()) {}
 
     ~GameTable() { delete pyramid; delete decklv1; delete decklv2; delete decklv3; delete bag; delete board; };
 
     Bag& getBag() const { return *bag; }
     Board& getBoard() const { return *board; }
     Pyramid_Cards& getPyramid() const {return *pyramid; }
+    Deck_Royal& getDeckRoyal() const {return *deckroyal; }
+    Deck_level_one& getDeckLevelOne() const {return *decklv1; }
+    Deck_level_two& getDeckLevelTwo() const {return *decklv2; }
+    Deck_level_three& getDeckLevelThree() const {return *decklv3; }
 
     GameTable(const GameTable&) = delete;
     GameTable& operator=(const GameTable&) = delete;

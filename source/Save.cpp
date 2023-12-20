@@ -209,7 +209,7 @@ void Save::writeToDatabase(const Game& game) {
     /*--------------------------------------------------------------------------*/
 
     // Stockage des jetons du plateau dans la table boardToken de la database save.db
-    Board::BoardIterator it = Board::getInstance().iterator();
+    Board::BoardIterator it = Board::getInstance()->iterator();
     while (it.hasNext()) {
 
         const Token* token = it.next();
@@ -266,7 +266,7 @@ void Save::writeToDatabase(const Game& game) {
 
     std::map<TokenColor, size_t> colorCounts;  // Map asociant chaque couleur de jeton au nombre d'instances de ce type de couleur
 
-    Bag::BagIterator itbag = Bag::getInstance().iterator();
+    Bag::BagIterator itbag = Bag::getInstance()->iterator();
     while (itbag.hasNext()) {
         const Token* tokenbag = itbag.next();
         TokenColor color = tokenbag->getColor();
@@ -301,7 +301,7 @@ void Save::writeToDatabase(const Game& game) {
         std::to_string(game.getRound()) + ", '" +
         game.getPlayer(0)->getName() + "', '" +
         game.getPlayer(1)->getName() + "', '" +
-        std::to_string(Board::getInstance().getNbPrivileges()) + "');";
+        std::to_string(Board::getInstance()->getNbPrivileges()) + "');";
 
         // Execution de la requete sql
         rc = sqlite3_exec(db, insertQuery.c_str(), nullptr, nullptr, nullptr);

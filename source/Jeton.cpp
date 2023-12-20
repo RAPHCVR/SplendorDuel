@@ -7,6 +7,11 @@
 #include <algorithm>
 #include <math.h>
 
+Board* Board::instance = nullptr;
+
+// In the corresponding .cpp file for the Bag class
+Bag* Bag::instance = nullptr;
+
 std::string toString(TokenColor c) {
     switch (c) {
         case TokenColor::BLANC: return "BLANC";
@@ -107,11 +112,6 @@ Bag::Bag(const TotalTokens& total) {
     for (size_t i = 0; i < total.getNbTokens(); i++) {
         tokens.push_back(&total.getToken(i));
     }
-}
-
-Bag& Bag::getInstance() {
-    static Bag instance(TotalTokens::getInstance());
-    return instance;
 }
 
 
@@ -314,7 +314,7 @@ Board::Board(){
         }
     }
     //On rempli le plateau enb vidant le sac
-    fillBoard(Bag::getInstance());
+    fillBoard(*Bag::getInstance());
 }
 
 const Token* Board::BoardIterator::next() {
@@ -328,11 +328,6 @@ const Token* Board::BoardIterator::next() {
         row++;
     }
     return token;
-}
-
-Board& Board::getInstance() {
-    static Board instance;
-    return instance;
 }
 
 bool Board::hasTokenOfColor(TokenColor color) const {

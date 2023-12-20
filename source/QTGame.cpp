@@ -7,10 +7,11 @@
 #include <string>
 
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
-    controller = new Controller();
+    QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
+    startingmenu->exec();
+    controller = new Controller("New", startingmenu->getPlayerName1().toStdString(), startingmenu->getPlayerName2().toStdString(), Type::Humain, Type::Humain);
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
-
     width = size->width();
     height = size->height();
     mainlayout = new QVBoxLayout(this);
@@ -47,8 +48,35 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
     connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
+
+    connect(pyramid, &QTPyramid::acheterCarteClicked, this, &QTGame::handleBuyingJewelryCard);
+    connect(pyramid, &QTPyramid::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPyramid);
+    connect(pioches, &QTRangeePioches::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPioche);
+    connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
     status = "start";
+    //handleBuyingJewelryCard();
+    //handleBookingJewelryCard();
     handleGameStatus();
+}
+
+QTStartingMenu::QTStartingMenu(QWidget *parent) : QDialog(parent) {
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    //Nouvelle partie
+    QPushButton *newGameButton = new QPushButton("Nouvelle partie", this);
+    connect(newGameButton, &QPushButton::clicked, this, &QTStartingMenu::startNewGame);
+    layout->addWidget(newGameButton);
+
+    //Charger une partie sauvegardée
+    QPushButton *loadGameButton = new QPushButton("Charger une partie sauvegardée", this);
+        connect(loadGameButton, &QPushButton::clicked, this, &QTStartingMenu::loadGame);
+    layout->addWidget(loadGameButton);
+
+    //Quitter le jeu
+    QPushButton *quitButton = new QPushButton("Quitter le jeu", this);
+    connect(quitButton, &QPushButton::clicked, this, &QTStartingMenu::quitGame);
+
+    setFixedSize(400, 200);
 }
 
 void QTGame::paintEvent(QPaintEvent* event) {
@@ -137,7 +165,7 @@ void QTGame::placePrivilege(unsigned int nb) {
 }
 void QTGame::usePriviledge() {
     unsigned int nbp = controller->getcurrentPlayer().getNbPrivilege();
-    unsigned int nbt = Board::getInstance().getNbTokens();
+    unsigned int nbt = Board::getInstance()->getNbTokens();
     unsigned int nb = std::min(nbp,nbt);
     std::string s ="Vous pouvez en utiliser " + std::to_string(nb) + " privileges";
     MBox({"OK"},"Message", QString::fromStdString(s));
@@ -170,9 +198,25 @@ void QTGame::applyOptionalAction(OptionalActions action) {
 }
 
 void QTGame::handleGameStatus(){
+    if (status == "win"){
+        //create an MBox asking if the players want to replay ir to quit
+        std::vector<QString> buttonLabels = {"Rejouer","Quitter"};
+        QString choice = MBox(buttonLabels, "Choix", "Voulez vous rejouer ou quitter ?");
+        if (choice == "Rejouer") {
+            std::string pseudo1 = controller->getcurrentPlayer().getName();
+            std::string pseudo2 = controller->getopposingPlayer().getName();
+            controller -> reinit();
+            controller = new Controller("New", pseudo1, pseudo2, Type::Humain, Type::Humain);
+            generateNewGame();
+        }
+        else {
+            std::exit(0);
+        }
+    }
+    else
     if (controller->checkIfPlayerWins(controller->getGame(),controller->getcurrentPlayer())) {
         status = "win";
-        showVictoryDialog(QString::fromStdString(controller->getcurrentPlayer().getName()));
+        showVictoryDialog(QString::fromStdString(controller->getcurrentPlayer().getName()), this);
     }
     else {
         if (status == "start") {
@@ -280,7 +324,7 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
             status = "check";
             break;
         case CompulsoryActions::ReserveCard:
-            bookCard(controller->getGame().getGameTable().getPyramid(), controller->getGame().getGameTable());
+            bookCard(controller->getGame().getGameTable());
             status = "check";
             break;
         case CompulsoryActions::BuyCard:
@@ -328,6 +372,22 @@ void QTGame::checkEndTurn() {
     }
 }
 
+void QTGame::bookCard(GameTable& gametable) {
+    //std::cout << "Voulez vous reserver une carte d'une des pioches (1) ou une carte de la pyramide (2) ?" << std::endl;
+
+    std::cout << "TEST1" << std::endl;
+    pyramid->updateAllCardStatus(Carte::reservable);
+    std::cout << "TEST2" << std::endl;
+    pioches->updateAllPiocheStatus(QTPioche::reservable);
+    std::cout << "TEST3" << std::endl;
+
+    QMessageBox msgBox;
+    msgBox.setText("Sélectionnez la carte que vous voulez réserver");
+    msgBox.addButton("Ok", QMessageBox::RejectRole);
+    msgBox.exec();
+
+    /*unsigned int choice = choiceMaker(1, 2);
+    if (choice == 1) {
 void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     std::vector<QString> buttonLabels = {"Pioche","Pyramide"};
     QString choice = MBox(buttonLabels, "Choix", "Voulez vous reserver une carte d'une des pioches ou une carte de la pyramide ?");
@@ -350,9 +410,9 @@ void QTGame::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
     }
     plateView->updateStatus("gold");
     plateView->updateMaxNbSelectedTokens(1);
-    MBox({"OK"},"Message", "Veuillez choisir un jeton or");
-    player1->updateAllPlayer();
-    player2->updateAllPlayer();
+    */
+
+
 }
 
 
@@ -445,12 +505,18 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
     std::cout << "Jetons disponibles : " << std::endl;
     std::cout << controller->getcurrentPlayer() << std::endl;
     if (controller->getcurrentPlayer().getReserve().size() > 0) {
-        std::cout << "Voulez vous acheter une carte reservee ?" << std::endl;
-        std::cout << "1. Oui" << std::endl;
-        std::cout << "2. Non" << std::endl;
-        unsigned int choice = choiceMaker(1, 2);
-        if (choice == 1) {
+        QString s = "Voulez vous acheter une carte reservee ?";
+        std::vector<QString> buttonLabels = {"Oui","Non"};
+        QString choice = MBox(buttonLabels, "Choix", s);
+        if (choice == "Oui") {
             bought = true;
+
+
+            QMessageBox msgBox;
+            msgBox.setText("Sélectionnez la carte réservée que vous voulez acheter");
+            msgBox.addButton("Ok", QMessageBox::RejectRole);
+            msgBox.exec();
+
             std::cout << "Veuillez choisir une carte" << std::endl;
             for (auto card : controller->getcurrentPlayer().getReserve()) {
                 std::cout << *card << std::endl;
@@ -462,47 +528,30 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
             }
         }
     }
+
     if (not(bought)) {
-        unsigned int level = choiceMaker(1, 3);
-        unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
-        std::cout << "Cartes de niveau " << level << " : \n";
-        for (auto card: gametable.getPyramid().getLevelCards(level)) {
-            std::cout << *card << std::endl;
-        }
-        unsigned int nbCard = choiceMaker(1, nb);
-        card = &gametable.getPyramid().takeCard(level, nbCard - 1);
-        gametable.getPyramid().drawCard(level);
-        if (controller->getcurrentPlayer().canBuyCard(*card)) {
-            controller->getcurrentPlayer().actionBuyCard(*card);
-        }
-        else {
-            throw JewelryCardError("Vous ne pouvez pas acheter cette carte");
-        }
-    }
-    if (card->getAbility1()!= Abilities::None || card->getAbility2()!= Abilities::None) {
-        applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),*card);
-    }
-    else {
-        status = "check";
-        handleGameStatus();
+
+        //QTGame::handleBuyingJewelryCard(); Pas besoin ça va handle dès que je vais cliquer j'ai juste à changer le status ici
+        pyramid->updateAllCardStatus(Carte::buyable);
+
+        QMessageBox msgBox;
+        msgBox.setText("Sélectionnez la carte que vous voulez acheter");
+        msgBox.addButton("Ok", QMessageBox::RejectRole);
+        msgBox.exec();
     }
 }
 
 void QTGame::buyNobleCard() {
+    boardRoyal->updateAllCardStatus(QTCardRoyal::buyable);
     std::cout << "Veuillez choisir une carte" << std::endl;
     for (auto card : Deck_Royal::getInstance()->getCards()) {
         std::cout << *card << std::endl;
     }
-    unsigned int nbCard = choiceMaker(1, Deck_Royal::getInstance()->getCards().size());
-    RoyalCard& card = *Deck_Royal::getInstance()->getCards()[nbCard - 1];
-    controller->getcurrentPlayer().addRoyalCard(card, nbCard - 1);
-    if (card.getAbility()!= Abilities::None) {
-        applyRoyalCardSkills(controller->getGame(),controller->getcurrentPlayer(),controller->getopposingPlayer(),card);
-    }
-    else {
-        status = "check";
-        handleGameStatus();
-    }
+    QMessageBox msgBox;
+    msgBox.setText("Sélectionnez la carte Royale que vous voulez acheter");
+    msgBox.addButton("Ok", QMessageBox::RejectRole);
+    msgBox.exec();
+
 }
 
 void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card) {
@@ -546,6 +595,100 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
     }
 }
 
+void QTGame::handleBuyingJewelryCard(Carte* cardclicked) {
+    /*unsigned int level = choiceMaker(1, 3);
+    unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
+    std::cout << "Cartes de niveau " << level << " : \n";
+    for (auto card: gametable.getPyramid().getLevelCards(level)) {
+        std::cout << *card << std::endl;
+    }
+    unsigned int nbCard = choiceMaker(1, nb);*/
+
+    int level = cardclicked->getJewelryCard()->getLevel();
+    int row, col, rowspan, columnspan;
+    pyramid->getgrid()->getItemPosition(pyramid->getgrid()->indexOf(cardclicked), &row, &col, &rowspan, &columnspan);
+    JewelryCard &card = controller->getGame().getGameTable().getPyramid().takeCard(level, col);
+    controller->getGame().getGameTable().getPyramid().drawCard(level);
+    if (controller->getcurrentPlayer().canBuyCard(card)) {
+        controller->getcurrentPlayer().actionBuyCard(card);
+        //On supprime la carte visuellement :: Déjà géré dans QTPyramid::carteClicked
+        //pyramid->retirerCarte(cardclicked);
+        //pyramid->ajouterCarte(row);
+    }
+    else {
+        throw JewelryCardError("Vous ne pouvez pas acheter cette carte");
+    }
+    if (card.getAbility1()!= Abilities::None || card.getAbility2()!= Abilities::None) {
+        pyramid->updateAllCardStatus(Carte::notClickable);
+        applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),card);
+    }
+    else {
+        pyramid->updateAllCardStatus(Carte::notClickable);
+        status = "check";
+        handleGameStatus();
+    }
+
+}
+
+void QTGame::handleBookingJewelryCardFromPyramid(Carte* clickedCard) {
+
+    //On connecte le back-end
+    if (clickedCard) {
+        int row, col, rowspan, columnspan;
+        pyramid->getgrid()->getItemPosition(pyramid->getgrid()->indexOf(clickedCard), &row, &col, &rowspan, &columnspan);
+        unsigned int level = abs(row - 3);
+        controller->getcurrentPlayer().reserveOneCard(pyramid->getPyramidCard()->takeCard(level , col));
+        pyramid->getPyramidCard()->drawCard(level);
+    }
+
+    //Partie qui gère l'update graphique se trouve dans QTPyramid::carteClicked
+    pyramid->updateAllCardStatus(Carte::notClickable);
+    pioches->updateAllPiocheStatus(QTPioche::notClickable);
+    plateView->updateStatus("gold");
+    plateView->updateMaxNbSelectedTokens(1);
+
+    MBox({"OK"},"Message", "Veuillez choisir un jeton or");
+    player1->updateAllPlayer();
+    player2->updateAllPlayer();
+
+}
+
+void QTGame::handleBookingJewelryCardFromPioche(QTPioche* piocheclicked) {
+
+
+    if (piocheclicked) {
+        int row, col, rowspan, columnspan;
+        pioches->getGrid()->getItemPosition(pioches->getGrid()->indexOf(piocheclicked), &row, &col, &rowspan, &columnspan);
+        int level = abs(row - 3); // Convertir la ligne en level
+        JewelryCard& card = takeCard(level);
+        controller->getcurrentPlayer().reserveOneCard(card);
+    }
+    pioches->updateAllPiocheStatus(QTPioche::notClickable);
+    pyramid->updateAllCardStatus(Carte::notClickable);
+    plateView->updateStatus("gold");
+    plateView->updateMaxNbSelectedTokens(1);
+
+    MBox({"OK"},"Message", "Veuillez choisir un jeton or");
+    player1->updateAllPlayer();
+    player2->updateAllPlayer();
+}
+
+void QTGame::handleBuyingRoyalCard(QTCardRoyal* cardclicked){
+
+    int row, col, rowspan, columnspan;
+    boardRoyal->getGrid()->getItemPosition(boardRoyal->getGrid()->indexOf(cardclicked), &row, &col, &rowspan, &columnspan);
+    int position = row + col;
+    controller->getcurrentPlayer().addRoyalCard(*(cardclicked->getRoyalCard()), position);
+    if (cardclicked->getRoyalCard()->getAbility()!= Abilities::None) {
+        boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+        applyRoyalCardSkills(controller->getGame(),controller->getcurrentPlayer(),controller->getopposingPlayer(),*(cardclicked->getRoyalCard()));
+    }
+    else {
+        boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+        status = "check";
+        handleGameStatus();
+    }
+}
 
 void showWarningMessage(const QString &title, const QString &content) {
     QMessageBox::warning(nullptr, title, content);
@@ -634,7 +777,7 @@ int MBox(const std::vector<CompulsoryActions>& buttonLabels, const QString& titl
     return result;
 }
 
-void showVictoryDialog(const QString &playerName) {
+void showVictoryDialog(const QString &playerName, QTGame *gameInstance) {
     QDialog victoryDialog;
     victoryDialog.setWindowTitle("Félicitations !");
 
@@ -649,6 +792,11 @@ void showVictoryDialog(const QString &playerName) {
     // Add a close button
     QPushButton *closeButton = new QPushButton("Fermer", &victoryDialog);
     QObject::connect(closeButton, &QPushButton::clicked, &victoryDialog, &QDialog::accept);
+
+    // Connect the finished signal to the handleGameStatus method of QTGame instance
+    if (gameInstance) {
+        QObject::connect(&victoryDialog, &QDialog::finished, gameInstance, [gameInstance]() { gameInstance->handleGameStatus(); });
+    }
 
     // Layout the elements in the dialog
     QVBoxLayout *layout = new QVBoxLayout(&victoryDialog);
@@ -673,4 +821,81 @@ int getNumberBetween(int x, int y, const QString &message, QWidget *parent) {
     }
 
     return result;
+}
+
+void clearLayout(QLayout* layout) {
+    if (!layout) return;
+
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        // If the item is a widget, delete it
+        if (QWidget* widget = item->widget()) {
+            delete widget;
+        }
+        // If the item is another layout, recursively clear and delete it
+        else if (QLayout* childLayout = item->layout()) {
+            clearLayout(childLayout);
+            delete childLayout;
+        }
+        // For other items (like spacers), just delete the item
+        else {
+            delete item;
+        }
+    }
+}
+
+
+void clearWidgetAndSetNewLayout(QWidget* parentWidget, QLayout* newLayout) {
+    if (!parentWidget) return;
+
+    // Clear the existing layout
+    if (QLayout* oldLayout = parentWidget->layout()) {
+        clearLayout(oldLayout);
+        delete oldLayout;
+    }
+
+    // Set the new layout
+    parentWidget->setLayout(newLayout);
+}
+
+void QTGame::generateNewGame() {
+    QVBoxLayout* mainlayout2 = new QVBoxLayout(this);
+    QHBoxLayout* PyramidPioche = new QHBoxLayout();
+    QVBoxLayout* centre = new QVBoxLayout();
+    QHBoxLayout* total = new QHBoxLayout();
+    QHBoxLayout* CartesRoyalesPrivilegesPlateau= new QHBoxLayout();
+    plateView = new PlateView(nullptr, height-100,width/2);
+
+    pyramid = new QTPyramid();
+    pioches = new QTRangeePioches(nullptr);
+    boardRoyal = new QTBoardRoyal(nullptr);
+    privilegeCounter = new PrivilegeCounter(nullptr);
+    player1 = new PlayerQT(controller->getcurrentPlayer(), nullptr);
+    player2 = new PlayerQT(controller->getopposingPlayer(), nullptr);
+    PyramidPioche->addWidget(pioches);
+    PyramidPioche->addWidget(pyramid);
+    CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
+    boardRoyal->setMaximumWidth(400);
+    pioches->setMaximumWidth(200);
+    CartesRoyalesPrivilegesPlateau->addWidget(privilegeCounter);
+    CartesRoyalesPrivilegesPlateau->addWidget(plateView);
+    centre->addLayout(PyramidPioche);
+    centre->addLayout(CartesRoyalesPrivilegesPlateau);
+    total -> addWidget(player1);
+    total -> addLayout(centre);
+    total -> addWidget(player2);
+    mainlayout2->addLayout(total);
+    clearWidgetAndSetNewLayout(this,mainlayout2);
+    int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
+    setFixedSize(size->width()*2,size->height()*1.75);
+    connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
+    connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
+    connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
+
+    connect(pyramid, &QTPyramid::acheterCarteClicked, this, &QTGame::handleBuyingJewelryCard);
+    connect(pyramid, &QTPyramid::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPyramid);
+    connect(pioches, &QTRangeePioches::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPioche);
+    connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
+    status = "start";
+    handleGameStatus();
 }

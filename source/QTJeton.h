@@ -25,10 +25,10 @@ class PrivilegeCounter : public QWidget {
     Q_OBJECT
 
 public:
-    PrivilegeCounter(QWidget *parent = nullptr) : QWidget(parent), valeur(Board::getInstance().getNbPrivileges()) {}
+    PrivilegeCounter(QWidget *parent = nullptr) : QWidget(parent), valeur(Board::getInstance()->getNbPrivileges()) {}
 
     void updateValue() {
-        valeur = Board::getInstance().getNbPrivileges();
+        valeur = Board::getInstance()->getNbPrivileges();
         update(); // Redessine le widget
     }
 
