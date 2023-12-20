@@ -5,6 +5,49 @@
 #include "Controller.h"
 //#include "strategy.h"
 
+std::string toString(OptionalActions a) {
+    switch (a) {
+        case OptionalActions::UsePrivileges: return "UsePrivileges";
+        case OptionalActions::FillBoard: return "FillBoard";
+        case OptionalActions::Empty: return "Empty";
+        default: throw std::invalid_argument("Action inconnue");
+    }
+}
+
+OptionalActions toOptionalActions(std::string s) {
+    if (s==("UsePrivileges")) {
+        return OptionalActions::UsePrivileges;
+    }
+    else if (s==("FillBoard")) {
+        return OptionalActions::FillBoard;
+    }
+    else if (s==("Empty")) {
+        return OptionalActions::Empty;
+    }
+}
+
+std::string toString(CompulsoryActions a) {
+    switch (a) {
+        case CompulsoryActions::TakeCoins: return "TakeCoins";
+        case CompulsoryActions::ReserveCard: return "ReserveCard";
+        case CompulsoryActions::BuyCard: return "BuyCard";
+        default: throw std::invalid_argument("Action inconnue");
+    }
+}
+
+CompulsoryActions toCompulsoryActions(std::string s) {
+    if (s==("TakeCoins")) {
+        return CompulsoryActions::TakeCoins;
+    }
+    else if (s==("ReserveCard")) {
+        return CompulsoryActions::ReserveCard;
+    }
+    else if (s==("BuyCard")) {
+        return CompulsoryActions::BuyCard;
+    }
+}
+
+
 Controller::Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2) {
     auto* director = new Director();
     //A MODIF: Sauvegarde de la partie/Nouvelle partie
