@@ -24,14 +24,15 @@ int AiStrategy::random(int min, int max){
 // Celine
 // permet a l'ia de choisir des jetons sur le plateau
 std::vector<std::pair<int, int>> AiStrategy::choseTokensToTake(){
-    Board::BoardIterator it = iterator();
+    Board::BoardIterator it = Board::getInstance()->iterator();
+    std::vector<std::pair<int, int>> selectedCoordinates;
+
     // parcours du plateau
     while (it.hasNext()) {
         const Token* firstToken = it.next();
         // essayer de selectionner 3 jetons
         for (int count = 3; count >= 1; count--) {
             //std::vector<const Token*> selectedTokens;
-            std::vector<std::pair<int, int>> selectedCoordinates;
 
             // ajouter le premier jeton
             //selectedTokens.push_back(firstToken);
@@ -120,7 +121,7 @@ std::vector<std::pair<int, int>> AiStrategy::choseTokensToTake(){
     while (it.hasNext()) {
         const Token* currentToken = it.next();
         selectedCoordinates.emplace_back(it.getRow(), it.getCol());
-        return {currentToken};
+        return {selectedCoordinates};
         
     }
 
