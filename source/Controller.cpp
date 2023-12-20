@@ -5,22 +5,15 @@
 #include "Controller.h"
 //#include "strategy.h"
 
-Controller::Controller() {
+Controller::Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2) {
     auto* director = new Director();
     //A MODIF: Sauvegarde de la partie/Nouvelle partie
-    std::string statut_partie="New";
 
     if (statut_partie == "New") {
         GameBuilder* builder = new GameBuilder();
         director->set_builder(builder);
         std::cout<<"HUMAIN vs HUMAIN"<<std::endl;
-        //std::cout<<"Veuillez saisir le pseudo du joueur 1"<<std::endl;
-        std::string pseudo1 = "Joueur 1";
-        //std::cin>>pseudo1;
-        //std::cout<<"Veuillez saisir le pseudo du joueur 2"<<std::endl;
-        std::string pseudo2 = "Joueur 2";
-        //std::cin>>pseudo2;
-        director->BuildGame(pseudo1, Type::Humain, pseudo2, Type::Humain);
+        director->BuildGame(pseudo1, type1, pseudo2, type2);
         Game* p = builder->GetProduct();
         delete director;
         game = p;
@@ -698,4 +691,15 @@ bool Controller::checkIfPlayerWins(Game& game, Player& player) {
     }
 
     return false;
+}
+
+void Controller::reinit() {
+    // Reset all the instances as needed
+    this->getGame().getGameTable().getDeckRoyal().resetInstance();
+    this->getGame().getGameTable().getDeckLevelOne().resetInstance();
+    this->getGame().getGameTable().getDeckLevelTwo().resetInstance();
+    this->getGame().getGameTable().getDeckLevelThree().resetInstance();
+    this->getGame().getGameTable().getBag().resetInstance();
+    this->getGame().getGameTable().getBoard().resetInstance();
+    this->getGame().getGameTable().getPyramid().resetInstance();
 }

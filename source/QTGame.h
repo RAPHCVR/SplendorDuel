@@ -55,6 +55,7 @@ public:
     void buyJewelryCard(GameTable& gametable);
     void buyNobleCard();
     void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
+    void generateNewGame();
 
 public slots:
     void handleBuyingJewelryCard(Carte* cardclicked);
@@ -80,8 +81,8 @@ private:
 public slots:
     void startNewGame() {
         // Obtenir les noms des joueurs
-        QString playerName1 = QInputDialog::getText(this, "Nouvelle partie", "Nom du joueur 1 :");
-        QString playerName2 = QInputDialog::getText(this, "Nouvelle partie", "Nom du joueur 2 :");
+        playerName1 = QInputDialog::getText(this, "Nouvelle partie", "Nom du joueur 1 :");
+        playerName2 = QInputDialog::getText(this, "Nouvelle partie", "Nom du joueur 2 :");
 
         accept();
         qDebug() << "Nouvelle partie avec les joueurs : " << playerName1 << " et " << playerName2;
@@ -101,7 +102,9 @@ QString MBox(const std::vector<QString>& buttonLabels = {"OK"}, const QString& t
 int MBox(const std::vector<OptionalActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
 int MBox(const std::vector<CompulsoryActions>& buttonLabels , const QString& title = "Message", const QString& text = "Message");
 void showWarningMessage(const QString &title, const QString &content);
-void showVictoryDialog(const QString &playerName);
+void showVictoryDialog(const QString &playerName, QTGame *gameInstance);
 int getNumberBetween(int x, int y, const QString &message, QWidget *parent = nullptr);
+void clearWidgetAndSetNewLayout(QWidget* parentWidget, QLayout* newLayout);
+void clearLayout(QLayout* layout);
 #endif //QTGAME_H
 

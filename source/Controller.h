@@ -21,7 +21,7 @@ private:
     Game* game;
     Player* currentPlayer = nullptr;
 public:
-    Controller();
+    Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2);
     ~Controller() { delete game; }
     // getters
     Game& getGame() { return *game; };
@@ -57,6 +57,9 @@ public:
     //gestion données
     void saveGame();
     void saveScore();
+
+    //reinit
+    void reinit();
 
 };
 
