@@ -166,25 +166,28 @@ std::vector<std::pair<int, int>> HumanStrategy::choseTokensToTake(){
 // Celine
 // permet a l'humain de choisir une couleur parmis les couleurs proposes
 TokenColor HumanStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
-    while (true) {
-        // Display available colors
-        std::cout << "Couleurs possibles : ";
+    while(true){   
+        // afficher les couleurs
+        std::cout << "Couleurs possibles : \n";
         for (const auto& color : chosableColors) {
-            std::cout << static_cast<int>(color) << ": " << color << ";\n";
+            std::cout << toString(color) << " ";
         }
 
-        int choice;
-        std::cout << "Entrez le nombre correspondant a la couleur choisie : ";
+        // choix de la couleur
+        std::string choice;
+        std::cout << "\nEntrez la couleur choisie (respecter la casse): ";
         std::cin >> choice;
 
-        auto iter = std::find(chosableColors.begin(), chosableColors.end(), static_cast<TokenColor>(choice));
+        // test si couleur valide
+        auto iter = std::find(chosableColors.begin(), chosableColors.end(), toTokenColor(choice));
         if (iter != chosableColors.end()) {
-            return static_cast<TokenColor>(choice);
+            return toTokenColor(choice);
         } else {
             std::cout << "Couleur invalide, veuillez choisir une couleur parmis la liste." << std::endl;
         }
     }
 }
+
 
 
 // Celine
