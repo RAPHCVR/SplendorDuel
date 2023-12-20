@@ -264,7 +264,7 @@ std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
 
 // Celine
 // permet de choisir l'action obligatoire que fait l'humain
-CompulsoryActions HumanStrategy::choseCompulsoryActions(){
+CompulsoryActions HumanStrategy::choseCompulsoryAction(){
     int choice = 0;
     while(choice!=1 && choice!=2 && choice!=3){
         std::cout << "Entrez l'action obligatoire que vous souhaitez realiser. \n1 pour acheter une carte, 2 pour reserver une carte ou 3 pour prendre des jetons : ";
@@ -283,21 +283,20 @@ CompulsoryActions HumanStrategy::choseCompulsoryActions(){
 
 // Celine
 // permet de choisir l'action obligatoire que fait l'ia
-std::vector<CompulsoryActions> AiStrategy::choseCompulsoryActions(){
-    std::vector<CompulsoryActions> AIsCompulsoryAction;
-    int nbCompulsoryActions = random(0,2);
+CompulsoryActions AiStrategy::choseCompulsoryAction(){
+    CompulsoryActions AIsCompulsoryAction;
+    int whichCompulsoryAction = random(0,2);
     // prendre entre un et trois jetons
-    if(nbCompulsoryActions == 0){
-        AIsCompulsoryAction.push_back(CompulsoryActions::TakeCoins);
+    if(whichCompulsoryAction == 0){
+        return CompulsoryActions::BuyCard;
     }
     // reserver une carte
-    else if(nbCompulsoryActions == 1){
-        AIsCompulsoryAction.push_back(CompulsoryActions::ReserveCard);
+    else if(whichCompulsoryAction == 1){
+        return CompulsoryActions::ReserveCard;
     }
+    // acheter carte
     else{
-        AIsCompulsoryAction.push_back(CompulsoryActions::BuyCard);
+        return CompulsoryActions::TakeCoins;
     }
 
-    return AIsCompulsoryAction;
 }
-
