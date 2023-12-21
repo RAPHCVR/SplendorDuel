@@ -31,15 +31,13 @@ private:
     //vector<vector<Token *>> tokens; //tokens[0] : liste des redTokens; 1 : goldTokens; 2 : blueTokens; 3 : pearlTokens; 4 : greenTokens; 5 : blackTokens; 6 : whiteTokens
     // autre idee pour rpz de token :
     std::unordered_map<TokenColor, std::vector<const Token*>> tokens;
-
-
     SummaryCard blueSummary;
     SummaryCard greenSummary;
     SummaryCard redSummary;
     SummaryCard whiteSummary;
     SummaryCard blackSummary;
     
-    //Strategy* strategy;
+    Strategy* strategy;
 
 public:
     std::string getName() const {return name;};
@@ -86,7 +84,7 @@ public:
     bool canBuyCard(JewelryCard &card); 
     void spendResources(std::unordered_map<TokenColor, int> tokensToSpend);
     void actionBuyReservedCard(JewelryCard &card);
-
+    bool canbuyreservedcard();
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
     //void usePrivilege(); Impmémenté dans controller
 
@@ -111,6 +109,8 @@ public:
                tokenSummary == other.tokenSummary &&
                tokens == other.tokens;
     }
+    Strategy* getStrategy(){ return strategy;}
+
 };
 std::ostream& operator<<(std::ostream& f, Player& j);
 

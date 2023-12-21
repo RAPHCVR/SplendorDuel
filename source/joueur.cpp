@@ -286,7 +286,7 @@ Player::Player(std::string& n, Type t) {
     greenSummary = SummaryCard(0, 0);
     redSummary = SummaryCard(0, 0);
     whiteSummary = SummaryCard(0, 0);
-    //strategy = 0 ;
+    strategy = nullptr ;
 }
 
 std::ostream& operator<<(std::ostream& f, Player& p) {
@@ -331,4 +331,14 @@ Type toType(std::string s) {
     else {
         throw std::runtime_error("Type de joueur inconnu");
     }
+}
+
+bool Player::canbuyreservedcard(){
+    bool canbuy = false;
+    for (auto card : getReserve()) {
+        if (canBuyCard(*card)) {
+            canbuy = true;
+        }
+    }
+    return canbuy;
 }

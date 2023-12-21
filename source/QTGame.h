@@ -103,6 +103,5 @@ void showVictoryDialog(const QString &playerName, QTGame *gameInstance);
 int getNumberBetween(int x, int y, const QString &message, QWidget *parent = nullptr);
 void clearWidgetAndSetNewLayout(QWidget* parentWidget, QLayout* newLayout);
 void clearLayout(QLayout* layout);
-bool canbuyreservedcard(Player& player);
 #endif //QTGAME_H
 
