@@ -253,8 +253,9 @@ void PlateView::unselectToken() {
 }
 
 void PlateView::validateTokens() {
-    std::vector<std::pair<int, int>>* pos = new std::vector<std::pair<int, int>>;
+    auto* pos = new std::vector<std::pair<int, int>>;
     std::vector<const Token*> tokens;
+    bool ETA = true;
     for(int j = 0; j < 3; j++){
         if(selectedTokens[j] != nullptr) {
             if(Board::getInstance()->CellColor(selectedTokens[j]->getPosition()->getx(),selectedTokens[j]->getPosition()->gety(),TokenColor::OR)){
@@ -297,9 +298,12 @@ void PlateView::validateTokens() {
         status = "take3tokens";
     }
     else {
-        throw TokenException("Les jetons ne sont pas alignes ou consecutifs");
+        ETA = false;
+        showWarningMessage("Erreur", "Les jetons doivent être alignés et consécutifs");
     }
-    emit endOfTurn();
+    if (ETA) {
+        emit endOfTurn();
+    }
 }
 
 bool PlateView::isSelected(CircleWidget* button) {

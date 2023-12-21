@@ -2,8 +2,6 @@
 #define QTJOUEUR_H
 
 #include <QtWidgets>
-#include <QColor>
-#include <QPalette>
 #include "Controller.h"
 #include <QLCDNumber>
 #include "QTCards.h"
@@ -24,7 +22,7 @@ private:
 
 //widget pour les cartes résumés
 class CardWidget : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     explicit CardWidget(QWidget *parent = nullptr, TokenColor color=TokenColor::None);
@@ -41,12 +39,84 @@ private:
     QLCDNumber *bonus;
     QLCDNumber *prestige;
 };
+/*
+class reserveQT : public QWidget {
+Q_OBJECT
+
+public:
+    enum ReserveStatus {
+        buyable,
+        notClickable
+    };
+
+    ReserveStatus getStatus() const { return status; }
+    void setStatus(ReserveStatus newStatus) { status = newStatus; }
+    bool isReserveCardBuyable() const;
+    reserveQT(std::vector<JewelryCard*> reserve, QWidget* parent = nullptr);
+public slots:
+    void onCardClicked(Carte* clickedCarte);
+private:
+    std::vector<JewelryCard*> reserveCards;
+    QHBoxLayout* grille;
+    ReserveStatus status;
+
+signals:
+    void clicked(Carte* clickedCarte);
+    //void onReserveCardClicked(Carte *clickedCarte);
+};
+
+*/
+
+// reserveQT.h
+
+// reserveQT.h
+
+class reserveQT : public QWidget {
+Q_OBJECT
+
+public:
+    enum ReserveStatus {
+        buyable,
+        notClickable
+    };
+
+    ReserveStatus getStatus() const { return status; }
+    void setStatus(ReserveStatus newStatus) { status = newStatus; std::cout << "test12" << std::endl;}
+    bool isReserveCardBuyable() const;
+
+    reserveQT(JewelryCard* jewelryCard, QWidget* parent = nullptr);
+
+public slots:
+    void onSelectionButtonClicked();
+
+private:
+    JewelryCard* jewelryCard;
+    Carte* carteWidget;  // Instance of Carte to display the JewelryCard
+    QPushButton* selectionButton;
+    QVBoxLayout* mainLayout;  // Main layout to control the size of Carte
+    ReserveStatus status;
+
+signals:
+    void acheterReserveClicked(JewelryCard* jewelryCard);
+    void closePopup();
+};
+
 
 //Widget regroupant toutes les infos de joueur
 class PlayerQT : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
+    /*
+    enum ReserveStatus {
+        buyable,
+        notClickable
+    };
+    ReserveStatus getStatus() const {return status;}
+    void setStatus(ReserveStatus newStatus) {status = newStatus;}
+    bool isReserveCardBuyable() const;
+*/
+
     PlayerQT(Player &p, QWidget *parent = nullptr);
 
     void updatePrivilege();
@@ -60,6 +130,10 @@ public:
     void updateCards();
 
     void updateAllPlayer();
+
+    Player& getPlayer() {return player;}
+
+    void updateAllReserveStatus(reserveQT::ReserveStatus newStatus);
 
 private:
     QLabel* typeJoueur; // texte "Humain ou IA"
@@ -84,9 +158,6 @@ private:
     QPushButton* popupButtonReserve; //boutton donnant acces a la reserve
     QDialog* popupDialog;
     QHBoxLayout* popupLayout;
-    Carte* carte1;
-    Carte* carte2;
-    Carte* carte3;
     QLabel* test;
     TokenWidget* blueToken{};
     TokenWidget* redToken{};
@@ -103,8 +174,24 @@ private:
     CardWidget* whiteCard{};
 
     Player &player;
-private slots:
-    void showPopup(); // Function to show the popup when the button is clicked
+
+    std::vector<reserveQT*> reserveWidgets;
+    //Carte* lastClickedCarte;
+    //ReserveStatus status;
+public:
+    //Carte* getLastClickedCarte(){return lastClickedCarte;};
+    void toggleTextBoldJoueur(bool isBold);
+    void showPopup(bool update=false); // Function to show the popup when the button is clicked
+signals:
+    //void clicked(Carte* clickedCarte);
+    //void popupClosed();
+    void reserveCardSelected(JewelryCard* jewelryCard);
+    //void acheterReserveCarteClicked(Carte* carte);
+public slots:
+    void onReserveCardSelected(JewelryCard* selectedCard);
+    //void onReserveClicked(Carte* clickedCarte);
+    //void onReserveCardClicked(Carte* clickedCarte);
+    //void onCarteClicked(Carte* clickedCarte);
 };
 
 

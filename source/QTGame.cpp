@@ -53,6 +53,8 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     connect(pyramid, &QTPyramid::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPyramid);
     connect(pioches, &QTRangeePioches::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPioche);
     connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
+    connect(player1, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
+    connect(player2, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
     status = "start";
     //handleBuyingJewelryCard();
     //handleBookingJewelryCard();
@@ -178,7 +180,7 @@ void QTGame::applyOptionalAction(OptionalActions action) {
         case OptionalActions::UsePrivileges:
             usePriviledge();
             status = "optionalActions";
-        break;
+            break;
         case OptionalActions::FillBoard:
             fillBoard();
             if (controller->getGame().getGameTable().getBoard().getNbPrivileges()>0) {
@@ -198,6 +200,8 @@ void QTGame::applyOptionalAction(OptionalActions action) {
 }
 
 void QTGame::handleGameStatus(){
+    player1->updateAllPlayer();
+    player2->updateAllPlayer();
     if (status == "win"){
         //create an MBox asking if the players want to replay ir to quit
         std::vector<QString> buttonLabels = {"Rejouer","Quitter"};
@@ -213,19 +217,18 @@ void QTGame::handleGameStatus(){
             std::exit(0);
         }
     }
-    else
-    if (controller->checkIfPlayerWins(controller->getGame(),controller->getcurrentPlayer())) {
+    else if (controller->checkIfPlayerWins(controller->getGame(),controller->getcurrentPlayer())) {
         status = "win";
         showVictoryDialog(QString::fromStdString(controller->getcurrentPlayer().getName()), this);
     }
     else {
         if (status == "start") {
+            setBoldCurrentPlayer();
             play();
         }
         else if (status == "optionalActions"){
+            setBoldCurrentPlayer();
             playOptionalActions();
-            player1->updateAllPlayer();
-            player2->updateAllPlayer();
         }
         else if (status == "compulsoryActions") {
             playCompulsoryActions();
@@ -245,8 +248,6 @@ void QTGame::play() {
     std::string s = "C'est au tour de " + controller->getcurrentPlayer().getName();
     MBox({"OK"},"Message", QString::fromStdString(s));
     std::vector<CompulsoryActions> compulsoryActions = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
-    std::cout << "Cartes de la pyramide : " << std::endl;
-    std::cout << controller->getGame().getGameTable().getPyramid() << std::endl;
     if (compulsoryActions.empty()) {
         s = "Pas d'action obligatoires possibles, remplissage du plateau";
         MBox({"OK"},"Message", QString::fromStdString(s));
@@ -504,12 +505,12 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
     JewelryCard* card;
     std::cout << "Jetons disponibles : " << std::endl;
     std::cout << controller->getcurrentPlayer() << std::endl;
-    if (controller->getcurrentPlayer().getReserve().size() > 0) {
+    if (canbuyreservedcard(controller->getcurrentPlayer())) {
         QString s = "Voulez vous acheter une carte reservee ?";
         std::vector<QString> buttonLabels = {"Oui","Non"};
         QString choice = MBox(buttonLabels, "Choix", s);
         if (choice == "Oui") {
-            bought = true;
+            /*bought = true;
 
 
             QMessageBox msgBox;
@@ -520,12 +521,32 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
             std::cout << "Veuillez choisir une carte" << std::endl;
             for (auto card : controller->getcurrentPlayer().getReserve()) {
                 std::cout << *card << std::endl;
+
+            */
+            PlayerQT* currentPlayerQT;
+            if (player1->getPlayer() == controller->getcurrentPlayer()){
+                currentPlayerQT=player1;
             }
-            unsigned int nbCard = choiceMaker(1, controller->getcurrentPlayer().getReserve().size());
-            card = controller->getcurrentPlayer().getReserve()[nbCard - 1];
+            else{
+                currentPlayerQT=player2;
+            }
+
+            /*
+            while(!popupReserveClosed){}
+            Carte* currentCarteClicked=currentPlayerQT->getLastClickedCarte();
+            card = currentCarteClicked->getJewelryCard();
             if (controller->getcurrentPlayer().canBuyCard(*card)) {
                 controller->getcurrentPlayer().actionBuyReservedCard(*card);
-            }
+            }*/
+
+            QMessageBox msgBox;
+            msgBox.setText("Choisissez la carte que vous voulez acheter");
+
+            msgBox.addButton("Ok", QMessageBox::RejectRole);
+            msgBox.exec();
+            std::cout << "test8" << std::endl;
+            currentPlayerQT->showPopup(true);
+            bought = true;
         }
     }
 
@@ -540,6 +561,8 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
         msgBox.exec();
     }
 }
+
+
 
 void QTGame::buyNobleCard() {
     boardRoyal->updateAllCardStatus(QTCardRoyal::buyable);
@@ -823,6 +846,35 @@ int getNumberBetween(int x, int y, const QString &message, QWidget *parent) {
     return result;
 }
 
+void QTGame::setBoldCurrentPlayer(){
+    PlayerQT* currentPlayerQT;
+    if (player1->getPlayer() == controller->getcurrentPlayer()){
+        player1->toggleTextBoldJoueur(true);
+        player2->toggleTextBoldJoueur(false);
+    }
+    else{
+        player2->toggleTextBoldJoueur(true);
+        player1->toggleTextBoldJoueur(false);
+    }
+}
+/*
+void QTGame::handleBuyingJewelryCardFromReserve(Carte* clickedCard) {
+    //Partie qui gère l'update graphique se trouve dans QTPyramid::carteClicked
+    player1->setStatus(PlayerQT::ReserveStatus::notClickable);
+    player2->setStatus(PlayerQT::ReserveStatus::notClickable);
+}*/
+
+void QTGame::handleBuyingReserveCard(JewelryCard* cardClicked){
+    std::cout << "ADAAAA" << std::endl;
+    player1->updateAllReserveStatus(reserveQT::ReserveStatus::notClickable);
+    player2->updateAllReserveStatus(reserveQT::ReserveStatus::notClickable);
+    if (controller->getcurrentPlayer().canBuyCard(*cardClicked)) {
+        controller->getcurrentPlayer().actionBuyReservedCard(*cardClicked);
+    }
+
+    status = "check";
+    handleGameStatus();
+}
 void clearLayout(QLayout* layout) {
     if (!layout) return;
 
@@ -898,4 +950,14 @@ void QTGame::generateNewGame() {
     connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
     status = "start";
     handleGameStatus();
+}
+
+bool canbuyreservedcard(Player& player){
+    bool canbuy = false;
+    for (auto card : player.getReserve()) {
+        if (player.canBuyCard(*card)) {
+            canbuy = true;
+        }
+    }
+    return canbuy;
 }

@@ -5,11 +5,6 @@
 #ifndef QTGAME_H
 #define QTGAME_H
 #include <QWidget>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QScreen>
-#include <QSize>
 #include "Controller.h"
 #include "QTJeton.h"
 #include "QTCards.h"
@@ -55,6 +50,7 @@ public:
     void buyJewelryCard(GameTable& gametable);
     void buyNobleCard();
     void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
+    void setBoldCurrentPlayer();
     void generateNewGame();
 
 public slots:
@@ -62,6 +58,7 @@ public slots:
     void handleBookingJewelryCardFromPyramid(Carte* clickedCard);
     void handleBookingJewelryCardFromPioche(QTPioche* piocheclicked);
     void handleBuyingRoyalCard(QTCardRoyal* cardclicked);
+    void handleBuyingReserveCard(JewelryCard* clickedCard);
 };
 
 
@@ -106,5 +103,6 @@ void showVictoryDialog(const QString &playerName, QTGame *gameInstance);
 int getNumberBetween(int x, int y, const QString &message, QWidget *parent = nullptr);
 void clearWidgetAndSetNewLayout(QWidget* parentWidget, QLayout* newLayout);
 void clearLayout(QLayout* layout);
+bool canbuyreservedcard(Player& player);
 #endif //QTGAME_H
 

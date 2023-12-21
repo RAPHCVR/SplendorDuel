@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.25)
 project(projet-lo21-splendor-duel)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_PREFIX_PATH "C:/Qt/6.6.0/mingw_64")
+set(CMAKE_PREFIX_PATH "D:/Jeux/Qt/6.6.0/mingw_64")
 find_package(Qt6 COMPONENTS
         Core
         Gui
