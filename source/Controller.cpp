@@ -469,33 +469,88 @@ void Controller::buyJewelryCard(GameTable& gametable) {
     std::cout << "Jetons disponibles : " << std::endl;
     std::cout << *currentPlayer << std::endl;
     if (currentPlayer->getReserve().size() > 0) {
-        std::cout << "Voulez vous acheter une carte reservee ?" << std::endl;
-        std::cout << "1. Oui" << std::endl;
-        std::cout << "2. Non" << std::endl;
-        unsigned int choice = choiceMaker(1, 2);
-        if (choice == 1) {
+        //unsigned int choice = choiceMaker(1, 2);
+        unsigned int buyReservedOrRegularCard;
+        // joueur humain
+        if (currentPlayer->getType==Type::Humain){
+            while (buyReservedOrRegularCard != 1 && buyReservedOrRegularCard!=2){
+                std::cout << "Voulez-vous acheter une carte reservee ?" << std::endl;
+                std::cout << "1. Oui" << std::endl;
+                std::cout << "2. Non" << std::endl;
+                std::cout << "Choix (1 ou 2) : ";
+                std::cin >> buyReservedOrRegularCard;
+            }
+        }
+        //joueur IA
+        else{
+            buyReservedOrRegularCard = AiStrategy::random(1,2);
+        }
+        
+        if (buyReservedOrRegularCard == 1) {
             bought = true;
-            std::cout << "Veuillez choisir une carte" << std::endl;
             for (auto card : currentPlayer->getReserve()) {
                 std::cout << *card << std::endl;
             }
-            unsigned int nbCard = choiceMaker(1, currentPlayer->getReserve().size());
-            card = currentPlayer->getReserve()[nbCard - 1];
+            //unsigned int nbCard = choiceMaker(1, currentPlayer->getReserve().size());
+            unsigned int reservedCardChoice = 0;
+            // joueur H
+            if(currentPlayer->getType==Type::Humain){
+                while(reservedCardChoice < 1 || reservedCardChoice > currentPlayer->getReserve().size()){
+                    std::cout << "Veuillez choisir la carte reservee a acheter" << std::endl;
+                    std::cout << "Entrez un nombre entre 1 et currentPlayer->getReserve().size() : ";
+                }
+            }
+            // joueur IA
+            else{
+                reservedCardChoice = AiStrategy::random(1, currentPlayer->getReserve().size());
+            }
+            card = currentPlayer->getReserve()[reservedCardChoice - 1];
             if (currentPlayer->canBuyCard(*card)) {
                 currentPlayer->actionBuyReservedCard(*card);
             }
         }
     }
+    // achat d'une carte dans la pyramide
     if (not(bought)) {
-        unsigned int level = choiceMaker(1, 3);
-        unsigned int nb = gametable.getPyramid().getLevelCards(level).size();
-        std::cout << "Cartes de niveau " << level << " : \n";
-        for (auto card: gametable.getPyramid().getLevelCards(level)) {
+        // choix du niveau de la carte
+        //unsigned int level = choiceMaker(1, 3);
+        unsigned int cardLevel;
+        // joueur H
+        if(currentPlayer->getType() == Type::Humain){
+            while(cardLevel != 1 && cardLevel != 2 && cardLevel != 3){
+                std::cout << "Veuillez choisir un niveau de carte" << std::endl;
+                std::cout << "1. Carte de niveau 1" << std::endl;
+                std::cout << "2. Carte de niveau 2" << std::endl;
+                std::cout << "3. Carte de niveau 3" << std::endl;
+                std::cout << "Veuillez choisir un niveau (1, 2 ou 3) : ";
+                std::cin >> cardLevel;
+            }
+        }
+        // le joueur est une ia
+        else{
+            cardLevel = AiStrategy::random(1,3);
+        }
+        unsigned int nb = gametable.getPyramid().getLevelCards(cardLevel).size();
+        std::cout << "Cartes de niveau " << cardLevel << " : \n";
+        for (auto card: gametable.getPyramid().getLevelCards(cardLevel)) {
             std::cout << *card << std::endl;
         }
-        unsigned int nbCard = choiceMaker(1, nb);
-        card = &gametable.getPyramid().takeCard(level, nbCard - 1);
-        gametable.getPyramid().drawCard(level);
+        // choix de la position de la carte dans le niveau de la pyramide choisi
+        //unsigned int nbCard = choiceMaker(1, nb);
+        unsigned int cardPosition = 0;
+        // le joueur est un humain
+        if(currentPlayer->getType() == Type::Humain){
+            while(cardPosition < 1 || cardPosition > nb){
+                std::cout << "Veuillez choisir la position de la carte choisie (entre 1 et "<<nb<<") : " << std::endl;
+                std::cin >> cardPosition;
+            }
+        }
+        // le joueur est une ia
+        else{
+            cardPosition = AiStrategy::random(1, nb);
+        }
+        card = &gametable.getPyramid().takeCard(cardLevel, cardPosition - 1);
+        gametable.getPyramid().drawCard(cardLevel);
         if (currentPlayer->canBuyCard(*card)) {
             currentPlayer->actionBuyCard(*card);
         }
