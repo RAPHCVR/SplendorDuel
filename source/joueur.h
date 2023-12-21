@@ -39,7 +39,7 @@ private:
     SummaryCard whiteSummary;
     SummaryCard blackSummary;
     
-    //Strategy* strategy;
+    Strategy* strategy;
 
 public:
     std::string getName() const {return name;};
@@ -111,6 +111,8 @@ public:
                tokenSummary == other.tokenSummary &&
                tokens == other.tokens;
     }
+    Strategy* getStrategy(){ return strategy;}
+
 };
 std::ostream& operator<<(std::ostream& f, Player& j);
 
