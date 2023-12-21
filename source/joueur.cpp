@@ -320,3 +320,15 @@ std::string toString(Type t) {
             return "IA";
     }
 }
+
+Type toType(std::string s) {
+    if (s == "Humain") {
+        return Type::Humain;
+    }
+    else if (s == "IA") {
+        return Type::IA;
+    }
+    else {
+        throw std::runtime_error("Type de joueur inconnu");
+    }
+}

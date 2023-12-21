@@ -14,7 +14,7 @@
 
 enum class Type {IA, Humain};
 std::string toString(Type t);
-
+Type toType(std::string s);
 
 class Player {
 private:
