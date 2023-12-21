@@ -36,7 +36,7 @@ QColor convertToQColorFromTokenColor(TokenColor tokenColor) {
     }
 }
 
-TokenWidget::TokenWidget(QWidget* parent, const TokenColor c) : QWidget(parent), color(c) {
+TokenWidget::TokenWidget(QWidget* parent, const TokenColor c) : QWidget(parent), color(c){
     setFixedSize(50, 50);
     QPalette palette;
     QColor randomColor = convertToQColorFromTokenColor(color);
@@ -92,7 +92,66 @@ CardWidget::CardWidget(QWidget *parent, TokenColor color)
     layout->addWidget(prestige);
 }
 
-//Methodes Joueur global
+//Methodes Reserve
+
+bool reserveQT::isReserveCardBuyable() const {
+    return (status == ReserveStatus::buyable);
+}
+
+// reserveQT.cpp
+
+reserveQT::reserveQT(JewelryCard* card, QWidget* parent)
+        : QWidget(parent), jewelryCard(card), status(ReserveStatus::notClickable) {
+
+    // Create the Carte widget to display the JewelryCard
+    carteWidget = new Carte(jewelryCard, this);
+
+    // Create a selection button
+    selectionButton = new QPushButton("Acheter", this);
+    connect(selectionButton, &QPushButton::clicked, this, &reserveQT::onSelectionButtonClicked);
+
+    // Create the main layout
+    mainLayout = new QVBoxLayout(this);
+
+    // Add Carte and selection button to the main layout
+    mainLayout->addWidget(carteWidget);
+
+    // Set the size constraint for the Carte widget
+    carteWidget->setMaximumSize(150, 200);  // Adjust the size as needed
+    carteWidget->setMinimumSize(150, 200);
+
+    mainLayout->addWidget(selectionButton);
+
+    // Set the main layout for the widget
+    setLayout(mainLayout);
+}
+
+void reserveQT::onSelectionButtonClicked() {
+    std::cout << "test7" << std::endl;
+    qDebug() << "Carte cliquée : Level : " << jewelryCard->getLevel()
+             << " et id : " << jewelryCard->getId();
+    if (status == ReserveStatus::buyable) {
+        std::cout << "test6" << std::endl;
+        emit closePopup();
+        emit acheterReserveClicked(jewelryCard);
+
+    }
+}
+
+
+
+
+/*
+void reserveQT::onReserveClicked(Carte* clickedCarte) {
+    qDebug() << "Carte cliquée : Level : " << clickedCarte->getJewelryCard()->getLevel()
+             << " et id : " << clickedCarte->getJewelryCard()->getId();
+
+    // Implement your logic when a reserve card is clicked
+    // For example, emit a signal or perform some other action.
+    emit clicked(clickedCarte);
+}
+*/
+//Methodes joueur global
 
 PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
     setWindowTitle("Player");
@@ -112,7 +171,6 @@ PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
     popupLayout->addWidget(carte3);
 */
     popupDialog->setLayout(popupLayout);
-    lastClickedCarte = nullptr;
 
     QString playerType = QString::fromStdString(typeToString(player.getType()));
     typeJoueur = new QLabel(playerType);
@@ -194,8 +252,31 @@ PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
     setLayout(layoutMainJoueur);
 
 }
+/*
+bool PlayerQT::isReserveCardBuyable() const {
+    // Assuming Carte::getStatus() returns the status of the card
+    return (getStatus() == ReserveStatus::buyable);
+}
+ */
+/*
+void PlayerQT::onReserveCardClicked(Carte* clickedCarte) {
+    if (isReserveCardBuyable(clickedCarte)) {
+        emit acheterReserveCarteClicked(clickedCarte);
+    }
+}
+*/
+// PlayerQT.cpp
+/*
+void PlayerQT::onReserveClicked(Carte* clickedCarte) {
+    qDebug() << "Carte cliquée : Level : " << clickedCarte->getJewelryCard()->getLevel()
+             << " et id : " << clickedCarte->getJewelryCard()->getId();
 
-void PlayerQT::showPopup() {
+    // Implement your logic when a reserve card is clicked
+    // For example, emit a signal or perform some other action.
+    emit clicked(clickedCarte);
+}*/
+
+void PlayerQT::showPopup(bool update) {
     QLayoutItem* child;
     while ((child = popupLayout->takeAt(0)) != nullptr) {
         delete child->widget();
@@ -203,25 +284,37 @@ void PlayerQT::showPopup() {
     }
 
     std::vector<JewelryCard*>& reserveCards = player.getReserve();
-
+    reserveWidgets.clear();
     if (!reserveCards.empty()) {
         for (size_t i = 0; i < reserveCards.size(); ++i) {
-            Carte* carte = new Carte(reserveCards[i], popupDialog);
-            popupLayout->addWidget(carte);
-            QObject::connect(carte, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
+            reserveQT* reserve = new reserveQT(reserveCards[i], popupDialog);
+            reserve->setStatus(reserve->isReserveCardBuyable() ? reserveQT::ReserveStatus::buyable : reserveQT::ReserveStatus::notClickable);
+            popupLayout->addWidget(reserve);
 
+            // Store the pointer to the reserveQT instance
+            reserveWidgets.push_back(reserve);
+            if (update) {
+                updateAllReserveStatus(reserveQT::ReserveStatus::buyable);
+            }
+            // Connect the signals and slots
+            connect(reserve, &reserveQT::closePopup, popupDialog, &QDialog::close);
+            connect(reserve, &reserveQT::acheterReserveClicked, this, &PlayerQT::onReserveCardSelected);
         }
     } else {
         QLabel* emptyLabel = new QLabel("Pas de cartes dans la reserve.", popupDialog);
         popupLayout->addWidget(emptyLabel);
     }
-/*
-    QObject::connect(carte1, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
-    QObject::connect(carte2, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
-    QObject::connect(carte3, &Carte::clicked, this, &PlayerQT::onReserveCardClicked);
-*/
+
     popupDialog->exec();
 }
+void PlayerQT::onReserveCardSelected(JewelryCard* selectedCard) {
+    // Handle the selected card (selectedCard) here
+    // For example, emit a signal or perform some other action.
+    qDebug() << "Card selected: Level " << selectedCard->getLevel() << " and ID " << selectedCard->getId();
+    std::cout << "ADA" << std::endl;
+    emit reserveCardSelected(selectedCard);
+}
+
 
 void PlayerQT::updateCrown(){
     int newCrown=player.getCrowns();
@@ -301,16 +394,30 @@ void PlayerQT::updateAllPlayer(){
     updateTokens();
     updateTotalPrestige();
 };
-
-void PlayerQT::onReserveCardClicked(Carte* clickedCarte) {
-    // Handle the clicked card (e.g., return the address)
-    // Close the popup window
-    popupDialog->accept();  // This will close the dialog
-
-    // Store the address of the last clicked card
-    lastClickedCarte = clickedCarte;
-    emit popupClosed();
-}
+/*
+void PlayerQT::onReserveCardClicked(Carte* carte) {
+    qDebug() << "Carte cliquée : Level : " << carte->getJewelryCard()->getLevel() << " et id : " << carte->getJewelryCard()->getId();
+    QMessageBox messageBox;
+    messageBox.setText("Que voulez-vous faire avec cette carte?");
+    QPushButton* acheterButton = messageBox.addButton("Acheter", QMessageBox::ActionRole);
+    QPushButton* annulerButton = messageBox.addButton("Annuler", QMessageBox::RejectRole);
+    reserveQT::ReserveStatus status = reserveQT->getStatus();
+    if (status == reserveQT::ReserveStatus::notClickable) {
+        messageBox.setText("Aucune action possible avec cette carte.");
+        messageBox.removeButton(acheterButton);
+    }
+    else {
+        acheterButton->setText("Acheter");
+    }
+    int choix = messageBox.exec();
+    std::cout << choix << std::endl;
+    if (messageBox.clickedButton() == acheterButton) {
+        // Action "Acheter"
+        if (status == ReserveStatus::buyable) {
+            emit acheterReserveCarteClicked(carte);
+        }
+    }
+}*/
 
 void PlayerQT::toggleTextBoldJoueur(bool isBold) {
     QFont font = typeJoueur->font();
@@ -329,4 +436,12 @@ void PlayerQT::toggleTextBoldJoueur(bool isBold) {
     nameJoueur->setFont(font);
     typeJoueur->setStyleSheet(QString("QLabel { color: %1 }").arg(color.name()));
     nameJoueur->setStyleSheet(QString("QLabel { color: %1 }").arg(color.name()));
+}
+
+void PlayerQT::updateAllReserveStatus(reserveQT::ReserveStatus newStatus) {
+    for (reserveQT* reserve : reserveWidgets) {
+        if (reserve) {
+            reserve->setStatus(newStatus);
+        }
+    }
 }

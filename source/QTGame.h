@@ -58,6 +58,7 @@ public slots:
     void handleBookingJewelryCardFromPyramid(Carte* clickedCard);
     void handleBookingJewelryCardFromPioche(QTPioche* piocheclicked);
     void handleBuyingRoyalCard(QTCardRoyal* cardclicked);
+    void handleBuyingReserveCard(JewelryCard* clickedCard);
 };
 
 
