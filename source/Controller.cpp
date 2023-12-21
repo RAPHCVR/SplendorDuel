@@ -225,16 +225,17 @@ void Controller::usePriviledge(Board& board) {
 
     // le joueur est humain
     if (currentPlayer->getType()==Type::Humain){
-        std::cout << "Combien de privileges voulez vous utiliser ? Vous pouvez en utiliser " << nb << std::endl;
-        std::cin >>nbPrivilege;
+        while(nbPrivilege < 1 || nbPrivilege > nb){
+            std::cout << "Vous pouvez utiliser au plus " << nb << "privileges.\nCombien souhaitez-vous en utiliser ? "<< std::endl;
+            std::cin >>nbPrivilege;
+        }
     }
     // le joueur est IA
-    /*
     else{
-        nbPrivilege = AiStrategy::random(0, nb);
+        nbPrivilege = AiStrategy::random(1, nb);
     }
-    */
-    nbPrivilege = choiceMaker(0, nb);
+    
+    //nbPrivilege = choiceMaker(0, nb);
     for (unsigned int i = 0; i < nbPrivilege; i++) {
         board.placePrivilege(currentPlayer->removePrivilege());
         chooseToken(board, *currentPlayer);
