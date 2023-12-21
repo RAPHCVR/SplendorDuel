@@ -443,12 +443,12 @@ void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
         }
         
         unsigned int nb = pyramid.getLevelCards(cardLevel).size(); // nombre de cartes de niveau level dans pyramid
-        unsigned int cardPosition;
+        unsigned int cardPosition = 0;
         //unsigned int nbCard = choiceMaker(1, nb);
         // choix de la position de la carte dans le niveau de la pyramide choisi
         // le joueur est un humain
         if(currentPlayer->getType() == Type::Humain){
-            while(cardPosition < 1 && cardPosition > nb){
+            while(cardPosition < 1 || cardPosition > nb){
                 std::cout << "Veuillez choisir la position de la carte" << std::endl;
                 std::cin >> cardPosition;
             }
