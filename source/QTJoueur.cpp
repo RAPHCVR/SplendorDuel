@@ -98,8 +98,6 @@ bool reserveQT::isReserveCardBuyable() const {
     return (status == ReserveStatus::buyable);
 }
 
-// reserveQT.cpp
-
 reserveQT::reserveQT(JewelryCard* card, QWidget* parent)
         : QWidget(parent), jewelryCard(card), status(ReserveStatus::notClickable) {
 
@@ -138,19 +136,6 @@ void reserveQT::onSelectionButtonClicked() {
     }
 }
 
-
-
-
-/*
-void reserveQT::onReserveClicked(Carte* clickedCarte) {
-    qDebug() << "Carte cliquée : Level : " << clickedCarte->getJewelryCard()->getLevel()
-             << " et id : " << clickedCarte->getJewelryCard()->getId();
-
-    // Implement your logic when a reserve card is clicked
-    // For example, emit a signal or perform some other action.
-    emit clicked(clickedCarte);
-}
-*/
 //Methodes joueur global
 
 PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
@@ -161,15 +146,7 @@ PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
     popupDialog->setWindowTitle("Reserve");
 
     popupLayout = new QHBoxLayout(popupDialog);
-/*
-    carte1 = new Carte(nullptr, popupDialog);
-    carte2 = new Carte(nullptr, popupDialog);
-    carte3 = new Carte(nullptr, popupDialog);
 
-    popupLayout->addWidget(carte1);
-    popupLayout->addWidget(carte2);
-    popupLayout->addWidget(carte3);
-*/
     popupDialog->setLayout(popupLayout);
 
     QString playerType = QString::fromStdString(typeToString(player.getType()));
@@ -252,29 +229,6 @@ PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
     setLayout(layoutMainJoueur);
 
 }
-/*
-bool PlayerQT::isReserveCardBuyable() const {
-    // Assuming Carte::getStatus() returns the status of the card
-    return (getStatus() == ReserveStatus::buyable);
-}
- */
-/*
-void PlayerQT::onReserveCardClicked(Carte* clickedCarte) {
-    if (isReserveCardBuyable(clickedCarte)) {
-        emit acheterReserveCarteClicked(clickedCarte);
-    }
-}
-*/
-// PlayerQT.cpp
-/*
-void PlayerQT::onReserveClicked(Carte* clickedCarte) {
-    qDebug() << "Carte cliquée : Level : " << clickedCarte->getJewelryCard()->getLevel()
-             << " et id : " << clickedCarte->getJewelryCard()->getId();
-
-    // Implement your logic when a reserve card is clicked
-    // For example, emit a signal or perform some other action.
-    emit clicked(clickedCarte);
-}*/
 
 void PlayerQT::showPopup(bool update) {
     QLayoutItem* child;
@@ -308,8 +262,6 @@ void PlayerQT::showPopup(bool update) {
     popupDialog->exec();
 }
 void PlayerQT::onReserveCardSelected(JewelryCard* selectedCard) {
-    // Handle the selected card (selectedCard) here
-    // For example, emit a signal or perform some other action.
     qDebug() << "Card selected: Level " << selectedCard->getLevel() << " and ID " << selectedCard->getId();
     std::cout << "ADA" << std::endl;
     emit reserveCardSelected(selectedCard);
@@ -394,30 +346,6 @@ void PlayerQT::updateAllPlayer(){
     updateTokens();
     updateTotalPrestige();
 };
-/*
-void PlayerQT::onReserveCardClicked(Carte* carte) {
-    qDebug() << "Carte cliquée : Level : " << carte->getJewelryCard()->getLevel() << " et id : " << carte->getJewelryCard()->getId();
-    QMessageBox messageBox;
-    messageBox.setText("Que voulez-vous faire avec cette carte?");
-    QPushButton* acheterButton = messageBox.addButton("Acheter", QMessageBox::ActionRole);
-    QPushButton* annulerButton = messageBox.addButton("Annuler", QMessageBox::RejectRole);
-    reserveQT::ReserveStatus status = reserveQT->getStatus();
-    if (status == reserveQT::ReserveStatus::notClickable) {
-        messageBox.setText("Aucune action possible avec cette carte.");
-        messageBox.removeButton(acheterButton);
-    }
-    else {
-        acheterButton->setText("Acheter");
-    }
-    int choix = messageBox.exec();
-    std::cout << choix << std::endl;
-    if (messageBox.clickedButton() == acheterButton) {
-        // Action "Acheter"
-        if (status == ReserveStatus::buyable) {
-            emit acheterReserveCarteClicked(carte);
-        }
-    }
-}*/
 
 void PlayerQT::toggleTextBoldJoueur(bool isBold) {
     QFont font = typeJoueur->font();

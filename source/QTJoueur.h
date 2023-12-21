@@ -39,38 +39,8 @@ private:
     QLCDNumber *bonus;
     QLCDNumber *prestige;
 };
-/*
-class reserveQT : public QWidget {
-Q_OBJECT
 
-public:
-    enum ReserveStatus {
-        buyable,
-        notClickable
-    };
-
-    ReserveStatus getStatus() const { return status; }
-    void setStatus(ReserveStatus newStatus) { status = newStatus; }
-    bool isReserveCardBuyable() const;
-    reserveQT(std::vector<JewelryCard*> reserve, QWidget* parent = nullptr);
-public slots:
-    void onCardClicked(Carte* clickedCarte);
-private:
-    std::vector<JewelryCard*> reserveCards;
-    QHBoxLayout* grille;
-    ReserveStatus status;
-
-signals:
-    void clicked(Carte* clickedCarte);
-    //void onReserveCardClicked(Carte *clickedCarte);
-};
-
-*/
-
-// reserveQT.h
-
-// reserveQT.h
-
+//Widget pour la reserve
 class reserveQT : public QWidget {
 Q_OBJECT
 
@@ -107,15 +77,6 @@ class PlayerQT : public QWidget {
 Q_OBJECT
 
 public:
-    /*
-    enum ReserveStatus {
-        buyable,
-        notClickable
-    };
-    ReserveStatus getStatus() const {return status;}
-    void setStatus(ReserveStatus newStatus) {status = newStatus;}
-    bool isReserveCardBuyable() const;
-*/
 
     PlayerQT(Player &p, QWidget *parent = nullptr);
 
@@ -176,22 +137,13 @@ private:
     Player &player;
 
     std::vector<reserveQT*> reserveWidgets;
-    //Carte* lastClickedCarte;
-    //ReserveStatus status;
 public:
-    //Carte* getLastClickedCarte(){return lastClickedCarte;};
     void toggleTextBoldJoueur(bool isBold);
     void showPopup(bool update=false); // Function to show the popup when the button is clicked
 signals:
-    //void clicked(Carte* clickedCarte);
-    //void popupClosed();
     void reserveCardSelected(JewelryCard* jewelryCard);
-    //void acheterReserveCarteClicked(Carte* carte);
 public slots:
     void onReserveCardSelected(JewelryCard* selectedCard);
-    //void onReserveClicked(Carte* clickedCarte);
-    //void onReserveCardClicked(Carte* clickedCarte);
-    //void onCarteClicked(Carte* clickedCarte);
 };
 
 
