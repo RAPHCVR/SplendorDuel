@@ -138,6 +138,66 @@ class TableDeJeu{
     -DeckNv(1 à 3) : DeckNv(1 à 3)
 								  
 }
+
+class QTGame {
+    - controller: Controller*
+    - plateView: PlateView*
+    - pyramid: QTPyramid*
+    - pioches: QTRangeePioches*
+    - boardRoyal: QTBoardRoyal*
+    - privilegeCounter: PrivilegeCounter*
+    - mainlayout: QVBoxLayout*
+    - screen: QScreen*
+    - size: QSize*
+    - player1: PlayerQT*
+    - player2: PlayerQT*
+    - width: unsigned int
+    - height: unsigned int
+    - status: std::string
+    + quit(): void
+    + paintEvent(event: QPaintEvent*): void
+    + QTGame(parent: QWidget = nullptr)
+    + handleTokenSelection(tokens: std::vector<const Token*>): void
+    + fillBoard(): void
+    + takePrivilege(player: Player&): void
+    + bookCard(gametable: GameTable&): void
+    + usePriviledge(): void
+    + placePrivilege(nb: unsigned int): void
+    + applyOptionalAction(action: OptionalActions): void
+    + play(): void
+    + playOptionalActions(): void
+    + handleGameStatus(): void
+    + playCompulsoryActions(): void
+    + applyCompulsoryAction(action: CompulsoryActions): void
+    + checkEndTurn(): void
+    + applyCardSkills(game: Game, cardOwner: Player, opponent: Player, card: JewelryCard): void
+    + buyJewelryCard(gametable: GameTable): void
+    + buyNobleCard(): void
+    + applyRoyalCardSkills(game: Game, cardOwner: Player, opponent: Player, card: RoyalCard): void
+    + setBoldCurrentPlayer(): void
+    + generateNewGame(): void
+    + handleBuyingJewelryCard(cardclicked: Carte*): void
+    + handleBookingJewelryCardFromPyramid(clickedCard: Carte*): void
+    + handleBookingJewelryCardFromPioche(piocheclicked: QTPioche*): void
+    + handleBuyingRoyalCard(cardclicked: QTCardRoyal*): void
+    + handleBuyingReserveCard(clickedCard: JewelryCard*): void
+}
+
+class QTStartingMenu {
+    + QTStartingMenu(parent: QWidget = nullptr)
+    + getPlayerName1(): QString
+    + getPlayerName2(): QString
+
+private:
+    - playerName1: QString
+    - playerName2: QString
+
+public slots:
+    + startNewGame(): void
+    + loadGame(): void
+    + quitGame(): void
+}
+
 }
 namespace JoueurHumainIA {
 
@@ -193,6 +253,7 @@ class IA{}
 }
 
 namespace GestionCartes{
+
 class CarteJoaillerie <<abstract>>{
   - niveau : uint
   - bonus : Bonus
@@ -280,15 +341,126 @@ class CartesPyramide{
     + isEmpty(level : int) : bool
     + getLevelCards(i : int) : vecteur[CarteJoaillerie]
 }
+
+class QTCartes {
+    + //enum CardStatus {
+    //    BUYABLE
+    //    RESERVABLE
+    //    NOTCLICKABLE
+    //}
+    - jewelryCard: CarteJoaillerie
+    - status: CardStatus
+    - getImagePath(): QString
+    + getstatus() : CardStatus
+    + setStatus(newStatus : CardStatus) : void
+    + QTCartes(CarteJoaillerie : CarteJoaillerie, parent : QWidget)
+    + ~Carte()
+    +afficher() : void
+    + getJewelryCard() : CarteJoaillerie
+    + isCardBuyable(carte : QTCard) : bool
+    + isCardReservable(carte : QTCard) : bool
+    + mousePressEvent(event : QMouseEvent) : void
+    + clicked(carte : QTCartes) : void
+
 }
 
+class QTPyramid {
+
+    - cartes_pyramide: pyramidcard
+    - grille : QGridLayout
+    - ajoutercarte(row : int, col : int): void
+    + QTPyramid(parent : QWidget)
+    + ~QTPyramid()
+    + afficher() : void
+    + getPyramidCard() : cartes_pyramide
+    + ajoutercarte(rowlevel : int) : void
+    + retirerCarte(carte : QTCartes) : int
+    + carteClicked(carte : QTCartes) : void
+    + updateallcardstatus(newstatus : QTCartes::CardStatus) : void
+    + acheterCarteClicked(carte : QTCartes) : void
+    + reserverCarteClicked(carte : QTCartes) : void
+
+}
+
+class QTPioche {
+
+    - Deck1 : Deck_level_one
+    - Deck2 : Deck_level_two
+    - Deck3 : Deck_level_three
+    - status : PiocheStatus
+    - getImagePath() : QString
+    + //enum PiocheStatus{
+    //reservable
+    //notclickable
+    //}
+    + getstatus() : PiocheStatus
+    + setStatus((newStatus : PiocheStatus) : void
+    + QTPioche(Deck1 : Deck_level_one, Deck2 : Deck_level_two, Deck3 : Deck_level_three)
+    + ~QTPioche()
+    + afficher ()
+    + getDeck1 :  Deck_level_one
+    + getDeck2 :  Deck_level_two
+    + getDeck3 :  Deck_level_three
+    + isCardReservable(pioche : QTPioche) : bool
+    + mousePressEvent(event : QMouseEvent)
+    + clicked(pioche : QTPioche) : void
+}
+
+class QTRangeePioches {
+    - grille: QGridLayout
+    - ajouterPioche(row: int, col: int): void
+    + QTRangeePioches(parent: QWidget = nullptr)
+    + afficher(): void
+    + getGrid(): QGridLayout*
+    + piocheClicked(pioche: QTPioche*): void
+    + updateAllPiocheStatus(newStatus: QTPioche::PiocheStatus): void
+    + reserverCarteClicked(pioche: QTPioche*): void
+}
+
+class QTCardRoyal {
+    - royalcard: RoyalCard
+    - status: CardRoyalStatus
+    - getImagePath(): QString
+    + //enum CardRoyalStatus {
+    //    BUYABLE
+    //    NOTCLICKABLE
+    //}
+    + QTCardRoyal(rc: RoyalCard, parent: QLabel = nullptr)
+    + ~QTCardRoyal()
+    + afficher(): void
+    + getRoyalCard(): RoyalCard*
+    + isCardBuyable(card: QTCardRoyal): bool
+    + mousePressEvent(event: QMouseEvent): void
+    + clicked(carte: QTCardRoyal): void
+}
+
+class QTBoardRoyal {
+    - deckroyal: Deck_Royal
+    - grille: QGridLayout
+    - ajouterCarte(row: int, col: int): void
+    + QTBoardRoyal(parent: QWidget = nullptr)
+    + afficher(): void
+    + getDeckRoyal(): Deck_Royal*
+    + retirerCarte(carte: QTCardRoyal*): void
+    + getGrid(): QGridLayout*
+    + carteClicked(carte: QTCardRoyal*): void
+    + updateAllCardStatus(newStatus: QTCardRoyal::CardRoyalStatus): void
+    + acheterCarteClicked(carte: QTCardRoyal*): void
+}
+}
 Jeu "1" -- "2" Joueur : < joue
 Plateau "1" -- "1" TableDeJeu : est joué dans >
 SacJeton "1" -- "1" TableDeJeu : est joué dans >
 CarteJoaillerie "*" -- "1" TableDeJeu : est joué dans >
 CarteRoyale "4" -- "1" TableDeJeu : est joué dans >
 TableDeJeu "1" --* Jeu : se joue dans >
-Controller *-- "1" Jeu : est controllé <									 
+Controller *-- "1" Jeu : est controllé <
+
+QTGame -- "1" Controller
+QTGame -- "1" QTPyramid
+QTGame -- "1" QTBoardRoyal
+QTGame -- "1" QTRangeePioches
+
 
 Jeton "0..25" --* JetonsTotaux : est contenu dans >
 Privilege "0..3" --* PrivilegesTotaux : est contenu dans >
@@ -309,6 +481,17 @@ CarteJoaillerie --* DeckNv3
 CartesPyramide *-- "1" DeckNv1
 CartesPyramide *-- "1" DeckNv2
 CartesPyramide *-- "1" DeckNv3
+QTPyramid *-- "0..*" QTCartes
+QTRangeePioches *-- "0..*" QTPioche
+QTBoardRoyal *-- "0..*" QTCardRoyal
+QTCartes -- "1" CarteJoaillerie
+QTPyramid -- "1"CartesPyramide
+QTCardRoyal -- "1" CarteRoyale
+QTBoardRoyal -- "1" Deck_Royal
+QTPioche -- "1" DeckNv1
+QTPioche -- "1" DeckNv2
+QTPioche -- "1" DeckNv3
+
 
 Joueur "0..1" -- "0..2" CarteRoyale : possède >
 
