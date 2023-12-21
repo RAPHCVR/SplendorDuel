@@ -3,7 +3,7 @@
 //
 
 #include "Controller.h"
-//#include "strategy.h"
+#include "strategy.h"
 
 std::string toString(OptionalActions a) {
     switch (a) {
@@ -336,10 +336,29 @@ bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>*
 }
 
 void Controller::chooseGoldenToken(Board&board, Player&player) {
-    std::cout << "Veuillez choisir un jeton" << std::endl;
+    std::cout << "Veuillez choisir un jeton OR\n" << std::endl;
     board.showBoard();
-    unsigned int x = choiceMaker(1, 5);
-    unsigned int y = choiceMaker(1, 5);
+    //unsigned int x = choiceMaker(1, 5);
+    //unsigned int y = choiceMaker(1, 5);
+    unsigned int x;
+    unsigned int y;
+
+    // joueur IA
+    if(player.getType()==Type::IA){
+        x = AiStratgey::random(1,5);
+        y = AiStratgey::random(1,5);
+    }
+    // joueur humain
+    else{
+        while (x != 1 && x != 2 && x != 3 && x != 4 && x != 5){
+            std::cout << "Coordonnee x du jeton OR choisi : " << std::endl;
+            std::cin >> x;
+        }
+        while (y != 1 && y != 2 && y != 3 && y != 4 && y != 5){
+            std::cout << "Coordonnee y du jeton OR choisi : " << std::endl;
+            std::cin >> y;
+        }
+    }
     if(game->getGameTable().getBoard().isCellEmpty(x-1,y-1))
         throw TokenException("L'emplacement ne contient pas de jeton\n");
     if(not(game->getGameTable().getBoard().CellColor(x-1, y-1,TokenColor::OR)))
