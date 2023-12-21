@@ -332,3 +332,13 @@ Type toType(std::string s) {
         throw std::runtime_error("Type de joueur inconnu");
     }
 }
+
+bool Player::canbuyreservedcard(){
+    bool canbuy = false;
+    for (auto card : getReserve()) {
+        if (canBuyCard(*card)) {
+            canbuy = true;
+        }
+    }
+    return canbuy;
+}
