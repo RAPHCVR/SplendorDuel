@@ -505,7 +505,7 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
     JewelryCard* card;
     std::cout << "Jetons disponibles : " << std::endl;
     std::cout << controller->getcurrentPlayer() << std::endl;
-    if (controller->getcurrentPlayer().getReserve().size() > 0) {
+    if (canbuyreservedcard(controller->getcurrentPlayer())) {
         QString s = "Voulez vous acheter une carte reservee ?";
         std::vector<QString> buttonLabels = {"Oui","Non"};
         QString choice = MBox(buttonLabels, "Choix", s);
@@ -950,4 +950,14 @@ void QTGame::generateNewGame() {
     connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
     status = "start";
     handleGameStatus();
+}
+
+bool canbuyreservedcard(Player& player){
+    bool canbuy = false;
+    for (auto card : player.getReserve()) {
+        if (player.canBuyCard(*card)) {
+            canbuy = true;
+        }
+    }
+    return canbuy;
 }
