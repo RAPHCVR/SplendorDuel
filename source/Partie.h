@@ -99,6 +99,7 @@ public:
     virtual void setPlayersCards() const =0;
     virtual void setPlayersTokens() const =0;
     virtual void roundInit() const =0;
+    //ajouter des méthodes ici pour les cartes et les jetons, etc
 };
 
 class GameBuilder : public Builder{
@@ -169,6 +170,29 @@ class GameBuilder : public Builder{
     }
 };
 
+class GameSaveBuilder: public Builder {
+private:
+    Game * game;
+public:
+    GameSaveBuilder() {
+        this -> Reset();
+    }
+    ~GameSaveBuilder() {
+        delete game;
+    }
+    void Reset() {
+        this -> game = new Game();
+    }
+
+    //ajouter des méthodes ici pour les cartes et les jetons, etc
+
+
+    Game * GetProduct() {
+        Game * result = this -> game;
+        return result;
+    }
+
+};
 
 class Director{
     /**

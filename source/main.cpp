@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 */
 
 int main() {
-    Pyramid_Cards pyra = retrevePyramid();
+    Pyramid_Cards* pyra = retrevePyramid();
     return 0;
 }
 
