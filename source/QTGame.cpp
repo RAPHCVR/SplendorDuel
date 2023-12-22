@@ -9,7 +9,7 @@
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
     startingmenu->exec();
-    controller = new Controller("New", startingmenu->getPlayerName1().toStdString(), startingmenu->getPlayerName2().toStdString(), Type::Humain, Type::Humain);
+    controller = new Controller("New", startingmenu->getPlayerName1().toStdString(), startingmenu->getPlayerName2().toStdString(), startingmenu->getPlayerType1(), startingmenu->getPlayerType2());
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
     width = size->width();
@@ -58,7 +58,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     status = "start";
     handleGameStatus();
 }
-
+/*
 QTStartingMenu::QTStartingMenu(QWidget *parent) : QDialog(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
@@ -78,7 +78,7 @@ QTStartingMenu::QTStartingMenu(QWidget *parent) : QDialog(parent) {
 
     setFixedSize(400, 200);
 }
-
+*/
 void QTGame::paintEvent(QPaintEvent* event) {
     QWidget::paintEvent(event);
     QPainter painter(this);
