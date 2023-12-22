@@ -9,10 +9,8 @@
 #include "Cards.h"
 #include "sqlite/sqlite3.h"
 
-class Save {
-public:
-    static void writeToDatabase(const Game& game);
-};
-
+void cleanTable(const std::string& dbPath, const std::string& tableName);
+void writeToDatabase(const Game& game);
+Game createOldGame(const Game& game);
 
 #endif //LO21PROJECT_SAVE_H

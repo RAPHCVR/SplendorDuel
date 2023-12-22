@@ -4,6 +4,7 @@
 
 #include "QTGame.h"
 #include "QTQuestion.h"
+#include "Save.h"
 #include <string>
 
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
@@ -55,6 +56,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
     connect(player1, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
     connect(player2, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
+    writeToDatabase(controller->getGame());
     status = "start";
     handleGameStatus();
 }
