@@ -9,7 +9,7 @@
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     //QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
     //startingmenu->exec();
-    controller = new Controller("New", "JACK", "IA", Type::Humain, Type::IA);
+    controller = new Controller("New", "JACK", "IA", Type::IA, Type::IA);
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
     width = size->width();
@@ -40,9 +40,6 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     total -> addLayout(centre);
     total -> addWidget(player2);
     mainlayout->addLayout(total);
-    //mainlayout->addLayout(first);
-    //mainlayout->addLayout(second);
-    int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
     setFixedSize(size->width()*2,size->height()*1.75);
     setLayout(mainlayout);
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
@@ -1085,6 +1082,7 @@ void QTGame::generateNewGame() {
     QVBoxLayout* centre = new QVBoxLayout();
     QHBoxLayout* total = new QHBoxLayout();
     QHBoxLayout* CartesRoyalesPrivilegesPlateau= new QHBoxLayout();
+
     plateView = new PlateView(nullptr, height-100,width/2);
 
     pyramid = new QTPyramid();
@@ -1095,9 +1093,9 @@ void QTGame::generateNewGame() {
     player2 = new PlayerQT(controller->getopposingPlayer(), nullptr);
     PyramidPioche->addWidget(pioches);
     PyramidPioche->addWidget(pyramid);
-    CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
     boardRoyal->setMaximumWidth(400);
     pioches->setMaximumWidth(200);
+    CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
     CartesRoyalesPrivilegesPlateau->addWidget(privilegeCounter);
     CartesRoyalesPrivilegesPlateau->addWidget(plateView);
     centre->addLayout(PyramidPioche);
@@ -1109,6 +1107,7 @@ void QTGame::generateNewGame() {
     clearWidgetAndSetNewLayout(this,mainlayout2);
     int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
     setFixedSize(size->width()*2,size->height()*1.75);
+
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
     connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
@@ -1117,6 +1116,8 @@ void QTGame::generateNewGame() {
     connect(pyramid, &QTPyramid::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPyramid);
     connect(pioches, &QTRangeePioches::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPioche);
     connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
+    connect(player1, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
+    connect(player2, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
     status = "start";
     handleGameStatus();
 }
