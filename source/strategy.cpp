@@ -2,7 +2,7 @@
 #include "Cards.h"
 #include "joueur.h"
 #include "strategy.h"
-
+#include "Controller.h"
 #include <algorithm>
 #include <iostream>
 #include <map>
@@ -11,125 +11,75 @@
 
 // Celine
 // nombre aleatoire entre min et max
-int AiStrategy::random(int min, int max){
+int AiStrategy::choicemaker(int min, int max){
     int random;
     // générateur de nombres aléatoires avec le temps actuel
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    srand(time(0));
 
     // nombre aléatoire dans l'intervalle [min, max]
     random = std::rand() % (max - min + 1) + min;
     return random;
 }
 
+int HumanStrategy::choicemaker(int min, int max) {
+    unsigned int choice;
+    std::cout << "Veuillez choisir entre " << min << " et " << max << std::endl;
+    std::cin >> choice;
+    while (choice < min || choice > max){
+        std::cout << "Veuillez choisir entre " << min << " et " << max << std::endl;
+        std::cin >> choice;
+    }
+    return choice;
+}
+
 // Celine
 // permet a l'ia de choisir des jetons sur le plateau
 std::vector<std::pair<int, int>> AiStrategy::choseTokensToTake(){
-    Board::BoardIterator it = Board::getInstance()->iterator();
-    std::vector<std::pair<int, int>> selectedCoordinates;
+    std::vector<std::pair<int, int>> chosenTokens;
+    Board *boardpoint = Board::getInstance();
+    Board& board = *boardpoint;
+    auto isTokenAvailable = [&](size_t i, size_t j) -> bool {
+        return i < 5 && j < 5 && !board.isCellEmpty(i, j) && board.getCellColor(i,j) != TokenColor::OR;
+    };
 
-    // parcours du plateau
-    while (it.hasNext()) {
-        const Token* firstToken = it.next();
-        // essayer de selectionner 3 jetons
-        for (int count = 3; count >= 1; count--) {
-            //std::vector<const Token*> selectedTokens;
+    for (size_t i = 0; i < 5; ++i) {
+        for (size_t j = 0; j < 5; ++j) {
+            if (!isTokenAvailable(i, j)) continue;
 
-            // ajouter le premier jeton
-            //selectedTokens.push_back(firstToken);
-            selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+            std::vector<std::pair<int, int>> tempTokens;
 
-            // essayer d'ajouter les jetons restants
-            for (int i = 1; i < count; i++) {
-                if (it.hasNext()) {
-                    const Token* nextToken = it.next();
-                    //selectedTokens.push_back(nextToken);
-                    selectedCoordinates.emplace_back(it.getRow(), it.getCol());
+            // Horizontal, Vertical, and Diagonal Checks
+            for (int dx : {0, 1}) {
+                for (int dy : {0, 1}) {
+                    if (dx == 0 && dy == 0) continue; // Skip if both dx and dy are zero
 
-                    // verif si les coordonnees sont alignees et consecutives
-                    if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
-                        // si non on reinit la selection
-                        //selectedTokens.clear();
-                        selectedCoordinates.clear();
-                        it.reset();
-                        break;
+                    tempTokens.clear();
+                    size_t x = i, y = j;
+
+                    while (isTokenAvailable(x, y)) {
+                        tempTokens.emplace_back(x, y);
+                        if (tempTokens.size() == 3) {
+                            return tempTokens; // Return if three tokens are found aligned
+                        }
+                        x += dx;
+                        y += dy;
                     }
-                } else {
-                    // si plus de jetons disponibles -> reinit la selection
-                    //selectedTokens.clear();
-                    selectedCoordinates.clear();
-                    it.reset();
-                    break;
+
+                    if (tempTokens.size() > 1) {
+                        chosenTokens = tempTokens; // Store if more than one token is found aligned
+                    }
                 }
             }
 
-            // si la selection est ok -> renvoyer les jetons selectionnes
-            if (selectedCoordinates.size() == count) {
-                return selectedCoordinates;
+            // If only one token is available and no better option has been found
+            if (chosenTokens.empty()) {
+                chosenTokens.emplace_back(i, j);
             }
         }
     }
 
-    // pas de selection valide --> essayer seulement avec 2 jetons
-    it.reset(); // reinit l'iterateur
-
-    while (it.hasNext()) {
-        const Token* firstToken = it.next();
-
-        // essayer de selectionner 2 jetons
-        for (int count = 2; count >= 1; count--) {
-            //std::vector<const Token*> selectedTokens;
-            std::vector<std::pair<int, int>> selectedCoordinates;
-
-            // ajouter le premier jeton
-            //selectedTokens.push_back(firstToken);
-            selectedCoordinates.emplace_back(it.getRow(), it.getCol());
-
-            // essayer d'ajouter les jetons restants
-            for (int i = 1; i < count; i++) {
-                if (it.hasNext()) {
-                    const Token* nextToken = it.next();
-                    //selectedTokens.push_back(nextToken);
-                    selectedCoordinates.emplace_back(it.getRow(), it.getCol());
-
-                    // verif si les coord sont alignees et consecutives
-                    if (!areCoordinatesAlignedAndConsecutive(&selectedCoordinates)) {
-                        // si non -> reinit la selection
-                        //selectedTokens.clear();
-                        selectedCoordinates.clear();
-                        it.reset();
-                        break;
-                    }
-                } else {
-                    // si plus de jetons dispo -> reinit la sélection
-                    //selectedTokens.clear();
-                    selectedCoordinates.clear();
-                    it.reset();
-                    break;
-                }
-            }
-
-            // la selection est valide -> renvoyer les jetons a piocher
-            if (selectedCoordinates.size() == count) {
-                return selectedCoordinates;
-            }
-        }
-    }
-
-    // pas trouve 2 jetons consecutifs, on en prend qu'un
-    it.reset(); // reinit l'iterateur
-
-    while (it.hasNext()) {
-        const Token* currentToken = it.next();
-        selectedCoordinates.emplace_back(it.getRow(), it.getCol());
-        return {selectedCoordinates};
-        
-    }
-
-    // pas de jeton piochable sur la board
-    return {}; 
+    return chosenTokens;
 }
-
-
 // Celine
 // permet a l'huamin de choisir des jetons sur le plateau
 std::vector<std::pair<int, int>> HumanStrategy::choseTokensToTake(){
@@ -194,7 +144,7 @@ TokenColor HumanStrategy::choseTokenColor(std::vector<TokenColor>& chosableColor
 // Celine
 // permet a l'IA de choisir une couleur parmis les couleurs proposes
 TokenColor AiStrategy::choseTokenColor(std::vector<TokenColor>& chosableColors){
-    int randomIndex = random(0, chosableColors.size()-1);
+    int randomIndex = choicemaker(0, chosableColors.size()-1);
     return chosableColors[randomIndex];
 }
 
@@ -240,7 +190,7 @@ std::vector<OptionalActions> HumanStrategy::choseOptionalActions(){
 std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
     std::vector<OptionalActions> AIsOptionalActions;
     // combien d'action optionnelles (entre 0 et 2)
-    int nbOptionalAction = random(0,2);
+    int nbOptionalAction = choicemaker(0,2);
 
     // lesquelles parmis 
     // utiliser privilege = prendre jeton (pas or) / remplir plateau + prendre un privilege
@@ -252,7 +202,7 @@ std::vector<OptionalActions> AiStrategy::choseOptionalActions(){
     //on realise une action optionnelle
     else if(nbOptionalAction==1){
         // choisir laquelle
-        int whichOpAction = random(0,1);
+        int whichOpAction = choicemaker(0,1);
         whichOpAction == 0? AIsOptionalActions.push_back(OptionalActions::UsePrivileges) : AIsOptionalActions.push_back(OptionalActions::FillBoard);
     }
     else{
@@ -286,7 +236,7 @@ CompulsoryActions HumanStrategy::choseCompulsoryAction(){
 // permet de choisir l'action obligatoire que fait l'ia
 CompulsoryActions AiStrategy::choseCompulsoryAction(){
     CompulsoryActions AIsCompulsoryAction;
-    int whichCompulsoryAction = random(0,2);
+    int whichCompulsoryAction = choicemaker(0,2);
     // prendre entre un et trois jetons
     if(whichCompulsoryAction == 0){
         return CompulsoryActions::BuyCard;

@@ -112,7 +112,7 @@ public :
     void addToken(const Token& j); //Ajout d'un jeton dans le sac
     const Token& drawToken(); //Pioche d'un jeton dans le sac
     bool isEmpty() const { return tokens.empty(); } //Vérification si le sac est vide
-    bool containsOnly(TokenColor color) const; //Vérification si le sac ne contient que des jetons d'une couleur
+    bool containsOnly(TokenColor color); //Vérification si le sac ne contient que des jetons d'une couleur
 };
 
 //Les privilèges sont 3 objets indépendants entre eux, mais identiques
@@ -139,16 +139,16 @@ public :
 
 class Board {
     //Classe plateau contenant les jetons et les privilèges en jeu
-private :
-    std::array<const Privilege*, 3> privileges{}; //Liste des privilèges
+    private :
+        std::array<const Privilege*, 3> privileges{}; //Liste des privilèges
     std::array<std::array<const Token*, 5>, 5> tokens{}; //matrice de 5*5 pouvant être vide ou contenir un jeton
     //design pattern singleton
     Board(); //Instanciation du plateau avec tous les jetons et le sac de jetons (Constructeur)
 
     static Board* instance ;
-public :
-    //pas de duplication du plateau
-    Board(const Board&) = delete;
+    public :
+        //pas de duplication du plateau
+        Board(const Board&) = delete;
     Board& operator=(const Board&) = delete;
 
     const Token& takeToken(size_t i, size_t j); //Récupération d'un jeton sur le plateau, supprimé du plateau, à l'indice i,j
@@ -195,9 +195,11 @@ public :
     bool isCellEmpty(size_t i, size_t j) const {return tokens[i][j]==nullptr;}; //Vérification si une case est vide
     unsigned int getNbPrivileges() const; //Récupération du nombre de privilèges
     bool hasTokenOfColor(TokenColor color) const; //verification de la presence d'une couleur sur le plateau
-    bool containsOnly(TokenColor color) const; //verification de la presence d'une couleur uniquement sur le plateau
+    bool containsOnly(TokenColor color); //verification de la presence d'une couleur uniquement sur le plateau
     bool CellColor(size_t i, size_t j, TokenColor color) const{return tokens[i][j]->getColor()==color;}; //verification de la couleur d'une case
     unsigned int getNbTokens() const; //Récupération du nombre de jetons
+    const TokenColor getCellColor(size_t i, size_t j) const {return tokens[i][j]->getColor();}; //Récupération de la couleur d'une case
 };
 
+std::vector<std::pair<int, int>> chooseAlignedTokens(const Board& board);
 #endif //LO21PROJECT_JETON_H

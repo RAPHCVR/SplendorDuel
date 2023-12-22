@@ -483,7 +483,7 @@ void Pyramid_Cards::drawCard(unsigned int level) {
             }
             else
             {
-                throw std::runtime_error("Le deck niveau 1 est vide");
+                std::cout<<"Le deck niveau 1 est vide"<<std::endl;
             }
             break;
         case 2:
@@ -492,7 +492,7 @@ void Pyramid_Cards::drawCard(unsigned int level) {
                 row_level_two.push_back(std::move(Deck_level_two::getInstance()->getPioche()[0]));
                 Deck_level_two::getInstance()->deleteFirstItem();
             } else {
-                throw std::runtime_error("Le deck niveau 2 est vide");
+                std::cout<<"Le deck niveau 2 est vide"<<std::endl;
             }
             break;
         case 3:
@@ -501,7 +501,7 @@ void Pyramid_Cards::drawCard(unsigned int level) {
                 row_level_three.push_back(std::move(Deck_level_three::getInstance()->getPioche()[0]));
                 Deck_level_three::getInstance()->deleteFirstItem();
             } else {
-                throw std::runtime_error("Le deck niveau 3 est vide");
+                std::cout<<"Le deck niveau 3 est vide"<<std::endl;
             }
             break;
         default:

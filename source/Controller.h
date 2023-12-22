@@ -8,14 +8,6 @@
 #include "Partie.h"
 #include "QTJeton.h"
 
-enum class OptionalActions{
-    UsePrivileges, FillBoard, Empty
-};
-
-enum class CompulsoryActions{
-    TakeCoins, ReserveCard, BuyCard
-};
-
 class Controller {
 private:
     Game* game;
@@ -63,7 +55,6 @@ public:
 
 };
 
-unsigned int choiceMaker(unsigned int a, unsigned int b);
 bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>* coordinates);
 
 #endif //CONTROLLER_H

@@ -94,52 +94,53 @@ const Token& Player::removeToken(TokenColor color) {
 
 //Celine
 // méthode pour retirer les ressources nécessaires lorsque le joueur achète une carte
-void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend){
-    unsigned int goldcounter = tokenSummary[TokenColor::OR];
-    SummaryCard* bonus;
-    for(auto const& [color, tokensNeeded] : tokensToSpend) {
-        if (tokensNeeded != 0) {
-            bonus = &getColorSummary(color);
-            int finalCost = tokensNeeded - bonus->getBonusNumber();
-            int playerTokens = tokenSummary[color];
-            if(playerTokens < finalCost) {
-                int tokenGap = finalCost - playerTokens;
-                if (goldcounter >= tokenGap) {
-                    goldcounter -= tokenGap;
-                    tokenSummary[color] = tokenSummary[color]  - finalCost + tokenGap;
-                    tokenSummary[TokenColor::OR] -= tokenGap;
-                    nbTokens -= tokenGap;
-                    for(int i = 0; i < finalCost - tokenGap; i++) {
-                        Bag::getInstance()->addToken(*tokens[color].back());
-                        tokens[color].pop_back();
-                        nbTokens--;
-                    }
-                    for (int i = 0; i < tokenGap; i++) {
-                        Bag::getInstance()->addToken(*tokens[TokenColor::OR].back());
-                        tokens[TokenColor::OR].pop_back();
-                        nbTokens--;
-                    }
-                }
-                else {
-                    // If the player does not have enough tokens, throw an exception or return an error
-                    throw std::runtime_error("Not enough tokens to spend");
-                }
+void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend) {
+    unsigned int goldCounter = tokenSummary[TokenColor::OR];
+
+    for (const auto& [color, tokensNeeded] : tokensToSpend) {
+        if (tokensNeeded == 0) {
+            continue;
+        }
+
+        SummaryCard& bonus = getColorSummary(color);
+        int finalCost = tokensNeeded - bonus.getBonusNumber();
+        int playerTokens = tokenSummary[color];
+
+        if (finalCost <= 0) {
+            continue; // No need to spend tokens if final cost is zero or negative
+        }
+
+        if (playerTokens < finalCost) {
+            int tokenGap = finalCost - playerTokens;
+            if (goldCounter < tokenGap) {
+                throw std::runtime_error("Not enough tokens to spend");
             }
-            else {
-                if (finalCost>0){
-                    // Subtract the tokens needed from the player's tokens
-                    tokenSummary[color] -= finalCost;
-                    // Return the tokens to the bag
-                    for(int i = 0; i < finalCost; i++) {
-                        Bag::getInstance()->addToken(*tokens[color].back());
-                        tokens[color].pop_back();
-                        nbTokens--;
-                    }
-                }
-            }
+            spendSpecificToken(color, playerTokens);
+            spendGoldTokens(tokenGap);
+        } else {
+            spendSpecificToken(color, finalCost);
         }
     }
 }
+
+void Player::spendSpecificToken(TokenColor color, int number) {
+    for (int i = 0; i < number; ++i) {
+        Bag::getInstance()->addToken(*tokens[color].back());
+        tokens[color].pop_back();
+        nbTokens--;
+    }
+    tokenSummary[color] -= number;
+}
+
+void Player::spendGoldTokens(int number) {
+    for (int i = 0; i < number; ++i) {
+        Bag::getInstance()->addToken(*tokens[TokenColor::OR].back());
+        tokens[TokenColor::OR].pop_back();
+        nbTokens--;
+    }
+    tokenSummary[TokenColor::OR] -= number;
+}
+
 
 //Celine
 // ajout 'n' points de prestiges de couleur 'color' 
@@ -286,7 +287,12 @@ Player::Player(std::string& n, Type t) {
     greenSummary = SummaryCard(0, 0);
     redSummary = SummaryCard(0, 0);
     whiteSummary = SummaryCard(0, 0);
-    strategy = nullptr ;
+    if (type == Type::IA) {
+        strategy = new AiStrategy();
+    }
+    else {
+        strategy = new HumanStrategy();
+    }
 }
 
 std::ostream& operator<<(std::ostream& f, Player& p) {

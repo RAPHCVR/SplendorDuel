@@ -2,7 +2,7 @@
 #define TEST_JOUEUR_H
 #include "Jeton.h"
 #include "Cards.h"
-//#include "strategy.h"
+#include "strategy.h"
 
 #include <iostream>
 #include <map>
@@ -42,7 +42,7 @@ private:
 public:
     std::string getName() const {return name;};
     unsigned int getNbPrivilege() const;
-    unsigned int getNbTokens() const {return nbTokens;};
+    int getNbTokens() const {return nbTokens;};
     unsigned int getPrestige() const {return prestigePoints;};
     unsigned int getCrowns() const {return nbCrown;};
 
@@ -83,6 +83,8 @@ public:
     void actionBuyCard(JewelryCard &card); //Peut-etre besoin d'une carte ? prix, utilisation de la capacité... + retirer la carte du jeu (voir si on la fait nous ou dans la classe carte)
     bool canBuyCard(JewelryCard &card); 
     void spendResources(std::unordered_map<TokenColor, int> tokensToSpend);
+    void spendSpecificToken(TokenColor color, int number);
+    void spendGoldTokens(int number);
     void actionBuyReservedCard(JewelryCard &card);
     bool canbuyreservedcard();
     // actions optionnelles (remplir plateau, utiliser un priviliege pour acheter un jeton)
