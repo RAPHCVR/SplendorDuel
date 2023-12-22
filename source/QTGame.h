@@ -54,6 +54,7 @@ public:
     void generateNewGame();
     PlayerQT* getCurrentQTPlayer();
     bool isCurrentPlayerIA();
+    void handleIATokenSelection();
 
 public slots:
     void handleBuyingJewelryCard(Carte* cardclicked);

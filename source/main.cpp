@@ -8,11 +8,15 @@
 
 /*
 int main() {
-    Controller *c = new Controller("New", "player1", "player2", Type::IA, Type::IA);
-    c->play();
+    for (int i = 0; i < 100; i++) {
+        std::cout << "i = " << i << std::endl;
+        Controller *c = new Controller("New", "player1", "player2", Type::IA, Type::IA);
+        c->play();
+        c->reinit();
+    }
 }
-*/
 
+*/
 
 
 int main(int argc, char *argv[])

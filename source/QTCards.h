@@ -70,7 +70,7 @@ namespace Utility {
         void ajouterCarte(int rowlevel);
 
         int retirerCarte(Carte* carte);
-
+        Carte& getCarte(int row, int col);
 
 
         void carteClicked(Carte* carte);
@@ -146,6 +146,7 @@ namespace Utility {
         //int retirerPioche(Carte* carte); Pas besoin pour le moment
 
         QGridLayout* getGrid() const {return grille;}
+        QTPioche& getPioche(int row);
 
         void piocheClicked(QTPioche* pioche);
         void updateAllPiocheStatus(QTPioche::PiocheStatus newStatus);

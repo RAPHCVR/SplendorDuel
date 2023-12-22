@@ -50,11 +50,11 @@ void Player::addPrivilege(const Privilege& privilege) {
     privileges[nb]=&privilege;
 }
 
-unsigned int Player::getNbPrivilege() const {
-    unsigned int nb = privileges.size();
+int Player::getNbPrivilege() const {
+    int nb = 0;
     for (auto privilege : privileges) {
-        if (privilege == nullptr) {
-            nb--;
+        if (privilege != nullptr) {
+            nb++;
         }
     }
     return nb;
