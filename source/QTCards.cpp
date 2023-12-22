@@ -122,6 +122,9 @@ void QTPyramid::ajouterCarte(int rowlevel){
     switch(rowlevel){ //rowlevel par rapport à la grille 0 -> level 3
     case 2:
         currentRow = pyramidcard->getRow1();
+        if (currentRow.empty()) {
+            return;
+        }
         currentCarte = new Carte(currentRow.back());
         connect(currentCarte, &Carte::clicked, this, &QTPyramid::carteClicked);
         grille->addWidget(currentCarte, 2, 4);
@@ -129,6 +132,9 @@ void QTPyramid::ajouterCarte(int rowlevel){
 
     case 1:
         currentRow = pyramidcard->getRow2();
+        if (currentRow.empty()) {
+            return;
+        }
         currentCarte = new Carte(currentRow.back());
         connect(currentCarte, &Carte::clicked, this, &QTPyramid::carteClicked);
         grille->addWidget(currentCarte, 1, 3);
@@ -136,6 +142,9 @@ void QTPyramid::ajouterCarte(int rowlevel){
 
     case 0:
         currentRow = pyramidcard->getRow3();
+        if (currentRow.empty()) {
+            return;
+        }
         currentCarte = new Carte(currentRow.back());
         connect(currentCarte, &Carte::clicked, this, &QTPyramid::carteClicked);
         grille->addWidget(currentCarte, 0, 2);
@@ -520,4 +529,20 @@ void QTBoardRoyal::retirerCarte(QTCardRoyal* carte){
 
 
     //qDebug() << "Carte supprimée : " << carte->getJewelryCard()->getId() << " à la position [" << row << ", " << col << "]";
+}
+
+Carte& QTPyramid::getCarte(int row, int col){
+    //take the row and col of the card and return the card
+    //if row = 3, row = 0, if row = 2, row = 1, if row = 1, row = 2
+    if(row == 3){row = 0;}
+    else if(row == 2){row = 1;}
+    else if(row == 1){row = 2;}
+    return *dynamic_cast<Carte*>(grille->itemAtPosition(row, col)->widget());
+}
+
+QTPioche& QTRangeePioches::getPioche(int row){
+    if(row == 3){row = 0;}
+    else if(row == 2){row = 1;}
+    else if(row == 1){row = 2;}
+    return *dynamic_cast<QTPioche*>(grille->itemAtPosition(row, 0)->widget());
 }

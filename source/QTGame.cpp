@@ -6,11 +6,11 @@
 #include "QTQuestion.h"
 #include "Save.h"
 #include <string>
-
+//quand 2 ia, ne pas utiliser qtgame, utiliser controller
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
-    QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
-    startingmenu->exec();
-    controller = new Controller("New", startingmenu->getPlayerName1().toStdString(), startingmenu->getPlayerName2().toStdString(), startingmenu->getPlayerType1(), startingmenu->getPlayerType2());
+    //QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
+    //startingmenu->exec();
+    controller = new Controller("New", "JACK", "IA", Type::Humain, Type::IA);
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
     width = size->width();
@@ -41,9 +41,6 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     total -> addLayout(centre);
     total -> addWidget(player2);
     mainlayout->addLayout(total);
-    //mainlayout->addLayout(first);
-    //mainlayout->addLayout(second);
-    int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
     setFixedSize(size->width()*2,size->height()*1.75);
     setLayout(mainlayout);
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
@@ -176,20 +173,23 @@ void QTGame::usePriviledge() {
             controller->getGame().getGameTable().getBoard().placePrivilege(controller->getcurrentPlayer().removePrivilege());
             controller->getcurrentPlayer().getStrategy()->chooseToken(controller->getGame().getGameTable().getBoard(), controller->getcurrentPlayer());
         }
+        plateView->updateWidgetsFromBoard();
+        handleGameStatus();
+
     }
     else {
         std::string s ="Vous pouvez utiliser " + std::to_string(nb) + " privileges";
         MBox({"OK"},"Message", QString::fromStdString(s));
         plateView->updateMaxNbSelectedTokens(nb);
+        plateView->updateStatus("privileges");
     }
-    plateView->updateStatus("privileges");
 }
 
 void QTGame::applyOptionalAction(OptionalActions action) {
     switch (action) {
         case OptionalActions::UsePrivileges:
-            usePriviledge();
             status = "optionalActions";
+            usePriviledge();
             break;
         case OptionalActions::FillBoard:
             fillBoard();
@@ -210,6 +210,8 @@ void QTGame::applyOptionalAction(OptionalActions action) {
 }
 
 void QTGame::handleGameStatus(){
+    std::cout << controller->getcurrentPlayer().getNbPrivilege();
+    std::cout << controller->getopposingPlayer().getNbPrivilege();
     player1->updateAllPlayer();
     player2->updateAllPlayer();
     if (status == "win"){
@@ -220,7 +222,7 @@ void QTGame::handleGameStatus(){
             std::string pseudo1 = controller->getcurrentPlayer().getName();
             std::string pseudo2 = controller->getopposingPlayer().getName();
             controller -> reinit();
-            controller = new Controller("New", pseudo1, pseudo2, Type::Humain, Type::Humain);
+            controller = new Controller("New", pseudo1, pseudo2, Type::IA, Type::IA);
             generateNewGame();
         }
         else {
@@ -249,21 +251,31 @@ void QTGame::handleGameStatus(){
         else if (status == "end") {
             controller->changeCurrentPlayer();
             status = "start";
-            play();
+            handleGameStatus();
         }
     }
 }
 
 void QTGame::play() {
-    std::string s = "C'est au tour de " + controller->getcurrentPlayer().getName();
-    MBox({"OK"},"Message", QString::fromStdString(s));
-    std::vector<CompulsoryActions> compulsoryActions = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
-    if (compulsoryActions.empty()) {
-        if (!isCurrentPlayerIA()) {
-            s = "Pas d'action obligatoires possibles, remplissage du plateau";
-            MBox({"OK"}, "Message", QString::fromStdString(s));
+    std::string s;
+    if (isCurrentPlayerIA() && controller->getopposingPlayer().getType()==Type::IA) {
+    }
+    else {
+        s = "C'est au tour de " + controller->getcurrentPlayer().getName();
+        MBox({"OK"},"Message", QString::fromStdString(s));
+    }
+    std::vector<CompulsoryActions> compulsoryActions1 = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
+    unsigned int choice = 0;
+    std::vector<OptionalActions> optionalActions;
+    if (compulsoryActions1.empty()) {
+        if (controller->getGame().getGameTable().getBag().isEmpty()) {
+            throw TokenException("Egalité des IA");
         }
         applyOptionalAction(OptionalActions::FillBoard);
+        if (!isCurrentPlayerIA()) {
+            s = "Pas d'actions possibles, remplissage du plateau";
+            MBox({"Ok"},"Message", QString::fromStdString(s));
+        }
     }
     else {
         status = "optionalActions";
@@ -276,12 +288,11 @@ void QTGame::playOptionalActions(){
     if (optionalActions.size()>1) {
         if (isCurrentPlayerIA()) {
             //rajouter la fonction correspondante pour l'ia
-            applyOptionalAction(controller->getcurrentPlayer().getStrategy()->choseOptionalActions()[0]) ; // a verif
+            applyOptionalAction(optionalActions[controller->getcurrentPlayer().getStrategy()->choicemaker(1, optionalActions.size())-1]);
         } else {
             std::string msg = "Veuillez choisir une action optionnelle";
             applyOptionalAction(optionalActions[MBox(optionalActions, "Choix des actions optionnelles",
                                                      QString::fromStdString(msg))]);
-
         }
     }
     else {
@@ -292,9 +303,20 @@ void QTGame::playOptionalActions(){
 
 void QTGame::playCompulsoryActions(){
     std::vector<CompulsoryActions> compulsoryActions = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
+    if (compulsoryActions.empty()) {
+        if (controller->getGame().getGameTable().getBag().isEmpty()) {
+            throw TokenException("Egalité");
+        }
+        if (!isCurrentPlayerIA()) {
+            QString s = "Pas d'actions possibles, remplissage du plateau";
+            MBox({"Ok"},"Message", s);
+        }
+        applyOptionalAction(OptionalActions::FillBoard);
+    }
     if (isCurrentPlayerIA()){
         //rajouter code ia strategy
-        applyCompulsoryAction(controller->getcurrentPlayer().getStrategy()->choseCompulsoryAction()) ;
+        CompulsoryActions c = compulsoryActions[controller->getcurrentPlayer().getStrategy()->choicemaker(1, compulsoryActions.size())-1];
+        applyCompulsoryAction(c);
     } else {std::string s = "Veuillez choisir une action obligatoire";
         applyCompulsoryAction(compulsoryActions[MBox(compulsoryActions, "Choix des actions obligatoires", QString::fromStdString(s))]);
     }
@@ -304,15 +326,24 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
     std::string s;
     switch (action) {
         case CompulsoryActions::TakeCoins:
-            plateView->updateStatus("take3tokens");
-            plateView->updateMaxNbSelectedTokens(3);
+            qDebug()<<"action : takecoins\n";
             status = "check";
+            if (!isCurrentPlayerIA()) {
+                plateView->updateStatus("take3tokens");
+                plateView->updateMaxNbSelectedTokens(3);
+            }
+            else {
+                handleIATokenSelection();
+                handleGameStatus();
+            }
             break;
         case CompulsoryActions::ReserveCard:
+            qDebug()<<"action : reservecard\n";
             bookCard(controller->getGame().getGameTable());
             status = "check";
             break;
         case CompulsoryActions::BuyCard:
+            qDebug()<<"action : buycard\n";
             buyJewelryCard(controller->getGame().getGameTable());
             break;
     }
@@ -320,8 +351,7 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
 
 void QTGame::checkEndTurn() {
     if (controller->getcurrentPlayer().getNbTokens() > 10) {
-        player1->updateAllPlayer();
-        player2->updateAllPlayer();
+        qDebug()<<"icitokens+10";
         int nb = -(10 - controller->getcurrentPlayer().getNbTokens());
         if (isCurrentPlayerIA()) {
             while (nb != 0) {
@@ -332,13 +362,10 @@ void QTGame::checkEndTurn() {
                         colors.push_back(color.first);
                     }
                 }
-                //TokenColor color = colors[random(0, colors.size())]; ??
-                TokenColor color = TokenColor::BLEU; //en attendant l'autre pour pas avoir d'erreur
-                //unsigned int tot = random(1, controller->getcurrentPlayer().getTokenSummary().find(color)->second);
-                unsigned int tot =1;
+                TokenColor color = colors[controller->getcurrentPlayer().getStrategy()->choicemaker(0, colors.size()-1)];
+                unsigned int tot = controller->getcurrentPlayer().getStrategy()->choicemaker(1, std::min(controller->getcurrentPlayer().getTokenSummary().find(color)->second,nb));
                 for (unsigned int i = 0; i < tot; i++) {
-                    controller->getGame().getGameTable().getBag().addToken(
-                            controller->getcurrentPlayer().removeToken(color));
+                    controller->getGame().getGameTable().getBag().addToken(controller->getcurrentPlayer().removeToken(color));
                     nb--;
                 }
                 getCurrentQTPlayer()->updateAllPlayer();
@@ -375,8 +402,6 @@ void QTGame::checkEndTurn() {
             player1->updateAllPlayer();
             player2->updateAllPlayer();
         } else {
-            player1->updateAllPlayer();
-            player2->updateAllPlayer();
             status = "end";
             handleGameStatus();
         }
@@ -395,10 +420,20 @@ void QTGame::bookCard(GameTable& gametable) {
         plateView->updateStatus("gold");
         plateView->updateMaxNbSelectedTokens(1);
     } else {
+        unsigned int choiceDeckOrPyramid;
         unsigned int choiceDeckLevel;
         unsigned int cardLevel;
-        unsigned int choice = controller->getcurrentPlayer().getStrategy()->choicemaker(1, 2);
-        if (choice==1){//Carte dans pioche
+        std::vector<int> choices = {1,2};
+        if (gametable.getPyramid().isEmpty(1) && gametable.getPyramid().isEmpty(2) && gametable.getPyramid().isEmpty(3)) {
+            choices.erase(std::remove(choices.begin(), choices.end(), 2), choices.end());
+        }
+        if (gametable.getDeckLevelOne().getPioche().empty() && gametable.getDeckLevelTwo().getPioche().empty() && gametable.getDeckLevelThree().getPioche().empty()) {
+            choices.erase(std::remove(choices.begin(), choices.end(), 1), choices.end());
+        }
+        //make a random choice between the numbers in the choices
+        choiceDeckOrPyramid = choices[controller->getcurrentPlayer().getStrategy()->choicemaker(0, choices.size()-1)];
+        if (choiceDeckOrPyramid==1) {
+            //Carte dans pioche
             std::vector<int> levels = {1,2,3};
             if (gametable.getDeckLevelOne().getPioche().empty()) {
                 levels.erase(std::remove(levels.begin(), levels.end(), 1), levels.end());
@@ -409,11 +444,16 @@ void QTGame::bookCard(GameTable& gametable) {
             if (gametable.getDeckLevelThree().getPioche().empty()) {
                 levels.erase(std::remove(levels.begin(), levels.end(), 3), levels.end());
             }
-            //make a random choice between the numbers in the levels
-            choiceDeckLevel = levels[controller->getcurrentPlayer().getStrategy()->choicemaker(0, levels.size()-1)];
-            JewelryCard& card = takeCard(choiceDeckLevel);
-            controller->getcurrentPlayer().getStrategy()->chooseGoldenToken(controller->getGame().getGameTable().getBoard(), controller->getcurrentPlayer());
+            int choice = levels[controller->getcurrentPlayer().getStrategy()->choicemaker(0, levels.size()-1)];
+
+            QTPioche& piocheclicked = pioches->getPioche(choice);
+            int row, col, rowspan, columnspan;
+            pioches->getGrid()->getItemPosition(pioches->getGrid()->indexOf(&piocheclicked), &row, &col, &rowspan, &columnspan);
+            int level = abs(row - 3); // Convertir la ligne en level
+            JewelryCard& card = takeCard(level);
             controller->getcurrentPlayer().reserveOneCard(card);
+
+            controller->getcurrentPlayer().getStrategy()->chooseGoldenToken(controller->getGame().getGameTable().getBoard(), controller->getcurrentPlayer());
         } else {
             std::vector<int> levels = {1,2,3};
             if (gametable.getPyramid().isEmpty(1)) {
@@ -426,14 +466,25 @@ void QTGame::bookCard(GameTable& gametable) {
                 levels.erase(std::remove(levels.begin(), levels.end(), 3), levels.end());
             }
             //make a random choice between the numbers in the levels
-            cardLevel = levels[controller->getcurrentPlayer().getStrategy()->choicemaker(0, levels.size()-1)];
-
+            int r = controller->getcurrentPlayer().getStrategy()->choicemaker(0, levels.size()-1);
+            cardLevel = levels[r];
             unsigned int cardPosition = 0;
             unsigned int nb = pyramid->getPyramidCard()->getLevelCards(cardLevel).size();
-            cardPosition = controller->getcurrentPlayer().getStrategy()->choicemaker(1, nb);
+            cardPosition = controller->getcurrentPlayer().getStrategy()->choicemaker(0, nb-1);
+            Carte* clickedCard = &pyramid->getCarte(cardLevel, cardPosition);
+            //make a random choice between the numbers in the levels
+            int row, col, rowspan, columnspan;
+            pyramid->getgrid()->getItemPosition(pyramid->getgrid()->indexOf(clickedCard), &row, &col, &rowspan, &columnspan);
+            unsigned int level = abs(row - 3);
+            controller->getcurrentPlayer().reserveOneCard(pyramid->getPyramidCard()->takeCard(level , col));
+            pyramid->getPyramidCard()->drawCard(level);
+
+            int delrow = pyramid->retirerCarte(clickedCard);
+            pyramid->ajouterCarte(delrow);
+
+
             controller->getcurrentPlayer().getStrategy()->chooseGoldenToken(gametable.getBoard(), controller->getcurrentPlayer());
-            controller->getcurrentPlayer().reserveOneCard(pyramid->getPyramidCard()->takeCard(cardLevel,cardPosition-1));
-            pyramid->getPyramidCard()->drawCard(cardLevel);
+            plateView->updateWidgetsFromBoard();
         }
 
         status = "check";
@@ -456,13 +507,14 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
         }
         else if (card.getAbility1() == Abilities::take_bonus_token) {
             status = "check";
-            plateView->updateStatus("take3tokens");
-            plateView->updateMaxNbSelectedTokens(1);
             if(isCurrentPlayerIA()){
                 controller->getcurrentPlayer().getStrategy()->chooseToken(game.getGameTable().getBoard(), cardOwner);
-
+                plateView->updateWidgetsFromBoard();
+                handleGameStatus();
             } else {
                 MBox({"OK"}, "Message", "Veuillez choisir un jeton bonus sur le plateau");
+                plateView->updateStatus("take3tokens");
+                plateView->updateMaxNbSelectedTokens(1);
             }
         }
         else if (card.getAbility1() == Abilities::steal_token) {
@@ -482,9 +534,14 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
                 } else {
                     TokenColor color;
                     std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
-                    color =controller->getopposingPlayer().getStrategy()->choseTokenColor(colors);
-                    const Token& token = controller->getopposingPlayer().removeToken(color);
-                    cardOwner.addToken(token);
+                    color =controller->getcurrentPlayer().getStrategy()->choseTokenColor(colors);
+                    if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
+                        qDebug() << "Le joueur adverse n'a pas de jeton de cette couleur";
+                    }
+                    else {
+                        const Token& token = controller->getopposingPlayer().removeToken(color);
+                        cardOwner.addToken(token);
+                    }
                 }
             }
             else if(!isCurrentPlayerIA()){
@@ -495,7 +552,7 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             handleGameStatus();
         }
         else if (card.getAbility1() == Abilities::cameleon) {
-            TokenColor color;
+            TokenColor color = TokenColor::ROUGE;
             std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
             if(!isCurrentPlayerIA()) {
                 QString s = "Veuillez choisir une couleur de bonus";
@@ -504,24 +561,31 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
                 TokenColor color = toTokenColor(rep);
 
                 if (cardOwner.getColorSummary(color).getBonusNumber() == 0) {
-                    throw TokenException("Vous n'avez pas de cartes de cette couleur");
+                    s = "Vous n'avez pas de cartes de cette couleur, rien n'est ajouté";
+                    showWarningMessage("Attention", s);
+                    if (card.getPrestige()!=0) {
+                        cardOwner.addPrestige(card.getPrestige(),TokenColor::None);
+                    }
                 } else {
                     cardOwner.getColorSummary(color).addBonusNumber(1);
-                    cardOwner.addPrestige(1, color);
+                    cardOwner.addPrestige(card.getPrestige(), color);
                 }
             } else {
                 for (int i = 0; i < 5; i++) {
-                    if (cardOwner.getColorSummary(colors[i]).getBonusNumber() == 0) { // ce serait pas plutot !=0 ?
+                    if (cardOwner.getColorSummary(colors[i]).getBonusNumber() != 0) { // ce serait pas plutot !=0 ?
                         color = colors[i];
                         break;
                     }
                 }
                 if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
                     qDebug()<<"Vous n'avez pas de cartes de cette couleur";
+                    if (card.getPrestige()!=0) {
+                        cardOwner.addPrestige(card.getPrestige(),TokenColor::None);
+                    }
                 }
                 else {
                     cardOwner.getColorSummary(color).addBonusNumber(1);
-                    cardOwner.addPrestige(1,color);//pourquoi on rajoute 1 de prestige ??
+                    cardOwner.addPrestige(card.getPrestige(),color);//pourquoi on rajoute 1 de prestige ??
                     //cardOwner.addPrestige(card.getPrestige(),color); ce serait pas plutot ca ?
                 }
             }
@@ -537,28 +601,49 @@ void QTGame::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, Jewel
             }
             handleGameStatus();
         }
+        else {
+            status = "check";
+            handleGameStatus();
+        }
     }
     else {
-        TokenColor color;
-        std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC"};
-        if (!isCurrentPlayerIA()) {
-            QString s = "Veuillez choisir une couleur de bonus";
-            std::string rep = MBox(colors, "Choix", s).toStdString();
-            color = toTokenColor(rep);
-        }
-        else {
-            std::vector<TokenColor> colors2 = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
-            color = controller->getopposingPlayer().getStrategy()->choseTokenColor(colors2);
-        }
+            TokenColor color = TokenColor::ROUGE;
+            std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
+            if(!isCurrentPlayerIA()) {
+                QString s = "Veuillez choisir une couleur de bonus";
+                std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC"};
+                std::string rep = MBox(colors, "Choix", s).toStdString();
+                TokenColor color = toTokenColor(rep);
 
-
-        if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
-            throw TokenException("Vous n'avez pas de cartes de cette couleur");
-        }
-        else {
-            cardOwner.getColorSummary(color).addBonusNumber(1);
-            cardOwner.addPrestige(1,color);
-        }
+                if (cardOwner.getColorSummary(color).getBonusNumber() == 0) {
+                    s = "Vous n'avez pas de cartes de cette couleur, rien n'est ajouté";
+                    showWarningMessage("Attention", s);
+                    if (card.getPrestige()!=0) {
+                        cardOwner.addPrestige(card.getPrestige(),TokenColor::None);
+                    }
+                } else {
+                    cardOwner.getColorSummary(color).addBonusNumber(1);
+                    cardOwner.addPrestige(card.getPrestige(), color);
+                }
+            } else {
+                for (int i = 0; i < 5; i++) {
+                    if (cardOwner.getColorSummary(colors[i]).getBonusNumber() != 0) { // ce serait pas plutot !=0 ?
+                        color = colors[i];
+                        break;
+                    }
+                }
+                if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
+                    qDebug()<<"Vous n'avez pas de cartes de cette couleur";
+                    if (card.getPrestige()!=0) {
+                        cardOwner.addPrestige(card.getPrestige(),TokenColor::None);
+                    }
+                }
+                else {
+                    cardOwner.getColorSummary(color).addBonusNumber(1);
+                    cardOwner.addPrestige(card.getPrestige(),color);//pourquoi on rajoute 1 de prestige ??
+                    //cardOwner.addPrestige(card.getPrestige(),color); ce serait pas plutot ca ?
+                }
+            }
         status = "start";
         if(!isCurrentPlayerIA()) {
             QString s = "Vous rejouez";
@@ -572,8 +657,6 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
     if(!isCurrentPlayerIA()) {
         getCurrentQTPlayer()->setReserveCardBought(false);
         bool bought = false;
-        std::cout << "Jetons disponibles : " << std::endl;
-        std::cout << controller->getcurrentPlayer() << std::endl;
         if (controller->getcurrentPlayer().canbuyreservedcard()) {
             QString s = "Voulez vous acheter une carte reservee ?";
             std::vector<QString> buttonLabels = {"Oui", "Non"};
@@ -587,11 +670,7 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
                     currentPlayerQT = player2;
                 }
 
-                QMessageBox msgBox;
-                msgBox.setText("Choisissez la carte que vous voulez acheter");
-
-                msgBox.addButton("Ok", QMessageBox::RejectRole);
-                msgBox.exec();
+                MBox({"OK"}, "Message", "Veuillez choisir une carte à acheter");
                 currentPlayerQT->showPopup(true);
                 if (currentPlayerQT->getReserveCardBought()) {
                     bought = true;
@@ -600,12 +679,8 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
         }
 
         if (not(bought)) {
+            MBox({"OK"}, "Message", "Veuillez choisir une carte à acheter");
             pyramid->updateAllCardStatus(Carte::buyable);
-
-            QMessageBox msgBox;
-            msgBox.setText("Sélectionnez la carte que vous voulez acheter");
-            msgBox.addButton("Ok", QMessageBox::RejectRole);
-            msgBox.exec();
         }
     } else {
         bool bought = false;
@@ -623,10 +698,15 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
             for (int i = 1; i <= 3; i++) {
                 for (int j = 0; j < gametable.getPyramid().getLevelCards(i).size(); j++) {
                     if (controller->getcurrentPlayer().canBuyCard(*gametable.getPyramid().getLevelCards(i)[j])) {
-                        cardbought = gametable.getPyramid().getLevelCards(i)[j];
-                        gametable.getPyramid().takeCard(i, j);
-                        gametable.getPyramid().drawCard(i);
+                        Carte& cartewidget = pyramid->getCarte(i,j);
+                        int level = cartewidget.getJewelryCard()->getLevel();
+                        int r, col, rowspan, columnspan;
+                        pyramid->getgrid()->getItemPosition(pyramid->getgrid()->indexOf(&cartewidget), &r, &col, &rowspan, &columnspan);
+                        cardbought = &controller->getGame().getGameTable().getPyramid().takeCard(level, col);
+                        controller->getGame().getGameTable().getPyramid().drawCard(level);
                         controller->getcurrentPlayer().actionBuyCard(*cardbought);
+                        int row = pyramid->retirerCarte(&cartewidget);
+                        pyramid->ajouterCarte(row);
                         bought = true;
                         break;
                     }
@@ -643,16 +723,14 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
 
 
 void QTGame::buyNobleCard() {
+    qDebug()<<"iciçapuevraiment";
     if (!isCurrentPlayerIA()) {
         boardRoyal->updateAllCardStatus(QTCardRoyal::buyable);
         std::cout << "Veuillez choisir une carte" << std::endl;
         for (auto card: Deck_Royal::getInstance()->getCards()) {
             std::cout << *card << std::endl;
         }
-        QMessageBox msgBox;
-        msgBox.setText("Sélectionnez la carte Royale que vous voulez acheter");
-        msgBox.addButton("Ok", QMessageBox::RejectRole);
-        msgBox.exec();
+        MBox({"OK"}, "Message", "Veuillez choisir une carte à acheter");
     } else {
         unsigned int nbCard = 0;
         nbCard = controller->getcurrentPlayer().getStrategy()->choicemaker(1,Deck_Royal::getInstance()->getCards().size());
@@ -675,21 +753,35 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
         handleGameStatus();
     }
     else if (card.getAbility() == Abilities::steal_token) {
+        status = "check";
         QString s;
         if (opponent.getNbTokens()!=0) {
-            s = "Veuillez choisir une couleur de jeton à retirer du joueur adverse :";
-            std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC", "PERLE"};
-            QString rep = MBox(colors,"Choix", s);
-            TokenColor color = toTokenColor(rep.toStdString());
-            if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
-                std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
+            if (!isCurrentPlayerIA()) {
+                s = "Veuillez choisir une couleur de jeton à retirer du joueur adverse :";
+                std::vector<QString> colors = {"NOIR", "ROUGE", "BLEU", "VERT", "BLANC", "PERLE"};
+                QString rep = MBox(colors, "Choix", s);
+                TokenColor color = toTokenColor(rep.toStdString());
+                if (controller->getopposingPlayer().getTokenSummary().find(color)->second == 0) {
+                    std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
+                } else {
+                    const Token &token = controller->getopposingPlayer().removeToken(color);
+                    cardOwner.addToken(token);
+                }
+            } else {
+                TokenColor color;
+                std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
+                color =controller->getcurrentPlayer().getStrategy()->choseTokenColor(colors);
+                if (controller->getopposingPlayer().getTokenSummary().find(color)->second==0){
+                    qDebug() << "Le joueur adverse n'a pas de jeton de cette couleur";
+                }
+                else {
+                    const Token& token = controller->getopposingPlayer().removeToken(color);
+                    cardOwner.addToken(token);
+                }
             }
-            else {
-                const Token& token = controller->getopposingPlayer().removeToken(color);
-                cardOwner.addToken(token);
-            }
+            handleGameStatus();
         }
-        else {
+        else if(!isCurrentPlayerIA()) {
             s = "Le joueur adverse n'a pas de jetons";
             MBox({"OK"},"Message", s);
         }
@@ -698,8 +790,14 @@ void QTGame::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, 
     }
     else if (card.getAbility() == Abilities::repeat_turn) {
         status = "start";
-        std::string s = "Vous rejouez";
-        MBox({"OK"},"Message", QString::fromStdString(s));
+        if(!isCurrentPlayerIA()) {
+            std::string s = "Vous rejouez";
+            MBox({"OK"},"Message", QString::fromStdString(s));
+        }
+        handleGameStatus();
+    }
+    else {
+        status = "check";
         handleGameStatus();
     }
 }
@@ -986,6 +1084,7 @@ void QTGame::generateNewGame() {
     QVBoxLayout* centre = new QVBoxLayout();
     QHBoxLayout* total = new QHBoxLayout();
     QHBoxLayout* CartesRoyalesPrivilegesPlateau= new QHBoxLayout();
+
     plateView = new PlateView(nullptr, height-100,width/2);
 
     pyramid = new QTPyramid();
@@ -996,9 +1095,9 @@ void QTGame::generateNewGame() {
     player2 = new PlayerQT(controller->getopposingPlayer(), nullptr);
     PyramidPioche->addWidget(pioches);
     PyramidPioche->addWidget(pyramid);
-    CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
     boardRoyal->setMaximumWidth(400);
     pioches->setMaximumWidth(200);
+    CartesRoyalesPrivilegesPlateau->addWidget(boardRoyal);
     CartesRoyalesPrivilegesPlateau->addWidget(privilegeCounter);
     CartesRoyalesPrivilegesPlateau->addWidget(plateView);
     centre->addLayout(PyramidPioche);
@@ -1010,6 +1109,7 @@ void QTGame::generateNewGame() {
     clearWidgetAndSetNewLayout(this,mainlayout2);
     int h = plateView->size().height() + pyramid->size().height()/2 + boardRoyal->size().height()/2;
     setFixedSize(size->width()*2,size->height()*1.75);
+
     connect(plateView, &PlateView::tokensValidated, this, &QTGame::handleTokenSelection);
     connect(plateView, &PlateView::privilegeUsed, this, &QTGame::placePrivilege);
     connect(plateView, &PlateView::endOfTurn, this, &QTGame::handleGameStatus);
@@ -1018,6 +1118,8 @@ void QTGame::generateNewGame() {
     connect(pyramid, &QTPyramid::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPyramid);
     connect(pioches, &QTRangeePioches::reserverCarteClicked, this, &QTGame::handleBookingJewelryCardFromPioche);
     connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
+    connect(player1, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
+    connect(player2, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
     status = "start";
     handleGameStatus();
 }
@@ -1051,4 +1153,60 @@ PlayerQT* QTGame::getCurrentQTPlayer() {
 
 bool QTGame::isCurrentPlayerIA() {
     return (getCurrentQTPlayer()->getPlayer().getType()==Type::IA);
+}
+
+void QTGame::handleIATokenSelection() {
+    std::vector<const Token*> tokens;
+    unsigned int counter = 0;
+    bool check = true;
+    TokenColor color = TokenColor::None;
+    std::vector<std::pair<int, int>> indicesia;
+    indicesia = controller->getcurrentPlayer().getStrategy()->choseTokensToTake();
+    for (unsigned int i = 0; i < indicesia.size(); i++) {
+        const Token& token = Board::getInstance()->takeToken(indicesia[i].first, indicesia[i].second);
+        tokens.push_back(&token);
+        if (tokens[i]->getColor()==TokenColor::None) {
+            break;
+        }
+    }
+    for (auto token : tokens) {
+        if (token!=nullptr) {
+            controller->getcurrentPlayer().addToken(*token);
+        }
+    }
+    if (tokens.size()!=3 || TokenColor::None == tokens[0]->getColor() || TokenColor::None == tokens[1]->getColor() || TokenColor::None == tokens[2]->getColor()) {
+        check = false;
+    }
+    for (auto token : tokens) {
+        if (token!=nullptr) {
+            if (color==TokenColor::None) {
+                color = token->getColor();
+            }
+            else if (color!=token->getColor()) {
+                check = false;
+            }
+        }
+    }
+    if (not(check)) {
+        for (auto token : tokens) {
+            if (token!=nullptr) {
+                if (token->getColor()==TokenColor::PERLE) {
+                    counter++;
+                }
+            }
+        }
+        if (counter == 2) {
+            check = true;
+        }
+    }
+    if (check) {
+        if (controller->getGame().getGameTable().getBoard().getNbPrivileges()>0) {
+            controller->getopposingPlayer().addPrivilege(controller->getGame().getGameTable().getBoard().takePrivilege());
+            privilegeCounter->updateValue();
+        }
+        else if (controller->getcurrentPlayer().getNbPrivilege()>0) {
+            controller->getopposingPlayer().addPrivilege(controller->getcurrentPlayer().removePrivilege());
+        }
+    }
+    plateView->updateWidgetsFromBoard();
 }

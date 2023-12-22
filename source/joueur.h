@@ -41,7 +41,7 @@ private:
 
 public:
     std::string getName() const {return name;};
-    unsigned int getNbPrivilege() const;
+    int getNbPrivilege() const;
     int getNbTokens() const {return nbTokens;};
     unsigned int getPrestige() const {return prestigePoints;};
     unsigned int getCrowns() const {return nbCrown;};

@@ -549,60 +549,98 @@ void Controller::buyNobleCard() {
 }
 
 void Controller::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, JewelryCard&card) {
-    if (card.getAbility1() == Abilities::take_privilege) {
-        if (getGame().getGameTable().getBoard().getNbPrivileges()!=0) {
-            cardOwner.addPrivilege(getGame().getGameTable().getBoard().takePrivilege());
+    if (card.getAbility2()==Abilities::None) {
+        if (card.getAbility1() == Abilities::take_privilege) {
+            if (getGame().getGameTable().getBoard().getNbPrivileges()!=0) {
+                cardOwner.addPrivilege(getGame().getGameTable().getBoard().takePrivilege());
+            }
+            else if (getopposingPlayer().getNbPrivilege()!=0) {
+                cardOwner.addPrivilege(getopposingPlayer().removePrivilege());
+            }
         }
-        else if (getopposingPlayer().getNbPrivilege()!=0) {
-            cardOwner.addPrivilege(getopposingPlayer().removePrivilege());
+        else if (card.getAbility1() == Abilities::take_bonus_token) {
+            currentPlayer->getStrategy()->chooseToken(game.getGameTable().getBoard(), cardOwner);
         }
-    }
-    else if (card.getAbility1() == Abilities::take_bonus_token) {
-        currentPlayer->getStrategy()->chooseToken(game.getGameTable().getBoard(), cardOwner);
-    }
-    else if (card.getAbility1() == Abilities::steal_token) {
-        if (opponent.getNbTokens()!=0) {
-            std::cout << "Voici les jetons du joueur adverse : \n";
-            std::cout << opponent << std::endl;
-            //std::string rep;
-            TokenColor color;
+        else if (card.getAbility1() == Abilities::steal_token) {
+            if (opponent.getNbTokens()!=0) {
+                std::cout << "Voici les jetons du joueur adverse : \n";
+                std::cout << opponent << std::endl;
+                //std::string rep;
+                TokenColor color;
 
+                // joueur H
+                std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
+                if(currentPlayer->getType()==Type::Humain){
+                    color =currentPlayer->getStrategy()->choseTokenColor(colors);
+                }
+                // ia
+                else{
+                    color =currentPlayer->getStrategy()->choseTokenColor(colors);
+                }
+                // std::cin >> rep;
+                // if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
+                //     throw TokenException("Couleur invalide");
+                // }
+
+                //TokenColor color = toTokenColor(rep);
+                if (getopposingPlayer().getTokenSummary().find(color)->second==0){
+                    std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
+                }
+                else {
+                    const Token& token = getopposingPlayer().removeToken(color);
+                    cardOwner.addToken(token);
+                }
+            }
+            else {
+                std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+            }
+        }
+        else if (card.getAbility1() == Abilities::cameleon) {
+            // std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
+            // std::string rep;
+            // std::cin >> rep;
+            // if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
+            //     throw TokenException("Couleur invalide");
+            // }
+            //std::string rep;
+            TokenColor color = TokenColor::ROUGE;
             // joueur H
-            std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
+            std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::NOIR};
             if(currentPlayer->getType()==Type::Humain){
-                color =currentPlayer->getStrategy()->choseTokenColor(colors);
+                color =currentPlayer->getStrategy()->choseTokenColor({colors});
             }
             // ia
             else{
-                color =currentPlayer->getStrategy()->choseTokenColor(colors);
+                for (int i = 0; i < 5; i++) {
+                    if (cardOwner.getColorSummary(colors[i]).getBonusNumber() != 0) {
+                        color = colors[i];
+                        break;
+                    }
+                }
             }
-            // std::cin >> rep;
-            // if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
-            //     throw TokenException("Couleur invalide");
-            // }
+
 
             //TokenColor color = toTokenColor(rep);
-            if (getopposingPlayer().getTokenSummary().find(color)->second==0){
-                std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
+
+            if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
+                std::cout<<"Vous n'avez pas de cartes de cette couleur" << std::endl;
+                if (card.getPrestige()!=0){
+                    cardOwner.addPrestige(card.getPrestige(),TokenColor::None);
+                }
             }
             else {
-                const Token& token = getopposingPlayer().removeToken(color);
-                cardOwner.addToken(token);
+                std::cout<<"Bonus ajouté" << std::endl;
+                cardOwner.getColorSummary(color).addBonusNumber(1);
+                cardOwner.addPrestige(card.getPrestige(),color);
             }
         }
-        else {
-            std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
+        else if (card.getAbility1() == Abilities::repeat_turn) {
+            std::cout<<"Vous rejouez" << std::endl;
+            playTurn();
         }
     }
-    else if (card.getAbility1() == Abilities::cameleon) {
-        // std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
-        // std::string rep;
-        // std::cin >> rep;
-        // if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
-        //     throw TokenException("Couleur invalide");
-        // }
-        //std::string rep;
-        TokenColor color;
+    else {
+        TokenColor color = TokenColor::ROUGE;
         // joueur H
         std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::NOIR};
         if(currentPlayer->getType()==Type::Humain){
@@ -610,109 +648,31 @@ void Controller::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, J
         }
         // ia
         else{
-                for (int i = 0; i < 5; i++) {
-                    if (cardOwner.getColorSummary(colors[i]).getBonusNumber() == 0) {
-                        color = colors[i];
-                        break;
-                    }
-                }
-        }
-        
-
-        //TokenColor color = toTokenColor(rep);
-
-        if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
-            std::cout<<"Vous n'avez pas de cartes de cette couleur" << std::endl;
-        }
-        else {
-            cardOwner.getColorSummary(color).addBonusNumber(1);
-            cardOwner.addPrestige(1,color);
-        }
-    }
-    else if (card.getAbility1() == Abilities::repeat_turn) {
-        playTurn();
-    }
-    if (card.getAbility2() == Abilities::take_privilege) {
-        if (getGame().getGameTable().getBoard().getNbPrivileges()!=0) {
-            cardOwner.addPrivilege(getGame().getGameTable().getBoard().takePrivilege());
-        }
-        else if (getopposingPlayer().getNbPrivilege()!=0) {
-            cardOwner.addPrivilege(getopposingPlayer().removePrivilege());
-        }
-    }
-    else if (card.getAbility2() == Abilities::take_bonus_token) {
-        currentPlayer->getStrategy()->chooseToken(game.getGameTable().getBoard(), cardOwner);
-    }
-    else if (card.getAbility2() == Abilities::steal_token) {
-        if (opponent.getNbTokens()!=0) {
-            std::cout << "Voici les jetons du joueur advrese : \n";
-            std::cout << opponent << std::endl;
-            TokenColor color;
-            // joueur H
-            std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
-            if(currentPlayer->getType()==Type::Humain){
-                color =currentPlayer->getStrategy()->choseTokenColor(colors);
-            }
-            // ia
-            else{
-                color =currentPlayer->getStrategy()->choseTokenColor({colors});
-            }
-            // std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC, PERLE)" << std::endl;
-            // std::string rep;
-            // std::cin >> rep;
-            // if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC" && rep != "PERLE") {
-            //     throw TokenException("Couleur invalide");
-            // }
-            // TokenColor color = toTokenColor(rep);
-            if (getopposingPlayer().getTokenSummary().find(color)->second==0){
-                std::cout << "Le joueur adverse n'a pas de jeton de cette couleur" << std::endl;
-            }
-            else {
-                const Token& token = getopposingPlayer().removeToken(color);
-                cardOwner.addToken(token);
-            }
-        }
-        else {
-            std::cout << "Le joueur adverse n'a pas de jetons" << std::endl;
-        }
-    }
-    else if (card.getAbility2() == Abilities::cameleon) {
-        // std::cout << "Veuillez choisir une couleur de jeton  (NOIR, ROUGE, BLEU, VERT, BLANC)" << std::endl;
-        // std::string rep;
-        // std::cin >> rep;
-        // if (rep != "NOIR" && rep != "ROUGE" && rep != "BLEU" && rep != "VERT" && rep != "BLANC") {
-        //     throw TokenException("Couleur invalide");
-        // }
-        // TokenColor color = toTokenColor(rep);
-
-        TokenColor color;
-        // joueur H
-        std::vector<TokenColor> colors = {TokenColor::BLANC, TokenColor::VERT, TokenColor::ROUGE, TokenColor::BLEU, TokenColor::PERLE, TokenColor::NOIR};
-        if(currentPlayer->getType()==Type::Humain){
-            color =currentPlayer->getStrategy()->choseTokenColor({colors});
-        }
-        // ia
-        else{
             for (int i = 0; i < 5; i++) {
-                if (cardOwner.getColorSummary(colors[i]).getBonusNumber() == 0) {
+                if (cardOwner.getColorSummary(colors[i]).getBonusNumber() != 0) {
                     color = colors[i];
                     break;
                 }
             }
         }
+
+
         //TokenColor color = toTokenColor(rep);
 
         if (cardOwner.getColorSummary(color).getBonusNumber() == 0 ){
             std::cout<<"Vous n'avez pas de cartes de cette couleur" << std::endl;
+            if (card.getPrestige()!=0){
+                cardOwner.addPrestige(card.getPrestige(),TokenColor::None);
+            }
         }
         else {
             cardOwner.getColorSummary(color).addBonusNumber(1);
-            cardOwner.addPrestige(1,color);
+            cardOwner.addPrestige(card.getPrestige(),color);
         }
-    }
-    else if (card.getAbility2() == Abilities::repeat_turn) {
+        std::cout<<"La totale" << std::endl;
         playTurn();
     }
+
 }
 
 void Controller::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card) {

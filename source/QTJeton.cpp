@@ -284,8 +284,8 @@ void PlateView::validateTokens() {
             tokens.push_back(&Board::getInstance()->takeToken(pair.first, pair.second));
         }
         unselectToken();
-        emit tokensValidated(tokens);
         emit privilegeUsed(tokens.size());
+        emit tokensValidated(tokens);
         updateMaxNbSelectedTokens(0);
     }
     else if (status == "gold") {
@@ -330,11 +330,14 @@ void PlateView::updateWidgetsFromBoard() {
     // Iterate over the tokens in the Board
     for (int i = 0; i < nbTokens; ++i) {
         const Token* token = it.next();
+        CircleWidget* circleWidget = buttons[i];
         if (token != nullptr) {
             // Find the corresponding CircleWidget and update its token
-            CircleWidget* circleWidget = buttons[i];
             circleWidget->setToken(token);
             circleWidget->show();
+        }
+        else {
+            circleWidget->disappear();
         }
     }
 
