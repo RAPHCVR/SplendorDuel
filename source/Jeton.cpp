@@ -130,7 +130,7 @@ const Token& Bag::drawToken() {
     return j;
 }
 
-bool Bag::containsOnly(TokenColor color) const {
+bool Bag::containsOnly(TokenColor color) {
     std::all_of(tokens.begin(), tokens.end(), [color](const Token* token) {
         return token->getColor() == color;
     });
@@ -341,10 +341,12 @@ bool Board::hasTokenOfColor(TokenColor color) const {
     return false;
 }
 
-bool Board::containsOnly(const TokenColor color) const {
-    for (const auto& row : tokens) {
-        for (const auto& token : row) {
-            if (token && token->getColor() != color) {
+bool Board::containsOnly(const TokenColor color) {
+    BoardIterator it = iterator();
+    while (it.hasNext()) {
+        const Token* token = it.next();
+        if (token!=nullptr) {
+            if (token->getColor() != color) {
                 return false;
             }
         }
@@ -363,3 +365,4 @@ unsigned Board::getNbTokens() const {
     }
     return nb;
 }
+

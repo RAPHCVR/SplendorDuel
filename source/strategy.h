@@ -2,9 +2,6 @@
 #define STRATEGY_H
 
 #include "Jeton.h"
-#include "Cards.h"
-#include "joueur.h"
-#include "Controller.h"
 #include <algorithm>
 #include <iostream>
 #include <map>
@@ -23,11 +20,18 @@ CHOIX :
 - quelle action obligatoire
 */
 
+enum class OptionalActions{
+    UsePrivileges, FillBoard, Empty
+};
+
+enum class CompulsoryActions{
+    TakeCoins, ReserveCard, BuyCard
+};
 
 class Strategy{
 public:
     virtual ~Strategy() = default;
-    virtual int random(int min, int max)=0 ;
+    virtual int choicemaker(int min, int max)=0;
     virtual std::vector<OptionalActions> choseOptionalActions()=0;
     virtual CompulsoryActions choseCompulsoryAction()=0;
     virtual std::vector<std::pair<int, int>> choseTokensToTake()=0;
@@ -37,19 +41,20 @@ public:
 
 class HumanStrategy : public Strategy{
 public:
-    virtual std::vector<OptionalActions> choseOptionalActions() override;
-    virtual CompulsoryActions choseCompulsoryAction() override;
-    virtual std::vector<std::pair<int, int>> choseTokensToTake() override;
-    virtual TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors) override;
+    int choicemaker(int min, int max) override;
+    std::vector<OptionalActions> choseOptionalActions() override;
+    CompulsoryActions choseCompulsoryAction() override;
+    std::vector<std::pair<int, int>> choseTokensToTake() override;
+    TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors) override;
 };
 
 class AiStrategy : public Strategy{
 public:
-    virtual int random(int min, int max) override;
-    virtual std::vector<OptionalActions> choseOptionalActions() override;
-    virtual CompulsoryActions choseCompulsoryAction() override;
-    virtual std::vector<std::pair<int, int>> choseTokensToTake() override;
-    virtual TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors) override;
+    int choicemaker(int min, int max) override;
+    std::vector<OptionalActions> choseOptionalActions() override;
+    CompulsoryActions choseCompulsoryAction() override;
+    std::vector<std::pair<int, int>> choseTokensToTake() override;
+    TokenColor choseTokenColor(std::vector<TokenColor>& chosableColors) override;
 };
 
 #endif //STRATEGY_H
