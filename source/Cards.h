@@ -254,6 +254,8 @@ JewelryCard& takeCard(unsigned int level);
 class Pyramid_Cards {
 public:
 
+    Pyramid_Cards(const std::string & databaseSavePath); //Rémy Save
+
     // Transformation en singleton
     static Pyramid_Cards* getInstance() {
         if (instance == nullptr) {

@@ -580,3 +580,205 @@ std::ostream& operator << (std::ostream & f,Pyramid_Cards& p) {
     }
     return f;
 }
+
+/* ----------------------------------------------------------------------------------------------------------------- */
+// Ajout Rémy pour save
+
+Pyramid_Cards::Pyramid_Cards(const std::string & databaseSavePath) : row_level_one(), row_level_two(), row_level_three() {
+
+    //cout << pathtodatabase << endl;
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    //Ligne niveau 1
+        const char* querylvl1 = "SELECT * FROM pyramid WHERE position = 1"; //requete pour chercher carte lvl 3
+        // Préparer la requête
+        sqlite3_stmt* stmtlvl1;
+        rc = sqlite3_prepare_v2(db, querylvl1, -1, &stmtlvl1, nullptr);
+
+        if (rc != SQLITE_OK) {
+            std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+            sqlite3_close(db);
+            return;
+        }
+
+        while ((rc = sqlite3_step(stmtlvl1)) == SQLITE_ROW) {
+
+            //Niveau
+            int level = sqlite3_column_int(stmtlvl1, 10); //Level dans la 11ème colonne
+
+
+            //Coûts
+            unsigned int cost_w = sqlite3_column_int(stmtlvl1, 3);
+            unsigned int cost_v = sqlite3_column_int(stmtlvl1, 4);
+            unsigned int cost_n = sqlite3_column_int(stmtlvl1, 5);
+            unsigned int cost_p = sqlite3_column_int(stmtlvl1, 6);
+            unsigned int cost_r = sqlite3_column_int(stmtlvl1, 7);
+            unsigned int cost_b = sqlite3_column_int(stmtlvl1, 8);
+            std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+                {TokenColor::BLEU, cost_b},
+                {TokenColor::BLANC, cost_w},
+                {TokenColor::VERT, cost_v},
+                {TokenColor::NOIR, cost_n},
+                {TokenColor::ROUGE, cost_r},
+                {TokenColor::PERLE, cost_p}
+            };
+
+            //Prestige
+            unsigned int prestige_points = sqlite3_column_int(stmtlvl1, 1);
+
+            //Couronnes
+            unsigned int crowns = sqlite3_column_int(stmtlvl1, 2);
+
+            //Capacité
+            const char* abi1 = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl1, 11));
+            Abilities ability1 = Utility::stringToAbility(abi1);
+            const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl1, 12));
+            Abilities ability2 = Utility::stringToAbility(abi2);
+
+            //Bonus
+            int bonus_nb = sqlite3_column_int(stmtlvl1, 12);
+            const char* color = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl1, 9));
+            Bonus bonus;
+            bonus.bonus_color = toTokenColor(color);
+            bonus.bonus_number = bonus_nb;
+
+            //Id
+            int id = sqlite3_column_int(stmtlvl1, 0);
+
+            //Création et ajout de l'instance au deck
+            JewelryCard* newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id);
+            row_level_one.push_back(std::move(newCard));
+
+    }
+
+    //Ligne cartes niveau 2
+        const char* querylvl2 = "SELECT * FROM pyramid WHERE position = 2"; //requete pour chercher carte lvl 3
+        // Préparer la requête
+        sqlite3_stmt* stmtlvl2;
+        rc = sqlite3_prepare_v2(db, querylvl2, -1, &stmtlvl2, nullptr);
+
+        if (rc != SQLITE_OK) {
+            std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+            sqlite3_close(db);
+            return;
+        }
+
+        while ((rc = sqlite3_step(stmtlvl2)) == SQLITE_ROW) {
+
+            //Niveau
+            int level = sqlite3_column_int(stmtlvl2, 10); //Level dans la 11ème colonne
+
+
+            //Coûts
+            unsigned int cost_w = sqlite3_column_int(stmtlvl2, 3);
+            unsigned int cost_v = sqlite3_column_int(stmtlvl2, 4);
+            unsigned int cost_n = sqlite3_column_int(stmtlvl2, 5);
+            unsigned int cost_p = sqlite3_column_int(stmtlvl2, 6);
+            unsigned int cost_r = sqlite3_column_int(stmtlvl2, 7);
+            unsigned int cost_b = sqlite3_column_int(stmtlvl2, 8);
+            std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+                {TokenColor::BLEU, cost_b},
+                {TokenColor::BLANC, cost_w},
+                {TokenColor::VERT, cost_v},
+                {TokenColor::NOIR, cost_n},
+                {TokenColor::ROUGE, cost_r},
+                {TokenColor::PERLE, cost_p}
+            };
+
+            //Prestige
+            unsigned int prestige_points = sqlite3_column_int(stmtlvl2, 1);
+
+            //Couronnes
+            unsigned int crowns = sqlite3_column_int(stmtlvl2, 2);
+
+            //Capacité
+            const char* abi1 = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl2, 11));
+            Abilities ability1 = Utility::stringToAbility(abi1);
+            const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl2, 12));
+            Abilities ability2 = Utility::stringToAbility(abi2);
+
+            //Bonus
+            int bonus_nb = sqlite3_column_int(stmtlvl2, 12);
+            const char* color = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl2, 9));
+            Bonus bonus;
+            bonus.bonus_color = toTokenColor(color);
+            bonus.bonus_number = bonus_nb;
+
+            //Id
+            int id = sqlite3_column_int(stmtlvl2, 0);
+
+            //Création et ajout de l'instance au deck
+            JewelryCard* newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id);
+            row_level_two.push_back(std::move(newCard));
+        }
+
+    // Ligne cartes niveau 3
+        const char* querylvl3 = "SELECT * FROM pyramid WHERE position = 3"; //requete pour chercher carte lvl 3
+        // Préparer la requête
+        sqlite3_stmt* stmtlvl3;
+        rc = sqlite3_prepare_v2(db, querylvl3, -1, &stmtlvl3, nullptr);
+
+        if (rc != SQLITE_OK) {
+            std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+            sqlite3_close(db);
+            return;
+        }
+
+        while ((rc = sqlite3_step(stmtlvl3)) == SQLITE_ROW) {
+
+            //Niveau
+            int level = sqlite3_column_int(stmtlvl3, 10); //Level dans la 11ème colonne
+
+
+            //Coûts
+            unsigned int cost_w = sqlite3_column_int(stmtlvl3, 3);
+            unsigned int cost_v = sqlite3_column_int(stmtlvl3, 4);
+            unsigned int cost_n = sqlite3_column_int(stmtlvl3, 5);
+            unsigned int cost_p = sqlite3_column_int(stmtlvl3, 6);
+            unsigned int cost_r = sqlite3_column_int(stmtlvl3, 7);
+            unsigned int cost_b = sqlite3_column_int(stmtlvl3, 8);
+            std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+                {TokenColor::BLEU, cost_b},
+                {TokenColor::BLANC, cost_w},
+                {TokenColor::VERT, cost_v},
+                {TokenColor::NOIR, cost_n},
+                {TokenColor::ROUGE, cost_r},
+                {TokenColor::PERLE, cost_p}
+            };
+
+            //Prestige
+            unsigned int prestige_points = sqlite3_column_int(stmtlvl3, 1);
+
+            //Couronnes
+            unsigned int crowns = sqlite3_column_int(stmtlvl3, 2);
+
+            //Capacité
+            const char* abi1 = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl3, 11));
+            Abilities ability1 = Utility::stringToAbility(abi1);
+            const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl3, 12));
+            Abilities ability2 = Utility::stringToAbility(abi2);
+
+            //Bonus
+            int bonus_nb = sqlite3_column_int(stmtlvl3, 12);
+            const char* color = reinterpret_cast<const char*>(sqlite3_column_text(stmtlvl3, 9));
+            Bonus bonus;
+            bonus.bonus_color = toTokenColor(color);
+            bonus.bonus_number = bonus_nb;
+
+            //Id
+            int id = sqlite3_column_int(stmtlvl3, 0);
+
+            //Création et ajout de l'instance au deck
+            JewelryCard* newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id);
+            row_level_three.push_back(std::move(newCard));
+        }
+
+}
