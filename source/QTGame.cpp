@@ -9,7 +9,7 @@
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     //QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
     //startingmenu->exec();
-    controller = new Controller("New", "JACK", "IA2", Type::IA, Type::IA);
+    controller = new Controller("New", "JACK", "IA", Type::Humain, Type::IA);
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
     width = size->width();
