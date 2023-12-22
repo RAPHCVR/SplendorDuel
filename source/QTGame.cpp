@@ -53,7 +53,6 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     connect(boardRoyal, &QTBoardRoyal::acheterCarteClicked, this, &QTGame::handleBuyingRoyalCard);
     connect(player1, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
     connect(player2, &PlayerQT::reserveCardSelected, this, &QTGame::handleBuyingReserveCard);
-    writeToDatabase(controller->getGame());
     status = "start";
     handleGameStatus();
 }
@@ -210,8 +209,6 @@ void QTGame::applyOptionalAction(OptionalActions action) {
 }
 
 void QTGame::handleGameStatus(){
-    std::cout << controller->getcurrentPlayer().getNbPrivilege();
-    std::cout << controller->getopposingPlayer().getNbPrivilege();
     player1->updateAllPlayer();
     player2->updateAllPlayer();
     if (status == "win"){
@@ -250,6 +247,7 @@ void QTGame::handleGameStatus(){
         }
         else if (status == "end") {
             controller->changeCurrentPlayer();
+            writeToDatabase(controller->getGame());
             status = "start";
             handleGameStatus();
         }
@@ -703,6 +701,8 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
                         int r, col, rowspan, columnspan;
                         pyramid->getgrid()->getItemPosition(pyramid->getgrid()->indexOf(&cartewidget), &r, &col, &rowspan, &columnspan);
                         cardbought = &controller->getGame().getGameTable().getPyramid().takeCard(level, col);
+                        std::cout << "Carte achetée : " << *cardbought << std::endl;
+                        std::cout << "indice : " << i << j << std::endl;
                         controller->getGame().getGameTable().getPyramid().drawCard(level);
                         controller->getcurrentPlayer().actionBuyCard(*cardbought);
                         int row = pyramid->retirerCarte(&cartewidget);

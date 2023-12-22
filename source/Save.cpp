@@ -314,8 +314,9 @@ void writeToDatabase(const Game& game) {
 
         for (auto card : player->getReserve()) {
 
+
             std::string insertQuery = std::string("INSERT INTO reservedCards (idPlayer, idCard, prestige, crown, cost_w, cost_v, cost_n, cost_p, cost_r, cost_b, color, level, ability1, ability2, bonus_nb) VALUES (") +
-                "'" + std::to_string(i) + "', '" +
+                "'" + std::to_string(i) + "', " +
                 "'" + std::to_string(card->getId()) + "', " +
                 "'" + std::to_string(card->getPrestige()) + "', " +
                 "'" + std::to_string(card->getCrowns()) + "', " +
@@ -352,9 +353,16 @@ void writeToDatabase(const Game& game) {
 
         if (token) {
             TokenColor color = token->getColor();
-            size_t posX = it.getCol();
-            size_t posY = it.getRow();
-
+            int posX;
+            int posY;
+            if( it.getCol() == 0){
+                posY = 4;
+                posX = it.getRow()-1;
+            }
+            else {
+                posY = it.getCol()-1;
+                posX = it.getRow();
+            }
             // Requete sql pour écrire dans la database
             std::string insertQuery = std::string("INSERT INTO boardToken (xToken, yToken, colorToken) VALUES (") +
                 "'" + std::to_string(posX) + "', " +
