@@ -170,7 +170,7 @@ void Controller::applyCompulsoryAction(Game &game, Player &player, CompulsoryAct
                 std::cout << game.getGameTable().getPyramid() << std::endl;
                 indices = new std::vector<std::pair<int, int>>;
                 for (unsigned int i = 0; i < 3; i++) {
-                    tokens.push_back(&chooseToken(game.getGameTable().getBoard(), player, indices));
+                    tokens.push_back(&currentPlayer->getStrategy()->chooseToken(game.getGameTable().getBoard(), player, indices));
                     if (tokens[i]->getColor()==TokenColor::None) {
                         break;
                     }
@@ -257,93 +257,7 @@ void Controller::usePriviledge(Board& board) {
     //nbPrivilege = choiceMaker(0, nb);
     for (unsigned int i = 0; i < nbPrivilege; i++) {
         board.placePrivilege(currentPlayer->removePrivilege());
-        chooseToken(board, *currentPlayer);
-    }
-}
-
-const Token& Controller::chooseToken(Board&board, Player&player, std::vector<std::pair<int, int>>* tokenIndexes) {
-    if (player.getType()==Type::Humain) {
-        if (!board.isEmpty()) {
-            std::cout << "Info du joueur : \n";
-            std::cout << player << std::endl;
-            unsigned int x = 0;
-            unsigned int y = 0;
-            bool stop = false;
-            if (tokenIndexes!= nullptr && !tokenIndexes->empty()) {
-                std::cout << "Veuillez choisir un jeton ('STOP' pour arreter)" << std::endl;
-                board.showBoard();
-                std::cout << "Veuillez choisir entre 1 et 5" << std::endl;
-                std::string rep;
-                std::cin >> rep;
-                if(rep != "STOP") {
-                    x = std::stoi(rep);
-                    if (x < 1 || x > 5) {
-                        throw TokenException("Indice incorrect");
-                    }
-                    y = currentPlayer->getStrategy()->choicemaker(1, 5);
-                }
-                else {
-                    stop = true;
-                }
-            }
-            else {
-                std::cout << "Veuillez choisir un jeton" << std::endl;
-                board.showBoard();
-                x = currentPlayer->getStrategy()->choicemaker(1, 5);
-                y = currentPlayer->getStrategy()->choicemaker(1, 5);
-            }
-            if (!stop) {
-                if(game->getGameTable().getBoard().isCellEmpty(x-1,y-1))
-                    throw TokenException("L'emplacement ne contient pas de jeton\n");
-                if(game->getGameTable().getBoard().CellColor(x-1, y-1,TokenColor::OR))
-                    throw TokenException("Impossible de prendre un jeton or\n");
-                if (tokenIndexes!= nullptr) {
-                    if (tokenIndexes->empty()) {
-                        tokenIndexes->emplace_back(x-1,y-1);
-                    }
-                    else {
-                        tokenIndexes->emplace_back(x-1,y-1);
-                        if (not(areCoordinatesAlignedAndConsecutive(tokenIndexes))) {
-                            throw TokenException("Les jetons ne sont pas alignés ou ne sont pas consécutifs");
-                        }
-                    }
-                }
-                const Token& token = board.takeToken(x-1, y-1);
-                player.addToken(token);
-                return token;
-            }
-            else {
-                return *new Token(TokenColor::None);
-            }
-        }
-        else {
-            std::cout << "Plus de Jetons sur le plateau" << std::endl;
-            return *new Token(TokenColor::None);
-        }
-    }
-    else {
-        Board::BoardIterator it = board.iterator();
-        while (it.hasNext()) {
-            const Token* token = it.next();
-            if (token!=nullptr) {
-                if (token->getColor()!=TokenColor::OR) {
-                    int col;
-                    int row;
-                    if( it.getCol() == 0){
-                        col = 4;
-                        row = it.getRow()-1;
-                    }
-                    else {
-                        col = it.getCol()-1;
-                        row = it.getRow();
-                    }
-                    token = &board.takeToken(row, col);
-                    player.addToken(*token);
-                    return *token;
-                }
-            }
-        }
-        return *new Token(TokenColor::None);
+        currentPlayer->getStrategy()->chooseToken(board, *currentPlayer);
     }
 }
 
@@ -378,46 +292,6 @@ bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>*
     }
 
     return true;
-}
-
-void Controller::chooseGoldenToken(Board&board, Player&player) {
-    if (currentPlayer->getType()==Type::Humain) {
-        std::cout << "Veuillez choisir un jeton OR" << std::endl;
-        board.showBoard();
-        unsigned int x = currentPlayer->getStrategy()->choicemaker(1, 5);
-        unsigned int y = currentPlayer->getStrategy()->choicemaker(1, 5);
-        // joueur humain
-        if(game->getGameTable().getBoard().isCellEmpty(x-1,y-1))
-            throw TokenException("L'emplacement ne contient pas de jeton\n");
-        if(not(game->getGameTable().getBoard().CellColor(x-1, y-1,TokenColor::OR)))
-            throw TokenException("Vous devez choisir un jeton or\n");
-        const Token& token = board.takeToken(x-1, y-1);
-        player.addToken(token);
-    }
-    else {
-        Board::getInstance()->showBoard();
-        Board::BoardIterator it = board.iterator();
-        while (it.hasNext()) {
-            const Token* token = it.next();
-            if (token!=nullptr) {
-                if (token->getColor()==TokenColor::OR) {
-                    int col;
-                    int row;
-                    if(it.getCol() == 0){
-                        col = 4;
-                        row = it.getRow()-1;
-                    }
-                    else {
-                        col = it.getCol()-1;
-                        row = it.getRow();
-                    }
-                    token = &board.takeToken(row, col);
-                    player.addToken(*token);
-                    return;
-                }
-            }
-        }
-    }
 }
 
 
@@ -487,7 +361,7 @@ void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
         }
         
         JewelryCard& card = takeCard(choiceDeckLevel);
-        chooseGoldenToken(gametable.getBoard(), *currentPlayer);
+        currentPlayer->getStrategy()->chooseGoldenToken(game->getGameTable().getBoard(), *currentPlayer);
         currentPlayer->reserveOneCard(card);
     }
     // reservation carte de la pyramide
@@ -540,7 +414,7 @@ void Controller::bookCard(Pyramid_Cards& pyramid, GameTable& gametable) {
         else{
             cardPosition = currentPlayer->getStrategy()->choicemaker(1, nb);
         }
-        chooseGoldenToken(gametable.getBoard(), *currentPlayer);
+        currentPlayer->getStrategy()->chooseGoldenToken(gametable.getBoard(), *currentPlayer);
         currentPlayer->reserveOneCard(pyramid.takeCard(cardLevel,cardPosition-1));
         pyramid.drawCard(cardLevel);
     }
@@ -684,7 +558,7 @@ void Controller::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, J
         }
     }
     else if (card.getAbility1() == Abilities::take_bonus_token) {
-        chooseToken(game.getGameTable().getBoard(), cardOwner);
+        currentPlayer->getStrategy()->chooseToken(game.getGameTable().getBoard(), cardOwner);
     }
     else if (card.getAbility1() == Abilities::steal_token) {
         if (opponent.getNbTokens()!=0) {
@@ -767,7 +641,7 @@ void Controller::applyCardSkills(Game&game, Player&cardOwner, Player&opponent, J
         }
     }
     else if (card.getAbility2() == Abilities::take_bonus_token) {
-        chooseToken(game.getGameTable().getBoard(), cardOwner);
+        currentPlayer->getStrategy()->chooseToken(game.getGameTable().getBoard(), cardOwner);
     }
     else if (card.getAbility2() == Abilities::steal_token) {
         if (opponent.getNbTokens()!=0) {

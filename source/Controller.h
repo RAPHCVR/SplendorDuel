@@ -39,8 +39,6 @@ public:
     void fillBoard(Board& board, Bag& bag);
 
     // Actions obligatoires
-    const Token& chooseToken(Board& board, Player& player, std::vector<std::pair<int, int>>* tokenIndexes = nullptr);
-    void chooseGoldenToken(Board& board, Player& player);
     void buyNobleCard ();
     void buyJewelryCard(GameTable& gametable);
     void bookCard(Pyramid_Cards& pyramid, GameTable& gametable);

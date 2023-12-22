@@ -251,3 +251,129 @@ CompulsoryActions AiStrategy::choseCompulsoryAction(){
     }
 
 }
+
+const Token& AiStrategy::chooseToken(Board&board, Player&player, std::vector<std::pair<int, int>>* tokenIndexes) {
+    Board::BoardIterator it = board.iterator();
+    while (it.hasNext()) {
+        const Token* token = it.next();
+        if (token!=nullptr) {
+            if (token->getColor()!=TokenColor::OR) {
+                int col;
+                int row;
+                if( it.getCol() == 0){
+                    col = 4;
+                    row = it.getRow()-1;
+                }
+                else {
+                    col = it.getCol()-1;
+                    row = it.getRow();
+                }
+                token = &board.takeToken(row, col);
+                player.addToken(*token);
+                return *token;
+            }
+        }
+    }
+    return *new Token(TokenColor::None);
+}
+
+
+const Token& HumanStrategy::chooseToken(Board&board, Player&player, std::vector<std::pair<int, int>>* tokenIndexes) {
+        if (!board.isEmpty()) {
+            std::cout << "Info du joueur : \n";
+            std::cout << player << std::endl;
+            unsigned int x = 0;
+            unsigned int y = 0;
+            bool stop = false;
+            if (tokenIndexes!= nullptr && !tokenIndexes->empty()) {
+                std::cout << "Veuillez choisir un jeton ('STOP' pour arreter)" << std::endl;
+                board.showBoard();
+                std::cout << "Veuillez choisir entre 1 et 5" << std::endl;
+                std::string rep;
+                std::cin >> rep;
+                if(rep != "STOP") {
+                    x = std::stoi(rep);
+                    if (x < 1 || x > 5) {
+                        throw TokenException("Indice incorrect");
+                    }
+                    y = player.getStrategy()->choicemaker(1, 5);
+                }
+                else {
+                    stop = true;
+                }
+            }
+            else {
+                std::cout << "Veuillez choisir un jeton" << std::endl;
+                board.showBoard();
+                x = player.getStrategy()->choicemaker(1, 5);
+                y = player.getStrategy()->choicemaker(1, 5);
+            }
+            if (!stop) {
+                if(Board::getInstance()->isCellEmpty(x-1,y-1))
+                    throw TokenException("L'emplacement ne contient pas de jeton\n");
+                if(Board::getInstance()->CellColor(x-1, y-1,TokenColor::OR))
+                    throw TokenException("Impossible de prendre un jeton or\n");
+                if (tokenIndexes!= nullptr) {
+                    if (tokenIndexes->empty()) {
+                        tokenIndexes->emplace_back(x-1,y-1);
+                    }
+                    else {
+                        tokenIndexes->emplace_back(x-1,y-1);
+                        if (not(areCoordinatesAlignedAndConsecutive(tokenIndexes))) {
+                            throw TokenException("Les jetons ne sont pas alignés ou ne sont pas consécutifs");
+                        }
+                    }
+                }
+                const Token& token = board.takeToken(x-1, y-1);
+                player.addToken(token);
+                return token;
+            }
+            else {
+                return *new Token(TokenColor::None);
+            }
+        }
+        else {
+            std::cout << "Plus de Jetons sur le plateau" << std::endl;
+            return *new Token(TokenColor::None);
+        }
+}
+
+void AiStrategy::chooseGoldenToken(Board&board, Player&player) {
+        Board::getInstance()->showBoard();
+        Board::BoardIterator it = board.iterator();
+        while (it.hasNext()) {
+            const Token* token = it.next();
+            if (token!=nullptr) {
+                if (token->getColor()==TokenColor::OR) {
+                    int col;
+                    int row;
+                    if(it.getCol() == 0){
+                        col = 4;
+                        row = it.getRow()-1;
+                    }
+                    else {
+                        col = it.getCol()-1;
+                        row = it.getRow();
+                    }
+                    token = &board.takeToken(row, col);
+                    player.addToken(*token);
+                    return;
+                }
+            }
+        }
+}
+
+
+void HumanStrategy::chooseGoldenToken(Board&board, Player&player) {
+        std::cout << "Veuillez choisir un jeton OR" << std::endl;
+        board.showBoard();
+        unsigned int x = player.getStrategy()->choicemaker(1, 5);
+        unsigned int y = player.getStrategy()->choicemaker(1, 5);
+        // joueur humain
+        if(board.isCellEmpty(x-1,y-1))
+            throw TokenException("L'emplacement ne contient pas de jeton\n");
+        if(not(board.CellColor(x-1, y-1,TokenColor::OR)))
+            throw TokenException("Vous devez choisir un jeton or\n");
+        const Token& token = board.takeToken(x-1, y-1);
+        player.addToken(token);
+}
