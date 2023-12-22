@@ -211,6 +211,8 @@ namespace Utility {
 
         QGridLayout* getGrid() {return grille;}
 
+        QTCardRoyal& getCarte(int indice);
+
         void carteClicked(QTCardRoyal* carte);
 
         void updateAllCardStatus(QTCardRoyal::CardRoyalStatus newStatus);
