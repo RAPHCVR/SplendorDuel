@@ -196,21 +196,6 @@ int QTPyramid::retirerCarte(Carte* carte){
 void QTPyramid::carteClicked(Carte* carte) {
     qDebug() << "Carte cliquée : Level : " << carte->getJewelryCard()->getLevel() << " et id : " << carte->getJewelryCard()->getId();
 
-    /*
-    Carte::CardStatus status = carte->getStatus();
-    if (status == Carte::buyable) {
-        emit acheterCarteClicked(carte);
-        //int row = retirerCarte(carte);
-        //int level = abs(row - 3); // Convertir la ligne en level
-        //pyramidcard->Pyramid_Cards::drawCard(level);
-        //ajouterCarte(row);
-    }
-    else if (status == Carte::reservable) {
-        std::cout << "Test carteClicked from Pioche" << std::endl;
-        emit reserverCarteClicked(carte);
-    }
-    */
-
     QMessageBox messageBox;
     messageBox.setText("Que voulez-vous faire avec cette carte?");
 
@@ -241,8 +226,6 @@ void QTPyramid::carteClicked(Carte* carte) {
         // Action "Acheter"
         if (status == Carte::buyable) {
             emit acheterCarteClicked(carte);
-            int row = retirerCarte(carte);
-            ajouterCarte(row);
             //Partie qui gérait le back end (mtn dans QTGame)
             //int level = abs(row - 3); // Convertir la ligne en level
             //pyramidcard->Pyramid_Cards::drawCard(level);
@@ -253,8 +236,6 @@ void QTPyramid::carteClicked(Carte* carte) {
         if (status == Carte::reservable) {
             std::cout << "Test carteClicked from Pioche" << std::endl;
             emit reserverCarteClicked(carte);
-            int row = retirerCarte(carte);
-            ajouterCarte(row);
             //Partie qui gérait le back end (mtn dans QTGame)
             //int level = abs(row - 3); // Convertir la ligne en level
             //pyramidcard->Pyramid_Cards::drawCard(level);

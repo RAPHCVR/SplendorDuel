@@ -265,8 +265,9 @@ class CarteJoaillerie <<abstract>>{
   +CarteJoaillerie(niveau : Niveau, bonus : Couleur, point_de_prestige : int, capacite : Capacite, cout : Liste[int], couronne : int, id : int)
   +getNiveau() : int
   +getBonus() : Bonus
-  +getCompetence() : Capacite
-  +getPrestige() : uint
+  +getCompetence1() : Capacite
+  +getCompetence2() : Capactie
+  +getPrestige() : int
   +getCout() : Liste[int]
   +getCouronne() : int
   +getId() : int
@@ -284,6 +285,7 @@ class CarteRoyale {
   + getId() : int
 }
 note bottom of CarteRoyale :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
+note bottom of CarteRoyale : Une classe RoyalCardError est présente pour spécifier les erreurs
 
 class Deck_Royal{
   - Deck_Royal()
@@ -447,6 +449,11 @@ class QTBoardRoyal {
     + updateAllCardStatus(newStatus: QTCardRoyal::CardRoyalStatus): void
     + acheterCarteClicked(carte: QTCardRoyal*): void
 }
+}
+
+namespace Sauvegarde {
+
+
 }
 Jeu "1" -- "2" Joueur : < joue
 Plateau "1" -- "1" TableDeJeu : est joué dans >

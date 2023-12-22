@@ -333,13 +333,14 @@ void QTGame::checkEndTurn() {
 }
 
 void QTGame::bookCard(GameTable& gametable) {
-    pyramid->updateAllCardStatus(Carte::reservable);
-    pioches->updateAllPiocheStatus(QTPioche::reservable);
 
     QMessageBox msgBox;
     msgBox.setText("Sélectionnez la carte que vous voulez réserver");
     msgBox.addButton("Ok", QMessageBox::RejectRole);
     msgBox.exec();
+
+    pyramid->updateAllCardStatus(Carte::reservable);
+    pioches->updateAllPiocheStatus(QTPioche::reservable);
 }
 
 
@@ -456,19 +457,20 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
     }
 
     if (not(bought)) {
-        pyramid->updateAllCardStatus(Carte::buyable);
 
-        QMessageBox msgBox;
-        msgBox.setText("Sélectionnez la carte que vous voulez acheter");
-        msgBox.addButton("Ok", QMessageBox::RejectRole);
-        msgBox.exec();
+        MBox({"OK"}, "Message", "Veuillez choisir une carte à acheter");
+        //QMessageBox msgBox;
+        //msgBox.setText("Sélectionnez la carte que vous voulez acheter");
+        //msgBox.addButton("Ok", QMessageBox::RejectRole);
+        //msgBox.exec();
+
+        pyramid->updateAllCardStatus(Carte::buyable);
     }
 }
 
 
 
 void QTGame::buyNobleCard() {
-    boardRoyal->updateAllCardStatus(QTCardRoyal::buyable);
     std::cout << "Veuillez choisir une carte" << std::endl;
     for (auto card : Deck_Royal::getInstance()->getCards()) {
         std::cout << *card << std::endl;
@@ -477,6 +479,8 @@ void QTGame::buyNobleCard() {
     msgBox.setText("Sélectionnez la carte Royale que vous voulez acheter");
     msgBox.addButton("Ok", QMessageBox::RejectRole);
     msgBox.exec();
+
+    boardRoyal->updateAllCardStatus(QTCardRoyal::buyable);
 
 }
 
@@ -532,10 +536,14 @@ void QTGame::handleBuyingJewelryCard(Carte* cardclicked) {
         if (card.getAbility1()!= Abilities::None || card.getAbility2()!= Abilities::None) {
             pyramid->updateAllCardStatus(Carte::notClickable);
             applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),card);
+            row = pyramid->QTPyramid::retirerCarte(cardclicked);
+            pyramid->QTPyramid::ajouterCarte(row);
         }
         else {
             pyramid->updateAllCardStatus(Carte::notClickable);
             status = "check";
+            row = pyramid->QTPyramid::retirerCarte(cardclicked);
+            pyramid->QTPyramid::ajouterCarte(row);
             handleGameStatus();
         }
     }
@@ -555,6 +563,8 @@ void QTGame::handleBookingJewelryCardFromPyramid(Carte* clickedCard) {
         pyramid->getPyramidCard()->drawCard(level);
     }
 
+    int row = pyramid->retirerCarte(clickedCard);
+    pyramid->ajouterCarte(row);
     //Partie qui gère l'update graphique se trouve dans QTPyramid::carteClicked
     pyramid->updateAllCardStatus(Carte::notClickable);
     pioches->updateAllPiocheStatus(QTPioche::notClickable);
@@ -595,10 +605,12 @@ void QTGame::handleBuyingRoyalCard(QTCardRoyal* cardclicked){
     controller->getcurrentPlayer().addRoyalCard(*(cardclicked->getRoyalCard()), position);
     if (cardclicked->getRoyalCard()->getAbility()!= Abilities::None) {
         boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+        boardRoyal->retirerCarte(cardclicked);
         applyRoyalCardSkills(controller->getGame(),controller->getcurrentPlayer(),controller->getopposingPlayer(),*(cardclicked->getRoyalCard()));
     }
     else {
         boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+        boardRoyal->retirerCarte(cardclicked);
         status = "check";
         handleGameStatus();
     }
