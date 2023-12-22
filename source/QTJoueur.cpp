@@ -125,20 +125,20 @@ reserveQT::reserveQT(JewelryCard* card, QWidget* parent)
 }
 
 void reserveQT::onSelectionButtonClicked() {
-    std::cout << "test7" << std::endl;
     qDebug() << "Carte cliquée : Level : " << jewelryCard->getLevel()
              << " et id : " << jewelryCard->getId();
     if (status == ReserveStatus::buyable) {
-        std::cout << "test6" << std::endl;
         emit closePopup();
         emit acheterReserveClicked(jewelryCard);
-
+    }
+    else {
+        QMessageBox::information(this, "Non achetable", "Il n'est pas possible d'acheter de carte à ce moment.", QMessageBox::Ok);
     }
 }
 
 //Methodes joueur global
 
-PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p) {
+PlayerQT::PlayerQT(Player &p, QWidget* parent) : QWidget(parent), player(p), reserveCardBought(false) {
     setWindowTitle("Player");
     popupButtonReserve = new QPushButton("Reserve", this);
     connect(popupButtonReserve, &QPushButton::clicked, this, &PlayerQT::showPopup);
@@ -263,7 +263,6 @@ void PlayerQT::showPopup(bool update) {
 }
 void PlayerQT::onReserveCardSelected(JewelryCard* selectedCard) {
     qDebug() << "Card selected: Level " << selectedCard->getLevel() << " and ID " << selectedCard->getId();
-    std::cout << "ADA" << std::endl;
     emit reserveCardSelected(selectedCard);
 }
 

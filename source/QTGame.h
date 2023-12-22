@@ -52,6 +52,8 @@ public:
     void applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card);
     void setBoldCurrentPlayer();
     void generateNewGame();
+    PlayerQT* getCurrentQTPlayer();
+    bool isCurrentPlayerIA();
 
 public slots:
     void handleBuyingJewelryCard(Carte* cardclicked);

@@ -31,7 +31,6 @@ public:
 
     void updatePrestige(int newPrestige);
 
-    TokenColor getColor(){return color;};
 
 
 private:
@@ -137,7 +136,12 @@ private:
     Player &player;
 
     std::vector<reserveQT*> reserveWidgets;
+
+    bool reserveCardBought;
 public:
+    //Carte* getLastClickedCarte(){return lastClickedCarte;};
+    bool getReserveCardBought(){return reserveCardBought;};
+    void setReserveCardBought(bool newBought){reserveCardBought=newBought;};
     void toggleTextBoldJoueur(bool isBold);
     void showPopup(bool update=false); // Function to show the popup when the button is clicked
 signals:
