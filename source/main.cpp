@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "QTGame.h"
+#include "Save.h"
 
 /*
 int main() {
@@ -18,7 +19,7 @@ int main() {
 
 */
 
-
+/* main de base
 int main(int argc, char *argv[])
 {
 
@@ -27,7 +28,12 @@ int main(int argc, char *argv[])
     game.show();
     return QApplication::exec();
 }
+*/
 
+int main() {
+    Pyramid_Cards pyra = retrevePyramid();
+    return 0;
+}
 
 /*
 int main() {

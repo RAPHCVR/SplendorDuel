@@ -434,7 +434,7 @@ void writeToDatabase(const Game& game) {
     sqlite3_close(db);
 }
 
-Game createOldGame(const Game& game) {
+Pyramid_Cards& retrevePyramid() {
     // Obtient le chemin du fichier source actuel (__FILE__)
     std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
     // Obtient le répertoire du fichier source
@@ -443,4 +443,6 @@ Game createOldGame(const Game& game) {
 
     // Reconstruction de la pyramide
     Pyramid_Cards pyramid(databaseSavePath);
+
+    return pyramid;
 }
