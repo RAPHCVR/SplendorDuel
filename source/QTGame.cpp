@@ -1035,9 +1035,15 @@ void QTGame::handleBuyingReserveCard(JewelryCard* cardClicked){
     if (controller->getcurrentPlayer().canBuyCard(*cardClicked)) {
         controller->getcurrentPlayer().actionBuyReservedCard(*cardClicked);
         getCurrentQTPlayer()->setReserveCardBought(true);
-
-        status = "check";
-        handleGameStatus();
+        if (cardClicked->getAbility1()!= Abilities::None || cardClicked->getAbility2()!= Abilities::None) {
+            pyramid->updateAllCardStatus(Carte::notClickable);
+            applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),*cardClicked);
+        }
+        else {
+            pyramid->updateAllCardStatus(Carte::notClickable);
+            status = "check";
+            handleGameStatus();
+        }
     } else {
         QMessageBox::information(this, "Non achetable", "Il n'est pas possible d'acheter cette carte. Vous allez être redirigé vers la pyramide.", QMessageBox::Ok);
     }

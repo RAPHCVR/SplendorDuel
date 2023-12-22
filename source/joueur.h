@@ -50,7 +50,7 @@ public:
     SummaryCard& getBlueSummary(){return blueSummary;}
     SummaryCard& getWhiteSummary(){return whiteSummary;}
     SummaryCard& getGreenSummary(){return greenSummary;}
-    SummaryCard& getBlackSummary(){return whiteSummary;}
+    SummaryCard& getBlackSummary(){return blackSummary;}
     SummaryCard& getRedSummary(){return redSummary;}
     unsigned int getMaxPrestigeColor(){return std::max({blueSummary.getPrestigePoints(),whiteSummary.getPrestigePoints(),greenSummary.getPrestigePoints(),blackSummary.getPrestigePoints(),redSummary.getPrestigePoints()});}
 
