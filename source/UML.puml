@@ -233,6 +233,9 @@ class QTGame {
     + applyRoyalCardSkills(game: Game, cardOwner: Player, opponent: Player, card: RoyalCard): void
     + setBoldCurrentPlayer(): void
     + generateNewGame(): void
+    + getCurrentQTPlayer():PlayerQT* 
+    + isCurrentPlayerIA():bool
+    + handleIATokenSelection():void 
     + handleBuyingJewelryCard(cardclicked: Carte*): void
     + handleBookingJewelryCardFromPyramid(clickedCard: Carte*): void
     + handleBookingJewelryCardFromPioche(piocheclicked: QTPioche*): void
@@ -241,35 +244,21 @@ class QTGame {
 }
 
 class QTStartingMenu {
+    - playerName1: QString
+    - playerName2: QString
     + QTStartingMenu(parent: QWidget = nullptr)
     + getPlayerName1(): QString
     + getPlayerName2(): QString
-
-private:
-    - playerName1: QString
-    - playerName2: QString
-
-public slots:
+    + getPlayerType1() : Type
+    + getPlayerType2() : Type
+    + isLoad() : bool
     + startNewGame(): void
     + loadGame(): void
     + quitGame(): void
+    + showScoreBoard() : void
 }
 
 
-class QTStartingMenu {
-    + QTStartingMenu(parent: QWidget = nullptr)
-    + getPlayerName1(): QString
-    + getPlayerName2(): QString
-
-private:
-    - playerName1: QString
-    - playerName2: QString
-
-public slots:
-    + startNewGame(): void
-    + loadGame(): void
-    + quitGame(): void
-}
 
 }
 namespace JoueurHumainIA {
