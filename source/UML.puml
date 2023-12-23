@@ -119,17 +119,46 @@ note bottom of Board: pas de duplication du plateau
 }
 
 enum Abilities <<enumeration >> {
-  Rejouer
-  Prendre_privilege
-  Prendre_jeton_adversaire
-  Prendre_jeton_plateau
-  Cameleon
+  repeat_turn
+  cameleon
+  take_bonus_token
+  take_privilege
+  steal_token
+  None
 }
 namespace GestionPartie{
 
 class Controller {
   - Game : Game
-  - JoueurEnCours : JoueurEnCours
+  - currentPlayer : Player
+  +Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2)
+  +~Controller() 
+  +Game& getGame() 
+  +Player& getcurrentPlayer()  
+  +Player& getopposingPlayer() 
+  +void setCurrentPlayer(unsigned int n)
+  +void play()
+  +void playTurn()
+  +void changeCurrentPlayer()
+
+  + getOptionalActions(const Game& game, Player& player) const : Liste[OptionalActions]
+  + getCompulsoryActions(const Game& game, Player& player) const : Liste[CompulsoryActions]
+  + applyOptionalAction(Game& game, Player& player,  OptionalActions action):void
+  + applyCompulsoryAction(Game& game, Player& player,  CompulsoryActions action):void
+  + applyCardSkills(Game& game, Player& cardOwner, Player& opponent, JewelryCard& card):void
+  + applyRoyalCardSkills(Game&game, Player&cardOwner, Player&opponent, RoyalCard&card):void
+  + checkCardPurchase(const JewelryCard& card, GameTable& gametable) : bool
+  + usePriviledge(Board& board):void
+  + fillBoard(Board& board, Bag& bag):void
+
+  + buyNobleCard () :void
+  + buyJewelryCard(GameTable& gametable):void
+  + bookCard(Pyramid_Cards& pyramid, GameTable& gametable):void
+  + checkIfPlayerWins(Game& game, Player& player) :bool
+
+  + saveGame() :void
+  + saveScore():void
+  + reinit():void
 }			 
 class Game{
     -GameTable : GameTable
