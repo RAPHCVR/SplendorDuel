@@ -427,61 +427,78 @@ note bottom of RoyalCard : Une classe RoyalCardError est présente pour spécifi
 
 class Deck_Royal{
   - Deck_Royal()
-  - instance : Deck_Royal
-  - cards : vecteur[RoyalCard]
+  - instance : static Deck_Royal*
+  - cards : vector[RoyalCard*]
   + getInstance : Deck_Royal
-  + getCards : vecteur[RoyalCard]
-  + addCardToDeck(card : RoyalCard) : void
+  + getInstance(const std::string& databaseSavePath):static Deck_Royal*
+  + getCards : vector[RoyalCard]
+  + addCardToDeck(card : RoyalCard*) : void
   + deleteCard(pos : int) : void
+  + resetInstance() : static void
 }
 note bottom of Deck_Royal : Gère le deck des cartes royales
 
 class Deck_level_one{
   - Deck_level_one()
-  - instance : Deck_level_one 
-  - pioche : Liste[RoyalCard]
-  + getInstance() : Deck_level_one
-  + getPioche() : Liste[RoyalCard]
-  + addCardToDeck(card : RoyalCard) : void
+  - Deck_level_one(const std::string& databaseSavePath)
+  - instance : Deck_level_one *
+  - pioche : Liste[RoyalCard*]
+  + getInstance() : Deck_level_one*
+  + getInstance(const std::string& databaseSavePath) : Deck_level_one*
+  + getPioche() : Liste[RoyalCard*]
+  + addCardToDeck(card : RoyalCard*) : void
   + deleteFirstItem() : void
+  + resetInstance(): static void
 }
 
 class Deck_level_two{
   - Deck_level_two()
-  - instance : Deck_level_two 
-  - pioche : Liste[RoyalCard]
-  + getInstance() : Deck_level_two
-  + getPioche() : Liste[JewelryCard]
-  + addCardToDeck(card : JewelryCard) : void
+  - Deck_level_two(const std::string& databaseSavePath)
+  - instance : Deck_level_two* 
+  - pioche : Liste[RoyalCard*]
+  + getInstance() : Deck_level_two*
+  + getInstance(const std::string& databaseSavePath) : Deck_level_two*
+  + getPioche() : Liste[JewelryCard*]
+  + addCardToDeck(card : JewelryCard*) : void
   + deleteFirstItem() : void
+  + resetInstance(): static void
 }
 
 class Deck_level_three{
   - Deck_level_three()
-  - instance : Deck_level_three
-  - pioche : Liste[JewelryCard]
-  + getInstance() : Deck_level_three
-  + getPioche() : Liste[JewelryCard]
-  + addCardToDeck(card : JewelryCard) : void
+  - Deck_level_three(const std::string& databaseSavePath)
+  - instance : Deck_level_three *
+  - pioche : Liste[RoyalCard*]
+  + getInstance() : Deck_level_three*
+  + getInstance(const std::string& databaseSavePath) : Deck_level_three*
+  + getPioche() : Liste[JewelryCard*]
+  + addCardToDeck(card : JewelryCard*) : void
   + deleteFirstItem() : void
+  + resetInstance(): static void
 }
 
 class Pyramid_Cards{
     - instance : Pyramid_Cards
-    - niveau1 : Liste[JewelryCard]
-    - niveau2 : Liste[JewelryCard]
-    - niveau3 : Liste[JewelryCard]
+    - row_level_one : Liste[JewelryCard]
+    - row_level_two : Liste[JewelryCard]
+    - row_level_three : Liste[JewelryCard]
     - max_level_one : static int
     - max_level_two : static int
     - max_level_three : static int
-    + getInstance() : Pyramid_Cards
-    + Pyramid_Cards(deck1 : Deck_level_one, deck2 : Deck_level_two, deck3 : Deck_level_three)
-    + piocherCarte(niveau : uint) : const JewelryCard
-    + remplirPyramide(deck1 : Deck_level_one, deck2 : Deck_level_two, deck3 : Deck_level_three)
-    + isEmpty(level : int) : bool
-    + getLevelCards(i : int) : vecteur[JewelryCard]
-}
 
+    + Pyramid_Cards(const std::string & databaseSavePath)
+    + getInstance() :static Pyramid_Cards* 
+    + getInstance(const std::string& databaseSavePath) :static Pyramid_Cards* 
+    + resetInstance() :static void 
+    + void drawCard(unsigned int level);
+    + takeCard(unsigned int level, unsigned int position) :JewelryCard& 
+    + getRow1() : vector<JewelryCard*>
+    + getRow2() : vector<JewelryCard*>
+    + getRow3() : vector<JewelryCard*>
+    + isEmpty(unsigned int level) : bool
+    + getLevelCards(unsigned int i) : vector<JewelryCard*> 
+
+}
 class QTCartes {
     + //enum CardStatus {
     //    BUYABLE
