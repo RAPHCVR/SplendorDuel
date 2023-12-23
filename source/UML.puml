@@ -41,17 +41,17 @@ class Token {
 class Privilege{
 }
 
-class SacJeton{
+class Bag{
   -jetons : Liste[Token]
-  -SacJeton(total : const TokenTotaux)
+  -Bag(total : const TokenTotaux)
   +getNbJetons() : size_t
   +addJeton(jeton : const Token)
   +PiocherJeton() : const Token
   +estVide() : bool
-  +getInstance() : SacJeton
+  +getInstance() : Bag
   +containsOnly(color : TokenColor) : bool
 }
-note bottom of SacJeton : Le sac de jeton est unique, pas de duplication
+note bottom of Bag : Le sac de jeton est unique, pas de duplication
 
 class JetonsTotaux{
    -jetons : Liste[Token]
@@ -83,13 +83,13 @@ class Plateau{
    -tokens : Liste[Liste[Token]]
    -privileges : Liste[Privilege]
    -observers : vecteur[Observer]
-   +Plateau(sac: SacJeton, privileges: const PrivilegesTotaux)
+   +Plateau(sac: Bag, privileges: const PrivilegesTotaux)
    +takeToken(i : size_t, j : size_t) : const Token
    +showBoard()
    +takePrivilege() : const Privilege
    +placerJeton(jeton : const Token)
    +placerPrivilege(privilege : const Privilege)
-   +remplirPlateau(sac: SacJeton)
+   +remplirPlateau(sac: Bag)
    +estVideo() : bool
    +getInstance() : Plateau
    + class PlateauIterateur
@@ -118,20 +118,20 @@ enum Abilities <<enumeration >> {
 namespace GestionPartie{
 
 class Controller {
-  - Jeu : Jeu
+  - Game : Game
   - JoueurEnCours : JoueurEnCours
 }			 
-class Jeu{
-    -TableDeJeu : TableDeJeu
+class Game{
+    -GameTable : GameTable
 								 
     -joueur_courant : Player
     -tour : uint
 						 
 					   
 }
-class TableDeJeu{
+class GameTable{
     - plateau : Plateau
-    - sac : SacJeton
+    - sac : Bag
     - cartes_pyramide : CartesPyramide
     - cartes_royales : Liste[RoyalCard]
     - cartes_joaillerie : Liste[JewelryCard]
@@ -230,7 +230,7 @@ class Player {
   + getNbTokens() const : int
   + getTokenSummary(): unordered_map<TokenColor, int>
   + getBonusSummary() : vector
-  + getColorSummary : SummaryCard&
+  + getColorSummary() : SummaryCard&
   + getWhiteSummary():SummaryCard&
   + getGreenSummary():SummaryCard&
   + getBlackSummary():SummaryCard&
@@ -500,13 +500,13 @@ namespace Sauvegarde {
 
 
 }
-Jeu "1" -- "2" Player : < joue
-Plateau "1" -- "1" TableDeJeu : est joué dans >
-SacJeton "1" -- "1" TableDeJeu : est joué dans >
-JewelryCard "*" -- "1" TableDeJeu : est joué dans >
-RoyalCard "4" -- "1" TableDeJeu : est joué dans >
-TableDeJeu "1" --* Jeu : se joue dans >
-Controller *-- "1" Jeu : est controllé <
+Game "1" -- "2" Player : < joue
+Plateau "1" -- "1" GameTable : est joué dans >
+Bag "1" -- "1" GameTable : est joué dans >
+JewelryCard "*" -- "1" GameTable : est joué dans >
+RoyalCard "4" -- "1" GameTable : est joué dans >
+GameTable "1" --* Game : se joue dans >
+Controller *-- "1" Game : est controllé <
 
 QTGame -- "1" Controller
 QTGame -- "1" QTPyramid
@@ -517,7 +517,7 @@ QTGame -- "1" QTRangeePioches
 Token "0..25" --* JetonsTotaux : est contenu dans >
 Privilege "0..3" --* PrivilegesTotaux : est contenu dans >
 Token "0..10" -- "0..1" Player : possède <
-Token "0..25" --o "0..1" SacJeton : est composé de <
+Token "0..25" --o "0..1" Bag : est composé de <
 Token "0..25" --o "1" Plateau : est placé sur >
 Privilege "0..3" --o "0..1" Plateau : est placé sur >
 
