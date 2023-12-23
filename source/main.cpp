@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "QTGame.h"
-/*
+
 int main(int argc, char *argv[])
 {
 
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     game.show();
     return QApplication::exec();
 }
-*/
+
 
 /*
 int main() {
