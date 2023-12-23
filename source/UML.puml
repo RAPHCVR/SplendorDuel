@@ -8,11 +8,11 @@ enum Niveau <<enumeration >> {
 }
 
 struct Bonus {
-    couleur : Couleur
+    couleur : TokenColor
     nombre : uint
 }
 
-enum Couleur <<enumeration >> {
+enum TokenColor <<enumeration >> {
   BLANC
   VERT
   PERLE
@@ -31,22 +31,22 @@ enum CompulsoryActions{
 
 namespace JetonsPrivilegePlateau {
 
-class Jeton {
-   -couleur : Couleur
-   +Jeton(jeton : const Jeton)
-   +Jeton(couleur: Couleur)
-   +getCouleur() : Couleur
+class Token {
+   -couleur : TokenColor
+   +Token(jeton : const Token)
+   +Token(couleur: TokenColor)
+   +getCouleur() : TokenColor
 }
 
 class Privilege{
 }
 
 class SacJeton{
-  -jetons : Liste[Jeton]
+  -jetons : Liste[Token]
   -SacJeton(total : const TokenTotaux)
   +getNbJetons() : size_t
-  +addJeton(jeton : const Jeton)
-  +PiocherJeton() : const Jeton
+  +addJeton(jeton : const Token)
+  +PiocherJeton() : const Token
   +estVide() : bool
   +getInstance() : SacJeton
   +containsOnly(color : TokenColor) : bool
@@ -54,7 +54,7 @@ class SacJeton{
 note bottom of SacJeton : Le sac de jeton est unique, pas de duplication
 
 class JetonsTotaux{
-   -jetons : Liste[Jeton]
+   -jetons : Liste[Token]
    -max_or : const size_t
    -max_rouge : const size_t
    -max_noir : const size_t
@@ -65,7 +65,7 @@ class JetonsTotaux{
    {fi+TokenTotaux()
    +~TokenTotaux
    +getNbJetons : size_t
-   +getJeton : const Jeton
+   +getJeton : const Token
 }
 note bottom of JetonsTotaux: Le total initial est unique, pas de duplication
 
@@ -80,14 +80,14 @@ class PrivilegesTotaux{
 note bottom of PrivilegesTotaux: pas de duplication du total
 
 class Plateau{
-   -tokens : Liste[Liste[Jeton]]
+   -tokens : Liste[Liste[Token]]
    -privileges : Liste[Privilege]
    -observers : vecteur[Observer]
    +Plateau(sac: SacJeton, privileges: const PrivilegesTotaux)
-   +takeToken(i : size_t, j : size_t) : const Jeton
+   +takeToken(i : size_t, j : size_t) : const Token
    +showBoard()
    +takePrivilege() : const Privilege
-   +placerJeton(jeton : const Jeton)
+   +placerJeton(jeton : const Token)
    +placerPrivilege(privilege : const Privilege)
    +remplirPlateau(sac: SacJeton)
    +estVideo() : bool
@@ -99,7 +99,7 @@ note bottom of Plateau: pas de duplication du plateau
 
 ' struct TupleIntJeton {
 '   nombre : int
-'   type_jeton : Jeton
+'   type_jeton : Token
 ' }
 
 'class CoordonneeJeton{
@@ -108,7 +108,7 @@ note bottom of Plateau: pas de duplication du plateau
 '}
 }
 
-enum Capacite <<enumeration >> {
+enum Abilities <<enumeration >> {
   Rejouer
   Prendre_privilege
   Prendre_jeton_adversaire
@@ -124,7 +124,7 @@ class Controller {
 class Jeu{
     -TableDeJeu : TableDeJeu
 								 
-    -joueur_courant : Joueur
+    -joueur_courant : Player
     -tour : uint
 						 
 					   
@@ -133,8 +133,8 @@ class TableDeJeu{
     - plateau : Plateau
     - sac : SacJeton
     - cartes_pyramide : CartesPyramide
-    - cartes_royales : Liste[CarteRoyale]
-    - cartes_joaillerie : Liste[CarteJoaillerie]
+    - cartes_royales : Liste[RoyalCard]
+    - cartes_joaillerie : Liste[JewelryCard]
     -DeckNv(1 à 3) : DeckNv(1 à 3)
 								  
 }
@@ -201,27 +201,41 @@ public slots:
 }
 namespace JoueurHumainIA {
 
-class Joueur {
+enum Type <<enumeration >> {
+  IA
+  Humain
+}
+
+class Player {
   - name : string
-  - privilege :int
+  - privileges : Liste[Privilege*]
   - type : Type
   - nbCrown : int
   - prestigePoints : int
   - nbTokens : int
-  - cardsJewelry : Liste[CarteJoaillerie]
-  - reserve : Liste[CarteJoaillerie]
-  - cardsRoyal : Liste[CarteRoyale]
-  - tokens: Liste[Liste[jeton]]
-  - tokenSummary: unordered_map[CarteJoaillerie]
+  - jewelryCards : Liste[JewelryCard*]
+  - reserve : Liste[JewelryCard*]
+  - royalCards : Liste[RoyalCard*]
+  - tokens: unordered_map[int, [Liste[const Token*]]
+  - tokenSummary: unordered_map[TokenColor, int]
   - blueSummary: SummaryCard
   - greenSummary: SummaryCard
   - redSummary: SummaryCard
   - whiteSummary: SummaryCard
   - blackSummary: SummaryCard
-  '- {field} jetons : List[TupleIntJeton]
+  - strategy : Strategy*
 
   + getName() : string
-  + getBonusSummary() : vector							  
+  + getNbPrivilege() const : int
+  + getNbTokens() const : int
+  + getTokenSummary(): unordered_map<TokenColor, int>
+  + getBonusSummary() : vector
+  + getColorSummary : SummaryCard&
+  + getWhiteSummary():SummaryCard&
+  + getGreenSummary():SummaryCard&
+  + getBlackSummary():SummaryCard&
+  + getRedSummary() :SummaryCard&
+  + getMaxPrestigeColor() : int
   + getPrivilege() : int
   + getPrestige() : int
   + getCrowns() : int
@@ -230,7 +244,7 @@ class Joueur {
   + addToken(Token token)
   + removeToken(Token token)
   + addCrowns()
-  + addPrestige(int nb, tokenColor couleur)
+  + addPrestige(int nb, TokenColor couleur)
   + addPrivilege(const Privilege& privilege)
   + removePrivilege()
   + addJewelryCard(JewelryCard card)
@@ -245,47 +259,78 @@ class Joueur {
   + reserveoneCard (JewelryCard& card)
   + canReserveCard()									  
   + actionFillBoard()
+  + canbuyreservedcard() : bool
+  + spendGoldTokens(int number) : void
+  + spendSpecificToken(TokenColor color, int number) : void
+  + toString(Type t) : string
+  + toType(string s) : Type
+  + operator<<(std::ostream& f, Player& p) : ostream&
+  + getStrategy() : Strategy*
 }
-note bottom of Joueur : privilege entre 0 et 3
+note bottom of Player : privilege entre 0 et 3
 
-class Humain{}
-class IA{}
+
+class Strategy
+
+class AiStrategy{
+    + choicemaker(int min, int max) : int 
+    + choseOptionalActions() : std::vector<OptionalActions> 
+    + choseCompulsoryAction() : CompulsoryActions 
+    + choseTokensToTake() : std::vector<std::pair<int, int>> 
+    + choseTokenColor(std::vector<TokenColor>& chosableColors) : TokenColor 
+    + chooseToken(Board&board,Player &player, std::vector<std::pair<int, int>>* tokenIndexes=nullptr) : const Token&
+    + chooseGoldenToken(Board&board, Player&player): void 
+
+}
+
+class HumanStrategy{
+    + choicemaker(int min, int max) : int 
+    + choseOptionalActions() : std::vector<OptionalActions> 
+    + choseCompulsoryAction() : CompulsoryActions 
+    + choseTokensToTake() : std::vector<std::pair<int, int>> 
+    + choseTokenColor(std::vector<TokenColor>& chosableColors) : TokenColor 
+    + chooseToken(Board&board,Player &player, std::vector<std::pair<int, int>>* tokenIndexes=nullptr) : const Token&
+    + chooseGoldenToken(Board&board, Player&player): void 
+
+}
+
+
 }
 
 namespace GestionCartes{
 
-class CarteJoaillerie <<abstract>>{
+class JewelryCard <<abstract>>{
   - niveau : uint
   - bonus : Bonus
   - point_de_prestige : uint
-  - capacite : Capacite
+  - capacite : Abilities
   - {field} cout : Liste[int]
   - couronne : int
   - id : int
-  +CarteJoaillerie(niveau : Niveau, bonus : Couleur, point_de_prestige : int, capacite : Capacite, cout : Liste[int], couronne : int, id : int)
+  +JewelryCard(niveau : Niveau, bonus : TokenColor, point_de_prestige : int, capacite : Abilities, cout : Liste[int], couronne : int, id : int)
   +getNiveau() : int
   +getBonus() : Bonus
-  +getCompetence1() : Capacite
+  +getCompetence1() : Abilities
   +getCompetence2() : Capactie
   +getPrestige() : int
   +getCout() : Liste[int]
   +getCouronne() : int
   +getId() : int
 }
-note bottom of CarteJoaillerie : point de prestige entre 0 et 4\ncouronne entre 0 et 2
+note bottom of JewelryCard : point de prestige entre 0 et 4\ncouronne entre 0 et 2
 
 
-class CarteRoyale {
+class RoyalCard {
   - point_de_prestige : uint
-  - capacite : Capacite
+  - capacite : Abilities
   - id : int
-  + CarteRoyale(point_de_prestige : int, capacite : Capacite)
+  + RoyalCard(point_de_prestige : int, capacite : Abilities)
   + getPrestige() : uint
-  + getCompetence() : Capacite
+  + getCompetence() : Abilities
   + getId() : int
 }
-note bottom of CarteRoyale :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
-note bottom of CarteRoyale : Une classe RoyalCardError est présente pour spécifier les erreurs
+note bottom of RoyalCard :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
+note bottom of RoyalCard : Une classe RoyalCardError est présente pour spécifier les erreurs
 
 class Deck_Royal{
   - Deck_Royal()
@@ -301,47 +346,47 @@ note bottom of Deck_Royal : Gère le deck des cartes royales
 class DeckNv1{
   - Deck_level_one()
   - instance : Deck_level_one 
-  - pioche : Liste[CarteJoaillerie]
+  - pioche : Liste[RoyalCard]
   + getInstance() : Deck_level_one
-  + getPioche() : Liste[CarteJoaillerie]
-  + addCardToDeck(card : CarteJoaillerie) : void
+  + getPioche() : Liste[RoyalCard]
+  + addCardToDeck(card : RoyalCard) : void
   + deleteFirstItem() : void
 }
 
 class DeckNv2{
   - Deck_level_two()
   - instance : Deck_level_two 
-  - pioche : Liste[CarteJoaillerie]
+  - pioche : Liste[RoyalCard]
   + getInstance() : Deck_level_two
-  + getPioche() : Liste[CarteJoaillerie]
-  + addCardToDeck(card : CarteJoaillerie) : void
+  + getPioche() : Liste[JewelryCard]
+  + addCardToDeck(card : JewelryCard) : void
   + deleteFirstItem() : void
 }
 
 class DeckNv3{
   - Deck_level_three()
   - instance : Deck_level_three
-  - pioche : Liste[CarteJoaillerie]
+  - pioche : Liste[JewelryCard]
   + getInstance() : Deck_level_three
-  + getPioche() : Liste[CarteJoaillerie]
-  + addCardToDeck(card : CarteJoaillerie) : void
+  + getPioche() : Liste[JewelryCard]
+  + addCardToDeck(card : JewelryCard) : void
   + deleteFirstItem() : void
 }
 
 class CartesPyramide{
     - instance : CartesPyramide
-    - niveau1 : Liste[CarteJoaillerie]
-    - niveau2 : Liste[CarteJoaillerie]
-    - niveau3 : Liste[CarteJoaillerie]
+    - niveau1 : Liste[JewelryCard]
+    - niveau2 : Liste[JewelryCard]
+    - niveau3 : Liste[JewelryCard]
     - max_level_one : static int
     - max_level_two : static int
     - max_level_three : static int
     + getInstance() : CartesPyramide
     + CartesPyramide(deck1 : DeckNv1, deck2 : DeckNv2, deck3 : DeckNv3)
-    + piocherCarte(niveau : uint) : const CarteJoaillerie
+    + piocherCarte(niveau : uint) : const JewelryCard
     + remplirPyramide(deck1 : DeckNv1, deck2 : DeckNv2, deck3 : DeckNv3)
     + isEmpty(level : int) : bool
-    + getLevelCards(i : int) : vecteur[CarteJoaillerie]
+    + getLevelCards(i : int) : vecteur[JewelryCard]
 }
 
 class QTCartes {
@@ -350,15 +395,15 @@ class QTCartes {
     //    RESERVABLE
     //    NOTCLICKABLE
     //}
-    - jewelryCard: CarteJoaillerie
+    - jewelryCard: JewelryCard
     - status: CardStatus
     - getImagePath(): QString
     + getstatus() : CardStatus
     + setStatus(newStatus : CardStatus) : void
-    + QTCartes(CarteJoaillerie : CarteJoaillerie, parent : QWidget)
+    + QTCartes(JewelryCard : JewelryCard, parent : QWidget)
     + ~Carte()
     +afficher() : void
-    + getJewelryCard() : CarteJoaillerie
+    + getJewelryCard() : JewelryCard
     + isCardBuyable(carte : QTCard) : bool
     + isCardReservable(carte : QTCard) : bool
     + mousePressEvent(event : QMouseEvent) : void
@@ -455,11 +500,11 @@ namespace Sauvegarde {
 
 
 }
-Jeu "1" -- "2" Joueur : < joue
+Jeu "1" -- "2" Player : < joue
 Plateau "1" -- "1" TableDeJeu : est joué dans >
 SacJeton "1" -- "1" TableDeJeu : est joué dans >
-CarteJoaillerie "*" -- "1" TableDeJeu : est joué dans >
-CarteRoyale "4" -- "1" TableDeJeu : est joué dans >
+JewelryCard "*" -- "1" TableDeJeu : est joué dans >
+RoyalCard "4" -- "1" TableDeJeu : est joué dans >
 TableDeJeu "1" --* Jeu : se joue dans >
 Controller *-- "1" Jeu : est controllé <
 
@@ -469,38 +514,40 @@ QTGame -- "1" QTBoardRoyal
 QTGame -- "1" QTRangeePioches
 
 
-Jeton "0..25" --* JetonsTotaux : est contenu dans >
+Token "0..25" --* JetonsTotaux : est contenu dans >
 Privilege "0..3" --* PrivilegesTotaux : est contenu dans >
-Jeton "0..10" -- "0..1" Joueur : possède <
-Jeton "0..25" --o "0..1" SacJeton : est composé de <
-Jeton "0..25" --o "1" Plateau : est placé sur >
+Token "0..10" -- "0..1" Player : possède <
+Token "0..25" --o "0..1" SacJeton : est composé de <
+Token "0..25" --o "1" Plateau : est placé sur >
 Privilege "0..3" --o "0..1" Plateau : est placé sur >
 
-IA --|> Joueur
-Humain --|> Joueur
-'CoordonneeJeton "0..25" --  "1" Plateau
-'CoordonneeJeton "0..1" -- "1" Jeton
+AiStrategy --|> Strategy
+HumanStrategy --|> Strategy
+Player "1..*" --  "1" Strategy : utilise >
 
-Joueur "0..1" -- "0..*" CarteJoaillerie : possède >
-CarteJoaillerie --* DeckNv1
-CarteJoaillerie --* DeckNv2
-CarteJoaillerie --* DeckNv3
+'CoordonneeJeton "0..25" --  "1" Plateau
+'CoordonneeJeton "0..1" -- "1" Token
+
+Player "0..1" -- "0..*" JewelryCard : possède >
+JewelryCard --* DeckNv1
+JewelryCard --* DeckNv2
+JewelryCard --* DeckNv3
 CartesPyramide *-- "1" DeckNv1
 CartesPyramide *-- "1" DeckNv2
 CartesPyramide *-- "1" DeckNv3
 QTPyramid *-- "0..*" QTCartes
 QTRangeePioches *-- "0..*" QTPioche
 QTBoardRoyal *-- "0..*" QTCardRoyal
-QTCartes -- "1" CarteJoaillerie
+QTCartes -- "1" JewelryCard
 QTPyramid -- "1"CartesPyramide
-QTCardRoyal -- "1" CarteRoyale
+QTCardRoyal -- "1" RoyalCard
 QTBoardRoyal -- "1" Deck_Royal
 QTPioche -- "1" DeckNv1
 QTPioche -- "1" DeckNv2
 QTPioche -- "1" DeckNv3
 
 
-Joueur "0..1" -- "0..2" CarteRoyale : possède >
+Player "0..1" -- "0..2" RoyalCard : possède >
 
 
 @enduml
