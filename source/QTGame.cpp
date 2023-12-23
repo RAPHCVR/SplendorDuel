@@ -11,7 +11,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
     startingmenu->exec();
     if (!startingmenu->isLoad()) {
-        controller = new Controller("New", startingmenu->getPlayerName1().toStdString(), startingmenu->getPlayerName2().toStdString(), startingmenu->getPlayerType1(), startingmenu->getPlayerType2());
+        controller = new Controller("New", "michia", "mich", Type::IA, Type::Humain);
     }
     if (controller->getcurrentPlayer().getType()==controller->getopposingPlayer().getType() && controller->getopposingPlayer().getType()==Type::IA) {
         controller->play();
@@ -106,6 +106,9 @@ void QTGame::paintEvent(QPaintEvent* event) {
 void QTGame::handleTokenSelection(std::vector<const Token*> tokens) {
     for (auto token : tokens) {
         controller->getcurrentPlayer().addToken(*token);
+    }
+    if (plateView->getStatus()=="privileges") {
+        status = "optionalActions";
     }
     if (plateView->getStatus() == "take3tokens") {
         bool check = true;
@@ -281,8 +284,6 @@ void QTGame::play() {
         MBox({"OK"},"Message", QString::fromStdString(s));
     }
     std::vector<CompulsoryActions> compulsoryActions1 = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
-    unsigned int choice = 0;
-    std::vector<OptionalActions> optionalActions;
     if (compulsoryActions1.empty()) {
         if (controller->getGame().getGameTable().getBag().isEmpty()) {
             throw TokenException("Egalité des IA");
