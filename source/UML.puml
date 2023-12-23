@@ -53,7 +53,7 @@ class Bag{
 }
 note bottom of Bag : Le sac de jeton est unique, pas de duplication
 
-class JetonsTotaux{
+class TotalTokens{
    -jetons : Liste[Token]
    -max_or : const size_t
    -max_rouge : const size_t
@@ -67,7 +67,7 @@ class JetonsTotaux{
    +getNbJetons : size_t
    +getJeton : const Token
 }
-note bottom of JetonsTotaux: Le total initial est unique, pas de duplication
+note bottom of TotalTokens: Le total initial est unique, pas de duplication
 
 class PrivilegesTotaux{
    -privileges : Liste[Privilege]
@@ -514,7 +514,7 @@ QTGame -- "1" QTBoardRoyal
 QTGame -- "1" QTRangeePioches
 
 
-Token "0..25" --* JetonsTotaux : est contenu dans >
+Token "0..25" --* TotalTokens : est contenu dans >
 Privilege "0..3" --* PrivilegesTotaux : est contenu dans >
 Token "0..10" -- "0..1" Player : possède <
 Token "0..25" --o "0..1" Bag : est composé de <
