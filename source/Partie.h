@@ -100,6 +100,7 @@ public:
     virtual void setPlayersTokens() const =0;
     virtual void roundInit() const =0;
     //ajouter des méthodes ici pour les cartes et les jetons, etc
+
 };
 
 class GameBuilder : public Builder{

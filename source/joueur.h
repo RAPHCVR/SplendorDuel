@@ -40,6 +40,7 @@ private:
     Strategy* strategy;
 
 public:
+    Player(const std::string & databaseSavePath, int id); // Rémy save
     std::string getName() const {return name;};
     int getNbPrivilege() const;
     int getNbTokens() const {return nbTokens;};

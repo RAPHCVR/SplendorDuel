@@ -366,3 +366,65 @@ unsigned Board::getNbTokens() const {
     return nb;
 }
 
+/* ---------------------------------------------------------------------------------------------------------------- */
+
+Board::Board(const std::string& databaseSavePath) {
+    //cout << pathtodatasavebase << endl;
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    const char* query = "SELECT * FROM boardToken"; //requete pour chercher cartes royales
+    // Préparer la requête
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+
+        // position en x
+        size_t x = sqlite3_column_int(stmt, 0);
+
+        // position en y
+        size_t y = sqlite3_column_int(stmt, 1);
+
+        // couleur
+        const char* colorText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string colorString(colorText);
+        TokenColor color = toTokenColor(colorString);
+
+        Token tokendb = Token(color);
+
+        placeTokenPos(tokendb, x, y);
+    }
+
+    //On ajoute les privilèges
+    for (size_t i = 0; i < TotalPrivileges::getInstance().getNbPrivileges(); i++) {
+        placePrivilege(TotalPrivileges::getInstance().getPrivilege(i));
+    }
+
+}
+
+void Board::placeTokenPos(const Token &token, size_t posx, size_t posy) {
+    if (posx < tokens.size() && posy < tokens[0].size()) {
+        if (tokens[posx][posy] == nullptr) {
+            tokens[posx][posy] = &token;
+        } else {
+            throw TokenException("La position spécifiée est déjà occupée par un jeton.");
+        }
+    } else {
+        throw TokenException("La position spécifiée est en dehors des limites du plateau.");
+    }
+}
+

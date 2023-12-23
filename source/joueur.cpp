@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include <sstream>
 
 //Celine
 // recapitule les bonus totaux pour chaque couleur de carte
@@ -347,4 +348,60 @@ bool Player::canbuyreservedcard(){
         }
     }
     return canbuy;
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+Player::Player(const std::string & databaseSavePath, int id) {
+
+    //cout << pathtodatabase << endl;
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+/*
+    std::ostringstream oss;
+
+    oss << "SELECT * FROM player WHERE idPlayer = " << id;
+    std::string queryString = oss.str();  // Stocker la chaîne dans une variable
+    const char* query = queryString.c_str();
+    */
+    const char* query = "SELECT * FROM player WHERE idPlayer = 1"; //requete pour chercher carte lvl 3
+
+    // Le pointeur retourné par c_str() reste valide tant que queryString est en vie
+
+    // Préparer la requête
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    int idpl = sqlite3_column_int(stmt, 0);
+    const char* nom = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+    unsigned int couronnes = sqlite3_column_int(stmt, 5);
+
+    name = std::to_string(*nom);
+    type = toType(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+    prestigePoints = sqlite3_column_int(stmt, 4);
+    nbCrown = couronnes;
+    tokenSummary = { {TokenColor::BLEU, sqlite3_column_int(stmt, 4)}, {TokenColor::BLANC, sqlite3_column_int(stmt, 5)}, {TokenColor::VERT, sqlite3_column_int(stmt, 6)}, {TokenColor::NOIR, sqlite3_column_int(stmt, 7)}, {TokenColor::ROUGE, sqlite3_column_int(stmt, 8)}, {TokenColor::OR, sqlite3_column_int(stmt, 10)}, {TokenColor::PERLE, sqlite3_column_int(stmt, 9)} };
+    tokens = { {TokenColor::BLEU, std::vector<const Token*>()}, {TokenColor::BLANC, std::vector<const Token*>()}, {TokenColor::VERT, std::vector<const Token*>()}, {TokenColor::NOIR, std::vector<const Token*>()}, {TokenColor::ROUGE, std::vector<const Token*>()}, {TokenColor::OR, std::vector<const Token*>()}, {TokenColor::PERLE, std::vector<const Token*>()} };
+    blackSummary = SummaryCard(sqlite3_column_int(stmt, 20), sqlite3_column_int(stmt, 19));
+    blueSummary = SummaryCard(sqlite3_column_int(stmt, 14), sqlite3_column_int(stmt, 13));
+    greenSummary = SummaryCard(sqlite3_column_int(stmt, 18), sqlite3_column_int(stmt, 17));
+    redSummary = SummaryCard(sqlite3_column_int(stmt, 22), sqlite3_column_int(stmt, 21));
+    whiteSummary = SummaryCard(sqlite3_column_int(stmt, 16), sqlite3_column_int(stmt, 15));
+    nbTokens = 0;
+    for (auto const& [color, tokens] : getTokenSummary()) {
+        nbTokens += tokens;
+    }
 }

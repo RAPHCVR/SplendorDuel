@@ -115,7 +115,8 @@ std::ostream& operator<<(std::ostream& f, RoyalCard& c);
 
 class Deck_Royal {
 public:
-				 
+
+    Deck_Royal(const std::string& databaseSavePath); // Rémy save
 
     // Transformation en singleton
     static Deck_Royal* getInstance() {
@@ -154,6 +155,8 @@ private:
 class Deck_level_one {
 public:
 
+    Deck_level_one(const std::string& databaseSavePath); // Rémy Save
+
     // Transformation en singleton
     static Deck_level_one* getInstance() {
     if (instance == nullptr) {
@@ -187,6 +190,8 @@ private:
 class Deck_level_two {
 public:
 
+    Deck_level_two(const std::string& databaseSavePath); // Rémy save
+
     // Transformation en singleton
     static Deck_level_two* getInstance() {
         if (instance == nullptr) {
@@ -219,6 +224,8 @@ private:
 
 class Deck_level_three {
 public:
+
+    Deck_level_three(const std::string& databaseSavePath); // Rémy save
 
     // Transformation en singleton
     static Deck_level_three* getInstance() {

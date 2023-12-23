@@ -782,3 +782,270 @@ Pyramid_Cards::Pyramid_Cards(const std::string & databaseSavePath) : row_level_o
         }
 
 }
+
+Deck_level_one::Deck_level_one(const std::string& databaseSavePath) : pioche() {
+
+    //cout << pathtodatabase << endl;
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    const char* query = "SELECT * FROM deck1 WHERE level = 1"; //requete pour chercher carte lvl 1
+    // Préparer la requête
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+
+        //Niveau
+        int level = sqlite3_column_int(stmt, 10); //Level dans la 11ème colonne
+
+
+        //Coûts
+        unsigned int cost_w = sqlite3_column_int(stmt, 3);
+        unsigned int cost_v = sqlite3_column_int(stmt, 4);
+        unsigned int cost_n = sqlite3_column_int(stmt, 5);
+        unsigned int cost_p = sqlite3_column_int(stmt, 6);
+        unsigned int cost_r = sqlite3_column_int(stmt, 7);
+        unsigned int cost_b = sqlite3_column_int(stmt, 8);
+        std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+            {TokenColor::BLEU, cost_b},
+            {TokenColor::BLANC, cost_w},
+            {TokenColor::VERT, cost_v},
+            {TokenColor::NOIR, cost_n},
+            {TokenColor::ROUGE, cost_r},
+            {TokenColor::PERLE, cost_p}
+        };
+
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmt, 1);
+
+        //Couronnes
+        unsigned int crowns = sqlite3_column_int(stmt, 2);
+
+        //Capacité
+        const char* abi1 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 11));
+        Abilities ability1 = Utility::stringToAbility(abi1);
+        const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 12));
+        Abilities ability2 = Utility::stringToAbility(abi2);
+
+        //Bonus
+        int bonus_nb = sqlite3_column_int(stmt, 12);
+        const char* color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9));
+        Bonus bonus;
+        bonus.bonus_color = toTokenColor(color);
+        bonus.bonus_number = bonus_nb;
+
+        //Id
+        int id = sqlite3_column_int(stmt, 0);
+
+        //Création et ajout de l'instance au deck
+        JewelryCard* newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id);
+        Deck_level_one::addCardToDeck(newCard);
+
+    }
+}
+
+Deck_level_two::Deck_level_two(const std::string& databaseSavePath) : pioche() {
+
+    //cout << pathtodatabase << endl;
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    const char* query = "SELECT * FROM deck2 WHERE level = 2"; //requete pour chercher carte lvl 1
+    // Préparer la requête
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+
+        //Niveau
+        int level = sqlite3_column_int(stmt, 10); //Level dans la 11ème colonne
+
+
+        //Coûts
+        unsigned int cost_w = sqlite3_column_int(stmt, 3);
+        unsigned int cost_v = sqlite3_column_int(stmt, 4);
+        unsigned int cost_n = sqlite3_column_int(stmt, 5);
+        unsigned int cost_p = sqlite3_column_int(stmt, 6);
+        unsigned int cost_r = sqlite3_column_int(stmt, 7);
+        unsigned int cost_b = sqlite3_column_int(stmt, 8);
+        std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+            {TokenColor::BLEU, cost_b},
+            {TokenColor::BLANC, cost_w},
+            {TokenColor::VERT, cost_v},
+            {TokenColor::NOIR, cost_n},
+            {TokenColor::ROUGE, cost_r},
+            {TokenColor::PERLE, cost_p}
+        };
+
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmt, 1);
+
+        //Couronnes
+        unsigned int crowns = sqlite3_column_int(stmt, 2);
+
+        //Capacité
+        const char* abi1 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 11));
+        Abilities ability1 = Utility::stringToAbility(abi1);
+        const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 12));
+        Abilities ability2 = Utility::stringToAbility(abi2);
+
+        //Bonus
+        int bonus_nb = sqlite3_column_int(stmt, 12);
+        const char* color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9));
+        Bonus bonus;
+        bonus.bonus_color = toTokenColor(color);
+        bonus.bonus_number = bonus_nb;
+
+        //Id
+        int id = sqlite3_column_int(stmt, 0);
+
+        //Création et ajout de l'instance au deck
+        JewelryCard* newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id);
+        Deck_level_two::addCardToDeck(newCard);
+
+    }
+}
+
+Deck_level_three::Deck_level_three(const std::string& databaseSavePath) : pioche() {
+
+    //cout << pathtodatabase << endl;
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    const char* query = "SELECT * FROM deck3 WHERE level = 3"; //requete pour chercher carte lvl 3
+    // Préparer la requête
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+
+        //Niveau
+        int level = sqlite3_column_int(stmt, 10); //Level dans la 11ème colonne
+
+
+        //Coûts
+        unsigned int cost_w = sqlite3_column_int(stmt, 3);
+        unsigned int cost_v = sqlite3_column_int(stmt, 4);
+        unsigned int cost_n = sqlite3_column_int(stmt, 5);
+        unsigned int cost_p = sqlite3_column_int(stmt, 6);
+        unsigned int cost_r = sqlite3_column_int(stmt, 7);
+        unsigned int cost_b = sqlite3_column_int(stmt, 8);
+        std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+            {TokenColor::BLEU, cost_b},
+            {TokenColor::BLANC, cost_w},
+            {TokenColor::VERT, cost_v},
+            {TokenColor::NOIR, cost_n},
+            {TokenColor::ROUGE, cost_r},
+            {TokenColor::PERLE, cost_p}
+        };
+
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmt, 1);
+
+        //Couronnes
+        unsigned int crowns = sqlite3_column_int(stmt, 2);
+
+        //Capacité
+        const char* abi1 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 11));
+        Abilities ability1 = Utility::stringToAbility(abi1);
+        const char* abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 12));
+        Abilities ability2 = Utility::stringToAbility(abi2);
+
+        //Bonus
+        int bonus_nb = sqlite3_column_int(stmt, 12);
+        const char* color = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 9));
+        Bonus bonus;
+        bonus.bonus_color = toTokenColor(color);
+        bonus.bonus_number = bonus_nb;
+
+        //Id
+        int id = sqlite3_column_int(stmt, 0);
+
+        //Création et ajout de l'instance au deck
+        JewelryCard* newCard = new JewelryCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id);
+        Deck_level_three::addCardToDeck(newCard);
+
+    }
+}
+
+
+Deck_Royal::Deck_Royal(const std::string& databaseSavePath) : cards() {
+    //cout << pathtodatasavebase << endl;
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    const char* query = "SELECT * FROM boardRoyal"; //requete pour chercher cartes royales
+    // Préparer la requête
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+
+        //Identifiant
+        unsigned int id = sqlite3_column_int(stmt, 0);
+
+        // Capacité
+        const char* abi = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        Abilities ability = Utility::stringToAbility(abi);
+
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmt, 2);
+
+        //Création et ajout de l'instance au deck
+        RoyalCard* newCard = new RoyalCard(prestige_points, ability, id);
+        Deck_Royal::addCardToDeck(newCard);
+    }
+}

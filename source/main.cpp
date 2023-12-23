@@ -31,7 +31,15 @@ int main(int argc, char *argv[])
 */
 
 int main() {
-    Pyramid_Cards* pyra = retrevePyramid();
+    //Pyramid_Cards* pyra = retrevePyramid();
+    //Deck_level_one* dec1 = retrivedeck1();
+    //Deck_level_two* dec2 = retrivedeck2();
+    //Deck_level_three* dec3 = retrivedeck3();
+    //Deck_Royal* deckR = retrivedeckroyal();
+    //Board* boardjp = retriveboard();
+    Player* player0 = retriveplayer(0); // NON FONCTIONNEL
+    //Bag* sac = retrivebag();
+    //void retrivereserve(); // ??
     return 0;
 }
 

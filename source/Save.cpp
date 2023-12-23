@@ -446,3 +446,236 @@ Pyramid_Cards* retrevePyramid() {
 
     return pyr;
 }
+
+Deck_level_one* retrivedeck1() {
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    // Reconstruction
+    Deck_level_one* deck1 = new Deck_level_one(databaseSavePath);
+
+    return deck1;
+}
+
+Deck_level_two* retrivedeck2() {
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    // Reconstruction
+    Deck_level_two* deck2 = new Deck_level_two(databaseSavePath);
+
+    return deck2;
+}
+
+Deck_level_three* retrivedeck3() {
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    // Reconstruction
+    Deck_level_three* deck3 = new Deck_level_three(databaseSavePath);
+
+    return deck3;
+}
+
+Deck_Royal* retrivedeckroyal() {
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    // Reconstruction
+    Deck_Royal* deckroyal = new Deck_Royal(databaseSavePath);
+
+    return deckroyal;
+}
+
+Board* retriveboard() {
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    // Reconstruction du plateau de jeton et priilèges
+    Board* board = new Board(databaseSavePath);
+
+    return board;
+}
+
+Player* retriveplayer(int id) {
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    Player* joueur = new Player(databaseSavePath, id);
+}
+
+Bag* retrivebag() {
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    const TotalTokens& totalTokens = TotalTokens::getInstance(); // on crée tous les tokens -------------------------- PENSER A SUPPRIMER LES TOKENS DES JOUEURS DU VECTEUR ET CEUX DU PLATEAU
+
+    Bag* bag = Bag::getInstance();
+
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    if (rc) {
+        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+    }
+
+    const char* query = "SELECT * FROM bag";
+    // Préparer la requête
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+    }
+
+    int tokenBlue = sqlite3_column_int(stmt, 0);
+    int tokenWhite = sqlite3_column_int(stmt, 1);
+    int tokenGreen = sqlite3_column_int(stmt, 2);
+    int tokenBlack = sqlite3_column_int(stmt, 3);
+    int tokenRed = sqlite3_column_int(stmt, 4);
+    int tokenPerle = sqlite3_column_int(stmt, 5);
+    int tokenGold = sqlite3_column_int(stmt, 6);
+    int tokenNone = sqlite3_column_int(stmt, 7);
+
+    // token bleus
+    for (int i = 0; i < tokenBlue; i++){
+        bag->addToken(Token(TokenColor::BLEU));
+    }
+    // token blanc
+    for (int i = 0; i < tokenWhite; i++){
+        bag->addToken(Token(TokenColor::BLANC));
+    }
+    // token verts
+    for (int i = 0; i < tokenGreen; i++){
+        bag->addToken(Token(TokenColor::VERT));
+    }
+    // token noirs
+    for (int i = 0; i < tokenBlack; i++){
+        bag->addToken(Token(TokenColor::NOIR));
+    }
+    // token rouges
+    for (int i = 0; i < tokenRed; i++){
+        bag->addToken(Token(TokenColor::ROUGE));
+    }
+    // token perles
+    for (int i = 0; i < tokenPerle; i++){
+        bag->addToken(Token(TokenColor::PERLE));
+    }
+    // token ors
+    for (int i = 0; i < tokenGold; i++){
+        bag->addToken(Token(TokenColor::OR));
+    }
+    // token none
+    for (int i = 0; i < tokenNone; i++){
+        bag->addToken(Token(TokenColor::None));
+    }
+
+    return bag;
+}
+
+void retrivereserve() {
+        // Reconstruction des cartes réservées
+    // Obtient le chemin du fichier source actuel (__FILE__)
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__);
+    // Obtient le répertoire du fichier source
+    std::filesystem::path sourceDirectory = sourceFilePath.parent_path();
+    std::string databaseSavePath = sourceDirectory.string() + "/Data/save.db";
+
+    const TotalTokens& totalTokens = TotalTokens::getInstance(); // on crée tous les tokens -------------------------- PENSER A SUPPRIMER LES TOKENS DES JOUEURS DU VECTEUR ET CEUX DU PLATEAU
+
+    Bag* bag = Bag::getInstance();
+
+    sqlite3* db; //On créer une variable sqlite du nom de db
+
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+
+    const char *queryRes = "SELECT * FROM reservedCards"; //requete pour chercher carte lvl 1
+    // Préparer la requête
+    sqlite3_stmt *stmtRes;
+    rc = sqlite3_prepare_v2(db, queryRes, -1, &stmtRes, nullptr);
+
+    if (rc != SQLITE_OK) {
+        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+    }
+
+    while ((rc = sqlite3_step(stmtRes)) == SQLITE_ROW) {
+
+        //Niveau
+        int level = sqlite3_column_int(stmtRes, 9); //Level dans la 9ème colonne
+
+
+        //Coûts
+        unsigned int cost_w = sqlite3_column_int(stmtRes, 2);
+        unsigned int cost_v = sqlite3_column_int(stmtRes, 3);
+        unsigned int cost_n = sqlite3_column_int(stmtRes, 4);
+        unsigned int cost_p = sqlite3_column_int(stmtRes, 5);
+        unsigned int cost_r = sqlite3_column_int(stmtRes, 6);
+        unsigned int cost_b = sqlite3_column_int(stmtRes, 7);
+        std::unordered_map<TokenColor, int> cost = { //dans l'ordre BLEU, BLANC, VERT, NOIR, ROUGE, PERLE (modifiable)
+            {TokenColor::BLEU, cost_b},
+            {TokenColor::BLANC, cost_w},
+            {TokenColor::VERT, cost_v},
+            {TokenColor::NOIR, cost_n},
+            {TokenColor::ROUGE, cost_r},
+            {TokenColor::PERLE, cost_p}
+        };
+
+        //Prestige
+        unsigned int prestige_points = sqlite3_column_int(stmtRes, 0);
+
+        //Couronnes
+        unsigned int crowns = sqlite3_column_int(stmtRes, 1);
+
+        //Capacité
+        const char *abi1 = reinterpret_cast<const char*>(sqlite3_column_text(stmtRes, 10));
+        Abilities ability1 = Utility::stringToAbility(abi1);
+        const char *abi2 = reinterpret_cast<const char*>(sqlite3_column_text(stmtRes, 11));
+        Abilities ability2 = Utility::stringToAbility(abi2);
+
+        //Bonus
+        int bonus_nb = sqlite3_column_int(stmtRes, 12);
+        const char *color = reinterpret_cast<const char*>(sqlite3_column_text(stmtRes, 8));
+        Bonus bonus;
+        bonus.bonus_color = toTokenColor(color);
+        bonus.bonus_number = bonus_nb;
+
+        //Id card
+        int id = sqlite3_column_int(stmtRes, 13);
+
+        // Id player
+        int idPlayer = sqlite3_column_int(stmtRes, 0);
+
+        //Création et ajout de l'instance au deck
+        JewelryCard newCard(level, cost, prestige_points, crowns, ability1, ability2, bonus, id);
+        /*if (idPlayer == 0) {
+            player0.reserveOneCard(newCard);
+        }else {
+            player1.reserveOneCard(newCard);
+        }*/
+    }
+}

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include "sqlite/sqlite3.h"
 
 //Liste des couleurs possibles pour les jetons, avec l'affichage
 enum class TokenColor { BLEU, BLANC, VERT, NOIR, ROUGE, PERLE, OR, None };
@@ -147,6 +148,8 @@ class Board {
 
     static Board* instance ;
     public :
+    Board(const std::string& databaseSavePath); // Rémy save
+    void placeTokenPos(const Token &token, size_t posx, size_t posy); // Rémy save
         //pas de duplication du plateau
         Board(const Board&) = delete;
     Board& operator=(const Board&) = delete;

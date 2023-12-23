@@ -12,5 +12,13 @@
 void cleanTable(const std::string& dbPath, const std::string& tableName);
 void writeToDatabase(const Game& game);
 Pyramid_Cards* retrevePyramid();
+Deck_level_one* retrivedeck1();
+Deck_level_two* retrivedeck2();
+Deck_level_three* retrivedeck3();
+Deck_Royal* retrivedeckroyal();
+Board* retriveboard();
+Player* retriveplayer(int id);
+Bag* retrivebag();
+void retrivereserve();
 
 #endif //LO21PROJECT_SAVE_H
