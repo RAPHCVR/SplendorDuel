@@ -131,7 +131,7 @@ namespace GestionPartie{
 class Controller {
   - Game : Game
   - currentPlayer : Player
-  
+
   +Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2)
   +~Controller() 
   +getGame() : Game
@@ -170,12 +170,25 @@ class Game{
 					   
 }
 class GameTable{
-    - plateau : Board
-    - sac : Bag
-    - cartes_pyramide : Pyramid_Cards
-    - cartes_royales : Liste[RoyalCard]
-    - cartes_joaillerie : Liste[JewelryCard]
-    -DeckNv(1 à 3) : DeckNv(1 à 3)
+  - deckroyal : Deck_Royal
+  - decklv1 :Deck_level_one 
+  - decklv2 : Deck_level_two
+  - decklv3 :Deck_level_three
+  - pyramid :Pyramid_Cards
+  - bag : Bag
+  - board : Board 
+
+  + GameTable()
+  + ~GameTable()
+  + getBag() const : Bag 
+  +  getBoard() const : Board
+  + getPyramid() const : Pyramid_Cards
+  + getDeckRoyal() const : Deck_Royal
+  + getDeckLevelOne() const : Deck_level_one
+  + getDeckLevelTwo() const :Deck_level_two
+  + getDeckLevelThree() const :Deck_level_three
+  + GameTable(const GameTable&) = delete
+  + GameTable& operator=(const GameTable&) = delete
 								  
 }
 
