@@ -372,36 +372,56 @@ class HumanStrategy{
 
 namespace GestionCartes{
 
-class JewelryCard <<abstract>>{
-  - niveau : uint
-  - bonus : Bonus
-  - point_de_prestige : uint
-  - capacite : Abilities
-  - {field} cout : Liste[int]
-  - couronne : int
-  - id : int
-  +JewelryCard(niveau : Niveau, bonus : TokenColor, point_de_prestige : int, capacite : Abilities, cout : Liste[int], couronne : int, id : int)
-  +getNiveau() : int
-  +getBonus() : Bonus
-  +getCompetence1() : Abilities
-  +getCompetence2() : Capactie
-  +getPrestige() : int
-  +getCout() : Liste[int]
-  +getCouronne() : int
-  +getId() : int
+
+class SummaryCard{
+  - unsigned int prestigePoints;
+  - unsigned int bonusNumber;
+  + explicit SummaryCard(unsigned int p = 0, unsigned int b = 0)
+  + getPrestigePoints():unsigned int
+  + getBonusNumber() :unsigned int
+  + addBonusNumber(unsigned int b) :void
+  + addprestigePoints(unsigned int p):void
 }
+
+
+class JewelryCard <<abstract>>{
+  - level : unsigned int 
+  - cost : unordered_map<TokenColor, int>  
+  - prestige_points : unsigned int
+  - crowns :unsigned int
+  - ability1 :Abilities
+  - ability2 :Abilities
+  - bonus:Bonus
+	- id : int 
+
+  + JewelryCard(unsigned int l, unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a1, Abilities a2, Bonus b, int i)
+  + getLevel() : int
+  + getCost() : unordered_map<TokenColor, int> 
+  + getPrestige() : int
+  + getCrowns() : int
+  + getAbility1()  : Abilities
+  + getAbility2() : Abilities
+  +  getBonus() :Bonus
+	+ getId() : int
+  + operator==(const JewelryCard& other) const : bool 
+
+}
+
 note bottom of JewelryCard : point de prestige entre 0 et 4\ncouronne entre 0 et 2
 
 
 class RoyalCard {
-  - point_de_prestige : uint
-  - capacite : Abilities
-  - id : int
-  + RoyalCard(point_de_prestige : int, capacite : Abilities)
-  + getPrestige() : uint
-  + getCompetence() : Abilities
-  + getId() : int
+  - prestige_points :unsigned int 
+  - ability :Abilities
+  - id :unsigned int
+
+  + RoyalCard(unsigned int pp, Abilities a, unsigned int i)
+  + getPrestige():unsigned int 
+  + getAbility():Abilities 
+  + getId():unsigned int 
+  				
 }
+
 note bottom of RoyalCard :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
 note bottom of RoyalCard : Une classe RoyalCardError est présente pour spécifier les erreurs
 
