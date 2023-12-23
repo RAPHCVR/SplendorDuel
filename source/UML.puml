@@ -32,10 +32,10 @@ enum CompulsoryActions{
 namespace JetonsPrivilegePlateau {
 
 class Token {
-   -couleur : TokenColor
+   -color : TokenColor
    +Token(token : const Token)
-   +Token(couleur: TokenColor)
-   +getCouleur() : TokenColor
+   +Token(color: TokenColor)
+   +getColorr() : TokenColor
 }
 
 class Privilege{
@@ -44,12 +44,15 @@ class Privilege{
 class Bag{
   -tokens : Liste[Token]
   -Bag(total : const TotalTokens)
+  -instance : static Bag*
   +getNbToken() : size_t
   +addToken(token : const Token)
   +drawToken() : const Token
-  +isEmpty() : bool
+  +drawToken(TokenColor color) : const Token
+  +isEmpty() const : bool
   +getInstance() : Bag
   +containsOnly(color : TokenColor) : bool
+  + resetInstance():static void 
 }
 note bottom of Bag : Le sac de jeton est unique, pas de duplication
 
@@ -63,10 +66,9 @@ class TotalTokens{
    -max_vert : const size_t
    -max_blanc : const size_t
    {fi+TotalTokens()
-
-   +~TotalTokens
+   - TotalTokens()
+   - ~TotalTokens()
    +getNbToken : size_t
-   +getToken : const Token
    + getToken(size_t i) const : const Token&
    + getInstance() :const static TotalTokens& 
 }
@@ -85,7 +87,6 @@ note bottom of TotalPrivileges: pas de duplication du total
 class Board{
    - tokens : Liste[Liste[Token]]
    - privileges : Liste[Privilege]
-   ' -observers : vecteur[Observer]
    + Board(bag: Bag, privileges: const TotalPrivileges)
    + takeToken(i : size_t, j : size_t) : const Token
    + showBoard()
@@ -129,14 +130,14 @@ enum Abilities <<enumeration >> {
 namespace GestionPartie{
 
 class Controller {
-  - Game : Game
-  - currentPlayer : Player
+  - Game : Game*
+  - currentPlayer : Player*
 
   +Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2)
   +~Controller() 
-  +getGame() : Game
-  +getcurrentPlayer() : Player
-  +getopposingPlayer() : Player
+  +getGame() : Game&
+  +getcurrentPlayer() : Player&
+  +getopposingPlayer() : Player&
   +setCurrentPlayer(unsigned int n): void
   +play(): void
   +playTurn(): void
@@ -162,21 +163,27 @@ class Controller {
   + reinit():void
 }			 
 class Game{
+    - round :  int
     -GameTable : GameTable
-								 
-    -joueur_courant : Player
-    -tour : uint
-						 
-					   
+    - players[2] : Player*
+    + Game() 
+    + ~Game() 
+    + getRound() const : int 
+    + getGameTable() const :GameTable&
+    +  getPlayer(size_t i) const : Player*
+    + setPlayer1(Player *j):void
+    + setPlayer2(Player *j):void
+    + setRound(unsigned int n) : void
+    + roundIncrement() : void
 }
 class GameTable{
-  - deckroyal : Deck_Royal
-  - decklv1 :Deck_level_one 
-  - decklv2 : Deck_level_two
-  - decklv3 :Deck_level_three
-  - pyramid :Pyramid_Cards
-  - bag : Bag
-  - board : Board 
+  - deckroyal : Deck_Royal*
+  - decklv1 :Deck_level_one* 
+  - decklv2 : Deck_level_two*
+  - decklv3 :Deck_level_three*
+  - pyramid :Pyramid_Cards*
+  - bag : Bag*
+  - board : Board *
 
   + GameTable()
   + ~GameTable()
@@ -187,9 +194,6 @@ class GameTable{
   + getDeckLevelOne() const : Deck_level_one
   + getDeckLevelTwo() const :Deck_level_two
   + getDeckLevelThree() const :Deck_level_three
-  + GameTable(const GameTable&) = delete
-  + GameTable& operator=(const GameTable&) = delete
-								  
 }
 
 class QTGame {
