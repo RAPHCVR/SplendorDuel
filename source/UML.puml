@@ -33,7 +33,7 @@ namespace JetonsPrivilegePlateau {
 
 class Token {
    -couleur : TokenColor
-   +Token(jeton : const Token)
+   +Token(token : const Token)
    +Token(couleur: TokenColor)
    +getCouleur() : TokenColor
 }
@@ -42,19 +42,19 @@ class Privilege{
 }
 
 class Bag{
-  -jetons : Liste[Token]
-  -Bag(total : const TokenTotaux)
-  +getNbJetons() : size_t
-  +addJeton(jeton : const Token)
-  +PiocherJeton() : const Token
-  +estVide() : bool
+  -tokens : Liste[Token]
+  -Bag(total : const TotalTokens)
+  +getNbToken() : size_t
+  +addToken(token : const Token)
+  +drawToken() : const Token
+  +isEmpty() : bool
   +getInstance() : Bag
   +containsOnly(color : TokenColor) : bool
 }
 note bottom of Bag : Le sac de jeton est unique, pas de duplication
 
 class TotalTokens{
-   -jetons : Liste[Token]
+   -tokens : Liste[Token]
    -max_or : const size_t
    -max_rouge : const size_t
    -max_noir : const size_t
@@ -62,37 +62,47 @@ class TotalTokens{
    -max_perle : const size_t
    -max_vert : const size_t
    -max_blanc : const size_t
-   {fi+TokenTotaux()
-   +~TokenTotaux
-   +getNbJetons : size_t
-   +getJeton : const Token
+   {fi+TotalTokens()
+
+   +~TotalTokens
+   +getNbToken : size_t
+   +getToken : const Token
+   + getToken(size_t i) const : const Token&
+   + getInstance() :const static TotalTokens& 
 }
 note bottom of TotalTokens: Le total initial est unique, pas de duplication
 
-class PrivilegesTotaux{
+class TotalPrivileges{
    -privileges : Liste[Privilege]
-   -PrivilegesTotaux()
-   -~PrivilegesTotaux()
+   -TotalPrivileges()
+   -~TotalPrivileges()
    +getNbPrivileges() : size_t
    +getPrivilege() : const Privilege
    +getInstance() : TotalPrivilege
 }
-note bottom of PrivilegesTotaux: pas de duplication du total
+note bottom of TotalPrivileges: pas de duplication du total
 
 class Board{
-   -tokens : Liste[Liste[Token]]
-   -privileges : Liste[Privilege]
-   -observers : vecteur[Observer]
-   +Board(sac: Bag, privileges: const PrivilegesTotaux)
-   +takeToken(i : size_t, j : size_t) : const Token
-   +showBoard()
-   +takePrivilege() : const Privilege
-   +placerJeton(jeton : const Token)
-   +placerPrivilege(privilege : const Privilege)
-   +remplirPlateau(sac: Bag)
-   +estVideo() : bool
-   +getInstance() : Board
+   - tokens : Liste[Liste[Token]]
+   - privileges : Liste[Privilege]
+   ' -observers : vecteur[Observer]
+   + Board(bag: Bag, privileges: const TotalPrivileges)
+   + takeToken(i : size_t, j : size_t) : const Token
+   + showBoard()
+   + takePrivilege() : const Privilege
+   + placeToken(token : const Token)
+   + placePrivilege(privilege : const Privilege)
+   + fillBoard(bag: Bag)
+   + isEmpty() : bool
+   + isCellEmpty(size_t i, size_t j) const : bool
+   + getInstance() : Board
    + class PlateauIterateur
+   + containsOnly(TokenColor color) : bool
+   + CellColor(size_t i, size_t j, TokenColor color) const : bool
+   + getNbTokens() const : int
+   + takeToken(size_t i, size_t j) : const Token&
+   + resetInstance() : void
+
 }
 note bottom of Board: pas de duplication du plateau
 
