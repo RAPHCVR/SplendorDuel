@@ -79,11 +79,11 @@ class PrivilegesTotaux{
 }
 note bottom of PrivilegesTotaux: pas de duplication du total
 
-class Plateau{
+class Board{
    -tokens : Liste[Liste[Token]]
    -privileges : Liste[Privilege]
    -observers : vecteur[Observer]
-   +Plateau(sac: Bag, privileges: const PrivilegesTotaux)
+   +Board(sac: Bag, privileges: const PrivilegesTotaux)
    +takeToken(i : size_t, j : size_t) : const Token
    +showBoard()
    +takePrivilege() : const Privilege
@@ -91,10 +91,10 @@ class Plateau{
    +placerPrivilege(privilege : const Privilege)
    +remplirPlateau(sac: Bag)
    +estVideo() : bool
-   +getInstance() : Plateau
+   +getInstance() : Board
    + class PlateauIterateur
 }
-note bottom of Plateau: pas de duplication du plateau
+note bottom of Board: pas de duplication du plateau
 
 
 ' struct TupleIntJeton {
@@ -130,9 +130,9 @@ class Game{
 					   
 }
 class GameTable{
-    - plateau : Plateau
+    - plateau : Board
     - sac : Bag
-    - cartes_pyramide : CartesPyramide
+    - cartes_pyramide : Pyramid_Cards
     - cartes_royales : Liste[RoyalCard]
     - cartes_joaillerie : Liste[JewelryCard]
     -DeckNv(1 à 3) : DeckNv(1 à 3)
@@ -343,7 +343,7 @@ class Deck_Royal{
 }
 note bottom of Deck_Royal : Gère le deck des cartes royales
 
-class DeckNv1{
+class Deck_level_one{
   - Deck_level_one()
   - instance : Deck_level_one 
   - pioche : Liste[RoyalCard]
@@ -353,7 +353,7 @@ class DeckNv1{
   + deleteFirstItem() : void
 }
 
-class DeckNv2{
+class Deck_level_two{
   - Deck_level_two()
   - instance : Deck_level_two 
   - pioche : Liste[RoyalCard]
@@ -363,7 +363,7 @@ class DeckNv2{
   + deleteFirstItem() : void
 }
 
-class DeckNv3{
+class Deck_level_three{
   - Deck_level_three()
   - instance : Deck_level_three
   - pioche : Liste[JewelryCard]
@@ -373,18 +373,18 @@ class DeckNv3{
   + deleteFirstItem() : void
 }
 
-class CartesPyramide{
-    - instance : CartesPyramide
+class Pyramid_Cards{
+    - instance : Pyramid_Cards
     - niveau1 : Liste[JewelryCard]
     - niveau2 : Liste[JewelryCard]
     - niveau3 : Liste[JewelryCard]
     - max_level_one : static int
     - max_level_two : static int
     - max_level_three : static int
-    + getInstance() : CartesPyramide
-    + CartesPyramide(deck1 : DeckNv1, deck2 : DeckNv2, deck3 : DeckNv3)
+    + getInstance() : Pyramid_Cards
+    + Pyramid_Cards(deck1 : Deck_level_one, deck2 : Deck_level_two, deck3 : Deck_level_three)
     + piocherCarte(niveau : uint) : const JewelryCard
-    + remplirPyramide(deck1 : DeckNv1, deck2 : DeckNv2, deck3 : DeckNv3)
+    + remplirPyramide(deck1 : Deck_level_one, deck2 : Deck_level_two, deck3 : Deck_level_three)
     + isEmpty(level : int) : bool
     + getLevelCards(i : int) : vecteur[JewelryCard]
 }
@@ -501,7 +501,7 @@ namespace Sauvegarde {
 
 }
 Game "1" -- "2" Player : < joue
-Plateau "1" -- "1" GameTable : est joué dans >
+Board "1" -- "1" GameTable : est joué dans >
 Bag "1" -- "1" GameTable : est joué dans >
 JewelryCard "*" -- "1" GameTable : est joué dans >
 RoyalCard "4" -- "1" GameTable : est joué dans >
@@ -518,33 +518,33 @@ Token "0..25" --* JetonsTotaux : est contenu dans >
 Privilege "0..3" --* PrivilegesTotaux : est contenu dans >
 Token "0..10" -- "0..1" Player : possède <
 Token "0..25" --o "0..1" Bag : est composé de <
-Token "0..25" --o "1" Plateau : est placé sur >
-Privilege "0..3" --o "0..1" Plateau : est placé sur >
+Token "0..25" --o "1" Board : est placé sur >
+Privilege "0..3" --o "0..1" Board : est placé sur >
 
 AiStrategy --|> Strategy
 HumanStrategy --|> Strategy
 Player "1..*" --  "1" Strategy : utilise >
 
-'CoordonneeJeton "0..25" --  "1" Plateau
+'CoordonneeJeton "0..25" --  "1" Board
 'CoordonneeJeton "0..1" -- "1" Token
 
 Player "0..1" -- "0..*" JewelryCard : possède >
-JewelryCard --* DeckNv1
-JewelryCard --* DeckNv2
-JewelryCard --* DeckNv3
-CartesPyramide *-- "1" DeckNv1
-CartesPyramide *-- "1" DeckNv2
-CartesPyramide *-- "1" DeckNv3
+JewelryCard --* Deck_level_one
+JewelryCard --* Deck_level_two
+JewelryCard --* Deck_level_three
+Pyramid_Cards *-- "1" Deck_level_one
+Pyramid_Cards *-- "1" Deck_level_two
+Pyramid_Cards *-- "1" Deck_level_three
 QTPyramid *-- "0..*" QTCartes
 QTRangeePioches *-- "0..*" QTPioche
 QTBoardRoyal *-- "0..*" QTCardRoyal
 QTCartes -- "1" JewelryCard
-QTPyramid -- "1"CartesPyramide
+QTPyramid -- "1"Pyramid_Cards
 QTCardRoyal -- "1" RoyalCard
 QTBoardRoyal -- "1" Deck_Royal
-QTPioche -- "1" DeckNv1
-QTPioche -- "1" DeckNv2
-QTPioche -- "1" DeckNv3
+QTPioche -- "1" Deck_level_one
+QTPioche -- "1" Deck_level_two
+QTPioche -- "1" Deck_level_three
 
 
 Player "0..1" -- "0..2" RoyalCard : possède >
