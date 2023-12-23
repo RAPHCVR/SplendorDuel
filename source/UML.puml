@@ -131,15 +131,16 @@ namespace GestionPartie{
 class Controller {
   - Game : Game
   - currentPlayer : Player
+  
   +Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2)
   +~Controller() 
-  +Game& getGame() 
-  +Player& getcurrentPlayer()  
-  +Player& getopposingPlayer() 
-  +void setCurrentPlayer(unsigned int n)
-  +void play()
-  +void playTurn()
-  +void changeCurrentPlayer()
+  +getGame() : Game
+  +getcurrentPlayer() : Player
+  +getopposingPlayer() : Player
+  +setCurrentPlayer(unsigned int n): void
+  +play(): void
+  +playTurn(): void
+  +changeCurrentPlayer() : void
 
   + getOptionalActions(const Game& game, Player& player) const : Liste[OptionalActions]
   + getCompulsoryActions(const Game& game, Player& player) const : Liste[CompulsoryActions]
