@@ -268,7 +268,7 @@ void QTGame::handleGameStatus(){
         }
         else if (status == "end") {
             controller->changeCurrentPlayer();
-            //writeToDatabase(controller->getGame());
+            writeToDatabase(controller->getGame());
             status = "start";
             handleGameStatus();
         }

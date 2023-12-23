@@ -16,7 +16,7 @@ int main() {
         c->reinit();
     }
 }
-*/
+
 
 /*
 int main(int argc, char *argv[])
@@ -31,16 +31,22 @@ int main(int argc, char *argv[])
 
 
 int main() {
-    //Pyramid_Cards* pyra = retrevePyramid();
-    //Deck_level_one* dec1 = retrivedeck1();
-    //Deck_level_two* dec2 = retrivedeck2();
-    //Deck_level_three* dec3 = retrivedeck3();
-    //Deck_Royal* deckR = retrivedeckroyal();
+    retrevePyramid();
+    retrivedeck1();
+    retrivedeck2();
+    retrivedeck3();
+    retrivedeckroyal();
     Bag* bag = Bag::getInstance();
-    Board* boardjp = retriveboard();
+    retriveboard();
+    Deck_level_one* dec1 = Deck_level_one::getInstance();
+    Deck_level_two* dec2 = Deck_level_two::getInstance();
+    Deck_level_three* dec3 = Deck_level_three::getInstance();
+    Deck_Royal* deckR = Deck_Royal::getInstance();
+    Pyramid_Cards* pyra = Pyramid_Cards::getInstance();
+    Player* player1 = retriveplayer(0);
     Player* player0 = retriveplayer(1);
-    //Bag* sac = retrivebag();
-    //retrivereserve(*player0,0);
+    retrivereserve(*player0,1);
+    retrivereserve(*player1,0);
     return 0;
 }
 

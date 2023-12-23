@@ -405,8 +405,8 @@ Player::Player(const std::string &databaseSavePath, int id) {
             {TokenColor::VERT, sqlite3_column_int(stmt, 8)},
             {TokenColor::NOIR, sqlite3_column_int(stmt, 9)},
             {TokenColor::ROUGE, sqlite3_column_int(stmt, 10)},
-            {TokenColor::OR, sqlite3_column_int(stmt, 11)},
-            {TokenColor::PERLE, sqlite3_column_int(stmt, 12)}
+            {TokenColor::PERLE, sqlite3_column_int(stmt, 11)},
+            {TokenColor::OR, sqlite3_column_int(stmt, 12)}
         };
 
         //create each token in the player
@@ -439,10 +439,6 @@ Player::Player(const std::string &databaseSavePath, int id) {
         }
     } else {
         std::cerr << "No player found with id: " << id << std::endl;
-    }
-
-    if (rc != SQLITE_DONE) {
-        std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
     }
     for (size_t i = 0; i < nb_privileges; i++) {
         privileges[i] = &Board::getInstance()->takePrivilege();

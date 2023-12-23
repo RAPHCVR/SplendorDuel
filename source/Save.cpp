@@ -736,7 +736,7 @@ unsigned retrieveTurn() {
     unsigned turn;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         // Extract data from each column based on the INSERT query structure
-        turn = reinterpret_cast<unsigned>(sqlite3_column_text(stmt, 0));
+        turn = sqlite3_column_int(stmt, 0);
     }
     // Finalize and close database connection
     sqlite3_finalize(stmt);
