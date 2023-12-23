@@ -5,7 +5,8 @@
 #include <string>
 #include "joueur.h"
 #include "sqlite/sqlite3.h"
-
+#include <fstream>
+#include <filesystem>
 class GameException {
     //Classe de gestion des exception avec la partie
 private:
@@ -175,9 +176,8 @@ class GameSaveBuilder: public Builder {
 private:
     Game * game;
 public:
-    GameSaveBuilder() {
-        this -> Reset();
-    }
+    GameSaveBuilder();
+
     ~GameSaveBuilder() {
         delete game;
     }
@@ -186,7 +186,11 @@ public:
     }
 
     //ajouter des méthodes ici pour les cartes et les jetons, etc
+    void setPlayers(std::string& player1Name,const Type typep1, std::string& player2Name, const Type typep2)const override;
+    void roundInit() const override ;
+    void setPlayersCards()const override{};
 
+    void setPlayersTokens()const override{}
 
     Game * GetProduct() {
         Game * result = this -> game;
@@ -222,9 +226,27 @@ public:
         this->builder->setPlayers(player1Name, typep1, player2Name, typep2);
         this->builder->roundInit();
     }
+
+    void BuildSaveGame(std::string& player1Name,const Type typep1, std::string& player2Name, const Type typep2) {
+        this->builder->setPlayers(player1Name, typep1, player2Name, typep2);
+        this->builder->roundInit();
+    }
 };
 
 
-
+void cleanTable(const std::string& dbPath, const std::string& tableName);
+void writeToDatabase(const Game& game);
+Pyramid_Cards* retrevePyramid();
+Deck_level_one* retrivedeck1();
+Deck_level_two* retrivedeck2();
+Deck_level_three* retrivedeck3();
+Deck_Royal* retrivedeckroyal();
+Board* retriveboard();
+Player* retriveplayer(int id);
+Bag* retrivebag();
+void retrivereserve(Player& player, int idPlayer);
+unsigned retrieveTurn();
+void updateOrAddPlayer(const std::string& playerName);
+std::vector<std::pair<std::string, int>> getPlayersAndScores();
 #endif //LO21PROJECT_JETON_H
 

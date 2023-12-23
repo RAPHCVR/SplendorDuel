@@ -4,17 +4,21 @@
 
 #include "QTGame.h"
 #include "QTQuestion.h"
-#include "Save.h"
 #include <string>
-//quand 2 ia, ne pas utiliser qtgame, utiliser controller
+
+
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
     QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
     startingmenu->exec();
     if (!startingmenu->isLoad()) {
-        controller = new Controller("New", "michia", "mich", Type::IA, Type::Humain);
+        controller = new Controller("New", startingmenu->getPlayerName1().toStdString(), startingmenu->getPlayerName2().toStdString(), startingmenu->getPlayerType1(), startingmenu->getPlayerType2());
+    }
+    else {
+        controller = new Controller("Save", "NULL", "NULL", Type::IA, Type::Humain);
     }
     if (controller->getcurrentPlayer().getType()==controller->getopposingPlayer().getType() && controller->getopposingPlayer().getType()==Type::IA) {
         controller->play();
+        updateOrAddPlayer(controller->getopposingPlayer().getName());
         showVictoryDialog(QString::fromStdString(controller->getopposingPlayer().getName()), nullptr);
         QString choice = "";
         std::vector<QString> buttonLabels = {"Rejouer","Quitter"};
@@ -28,6 +32,7 @@ QTGame::QTGame(QWidget* parent) : QWidget(parent) {
             showVictoryDialog(QString::fromStdString(controller->getopposingPlayer().getName()), nullptr);
             choice = MBox(buttonLabels, "Choix", "Voulez vous rejouer ou quitter ?");
         }
+        std::exit(0);
     }
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
@@ -249,6 +254,7 @@ void QTGame::handleGameStatus(){
     }
     else if (controller->checkIfPlayerWins(controller->getGame(),controller->getcurrentPlayer())) {
         status = "win";
+        updateOrAddPlayer(controller->getcurrentPlayer().getName());
         showVictoryDialog(QString::fromStdString(controller->getcurrentPlayer().getName()), this);
     }
     else {
@@ -268,6 +274,7 @@ void QTGame::handleGameStatus(){
         }
         else if (status == "end") {
             controller->changeCurrentPlayer();
+            controller->getGame().setRound(controller->getGame().getRound()+0.5);
             writeToDatabase(controller->getGame());
             status = "start";
             handleGameStatus();
@@ -1251,4 +1258,10 @@ void QTGame::handleIATokenSelection() {
         }
     }
     plateView->updateWidgetsFromBoard();
+}
+
+void QTStartingMenu::showScoreBoard() {
+    ScoreboardDialog dialog(this);
+    dialog.setWindowTitle("Scoreboard");
+    dialog.exec(); // Show the dialog as a modal window
 }

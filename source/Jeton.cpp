@@ -390,7 +390,11 @@ Board::Board(const std::string& databaseSavePath) {
         sqlite3_close(db);
         return;
     }
-
+    for (auto & token : tokens) {
+        for (auto & j : token) {
+            j = nullptr;
+        }
+    }
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
 
         // position en x

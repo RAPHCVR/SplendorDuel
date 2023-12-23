@@ -77,6 +77,7 @@ public:
         startButton = new QPushButton("Lancer une partie", this);
         loadButton = new QPushButton("Charger une partie sauvegardée", this);
         quitButton = new QPushButton("Quitter", this);
+        scoreBoardButton = new QPushButton("Tableau des scores", this);
 
         // Populate combo boxes
         playerTypeCombo1->addItem("Humain", QVariant::fromValue(Type::Humain));
@@ -93,11 +94,13 @@ public:
         layout->addWidget(startButton);
         layout->addWidget(loadButton);
         layout->addWidget(quitButton);
+        layout->addWidget(scoreBoardButton);
 
         // Connect signals to slots
         connect(startButton, &QPushButton::clicked, this, &QTStartingMenu::startNewGame);
         connect(loadButton, &QPushButton::clicked, this, &QTStartingMenu::loadGame);
         connect(quitButton, &QPushButton::clicked, this, &QTStartingMenu::quitGame);
+        connect(scoreBoardButton, &QPushButton::clicked, this, &QTStartingMenu::showScoreBoard);
     }
 
     QString getPlayerName1() { return playerNameEdit1->text(); }
@@ -127,21 +130,59 @@ public slots:
     }
 
     void loadGame() {
-        // Logic to load a saved game
         qDebug() << "Load a saved game";
         load = true;
+        accept();  // This will close the dialog
     }
 
     void quitGame() {
         std::exit(0);
     }
 
+    void showScoreBoard();
+
 private:
     QString playerName1;
     QString playerName2;
     QString playerType1;
     QString playerType2;
+    QPushButton *scoreBoardButton; // New Scoreboard button
     bool load;
+};
+
+class ScoreboardDialog : public QDialog {
+    Q_OBJECT
+public:
+    explicit ScoreboardDialog(QWidget *parent = nullptr) : QDialog(parent) {
+        tableWidget = new QTableWidget(this);
+        tableWidget->setColumnCount(2); // Two columns: Name and Score
+        tableWidget->setHorizontalHeaderLabels({"Name", "Score"});
+        tableWidget->horizontalHeader()->setStretchLastSection(true);
+
+        QPushButton* closeButton = new QPushButton("Close", this);
+        connect(closeButton, &QPushButton::clicked, this, &ScoreboardDialog::close);
+
+        QVBoxLayout* layout = new QVBoxLayout(this);
+        layout->addWidget(tableWidget);
+        layout->addWidget(closeButton);
+
+        // Populate the table with scores
+        populateScores();
+    }
+
+private:
+    QTableWidget *tableWidget;
+
+    void populateScores() {
+        // Example data - replace this with your database or data source
+        std::vector<std::pair<std::string, int>> scores = getPlayersAndScores();
+
+        tableWidget->setRowCount(scores.size());
+        for (int i = 0; i < scores.size(); ++i) {
+            tableWidget->setItem(i, 0, new QTableWidgetItem(QString::fromStdString(scores[i].first)));
+            tableWidget->setItem(i, 1, new QTableWidgetItem(QString::number(scores[i].second)));
+        }
+    }
 };
 
 

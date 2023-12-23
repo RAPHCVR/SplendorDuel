@@ -54,5 +54,5 @@ public:
 };
 
 bool areCoordinatesAlignedAndConsecutive(const std::vector<std::pair<int, int>>* coordinates);
-
+void retrieveCurrentPlayer(Controller& controller);
 #endif //CONTROLLER_H

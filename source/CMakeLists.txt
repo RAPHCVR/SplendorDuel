@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_PREFIX_PATH "D:/Jeux/Qt/6.6.0/mingw_64")
+set(CMAKE_PREFIX_PATH "C:/Qt/6.6.0/mingw_64")
 find_package(Qt6 COMPONENTS
         Core
         Gui
@@ -39,12 +39,8 @@ add_executable(projet-lo21-splendor-duel
         QTCards.h
         QTJoueur.cpp
         QTJoueur.h
-        Save.h
-        Save.cpp
         strategy.h
         strategy.cpp
-        #"../../../Downloads/Projet_LO21-commun(1)/Projet_LO21-commun/source/back-end/controller.cpp"
-        #"../../../Downloads/Projet_LO21-commun(1)/Projet_LO21-commun/source/back-end/controller.hpp"
 )
 target_link_libraries(projet-lo21-splendor-duel
         Qt::Core

@@ -55,7 +55,6 @@ Controller::Controller(const std::string& statut_partie, std::string pseudo1, st
     if (statut_partie == "New") {
         GameBuilder* builder = new GameBuilder();
         director->set_builder(builder);
-        std::cout<<"HUMAIN vs HUMAIN"<<std::endl;
         director->BuildGame(pseudo1, type1, pseudo2, type2);
         Game* p = builder->GetProduct();
         delete director;
@@ -65,7 +64,17 @@ Controller::Controller(const std::string& statut_partie, std::string pseudo1, st
         currentPlayer= game->getPlayer(i);
         getopposingPlayer().addPrivilege(game->getGameTable().getBoard().takePrivilege());
     }
-
+    else {
+        GameSaveBuilder* builder = new GameSaveBuilder();
+        director->set_builder(builder);
+        director->BuildSaveGame(pseudo1, type1, pseudo2, type2);
+        Game* p = builder->GetProduct();
+        delete director;
+        game = p;
+        game->getPlayer(0)->getName();
+        currentPlayer= game->getPlayer(0);
+        retrieveCurrentPlayer(*this);
+    }
 }
 
 void Controller::setCurrentPlayer(unsigned int n) {
@@ -725,6 +734,7 @@ void Controller::applyRoyalCardSkills(Game&game, Player&cardOwner, Player&oppone
 
 void Controller::play() {
     while (not checkIfPlayerWins(*game, getopposingPlayer())) {
+        getGame().setRound(getGame().getRound()+0.5);
         playTurn();
         if(currentPlayer->getCrowns() >=3 && currentPlayer->getRoyalCards().empty() || currentPlayer->getCrowns() >= 6 && currentPlayer->getRoyalCards().size()==1){
             buyNobleCard();
@@ -866,4 +876,42 @@ void Controller::reinit() {
     this->getGame().getGameTable().getBag().resetInstance();
     this->getGame().getGameTable().getBoard().resetInstance();
     this->getGame().getGameTable().getPyramid().resetInstance();
+}
+
+void retrieveCurrentPlayer(Controller& controller) {
+    // Get the path to the database
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__).parent_path();
+    std::string databaseSavePath = sourceFilePath.string() + "/Data/save.db";
+
+    sqlite3* db;
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db);
+    if (rc) {
+        std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    std::ostringstream oss;
+    oss << "SELECT * FROM infopartie";
+    std::string queryRes = oss.str();
+
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, queryRes.c_str(), -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing query: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        // Extract data from each column based on the INSERT query structure
+        std::string currentplayer = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        if(controller.getcurrentPlayer().getName()!=currentplayer) {
+            controller.changeCurrentPlayer();
+        }
+    }
+    // Finalize and close database connection
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
 }
