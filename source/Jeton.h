@@ -112,6 +112,7 @@ public :
     size_t getNbTokens() const { return tokens.size(); } //Récupération du nombre de jetons
     void addToken(const Token& j); //Ajout d'un jeton dans le sac
     const Token& drawToken(); //Pioche d'un jeton dans le sac
+    const Token& drawToken(TokenColor color); //Pioche d'un jeton d'une couleur dans le sac
     bool isEmpty() const { return tokens.empty(); } //Vérification si le sac est vide
     bool containsOnly(TokenColor color); //Vérification si le sac ne contient que des jetons d'une couleur
 };
@@ -148,7 +149,7 @@ class Board {
 
     static Board* instance ;
     public :
-    Board(const std::string& databaseSavePath); // Rémy save
+    explicit Board(const std::string& databaseSavePath); // Rémy save
     void placeTokenPos(const Token &token, size_t posx, size_t posy); // Rémy save
         //pas de duplication du plateau
         Board(const Board&) = delete;
@@ -162,6 +163,14 @@ class Board {
         }
         return instance;
     } //Récupération de l'instance unique
+
+    static Board* getInstance(const std::string& databaseSavePath) {
+        if (instance == nullptr) {
+            instance = new Board(databaseSavePath);  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    } //Récupération de l'instance save unique
+
 
     static void resetInstance() {
         delete instance;

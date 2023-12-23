@@ -126,6 +126,13 @@ public:
         return instance;
     }
 
+    static Deck_Royal* getInstance(const std::string& databaseSavePath) {
+        if (instance == nullptr) {
+            instance = new Deck_Royal(databaseSavePath);  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    } //instance save
+
     static void resetInstance() {
         delete instance;
         instance = nullptr;
@@ -164,6 +171,13 @@ public:
         }
         return instance;
     }
+    static Deck_level_one* getInstance(const std::string& databaseSavePath) {
+        if (instance == nullptr) {
+            instance = new Deck_level_one(databaseSavePath);  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    } //instance save
+
 
     static void resetInstance() {
         delete instance;
@@ -200,6 +214,13 @@ public:
         return instance;
     }
 
+    static Deck_level_two* getInstance(const std::string& databaseSavePath) {
+        if (instance == nullptr) {
+            instance = new Deck_level_two(databaseSavePath);  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    } //instance save
+
     static void resetInstance() {
         delete instance;
         instance = nullptr;
@@ -235,6 +256,13 @@ public:
         return instance;
     }
 
+    static Deck_level_three* getInstance(const std::string& databaseSavePath) {
+        if (instance == nullptr) {
+            instance = new Deck_level_three(databaseSavePath);  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    } //instance save
+
     static void resetInstance() {
         delete instance;
         instance = nullptr;
@@ -267,6 +295,13 @@ public:
     static Pyramid_Cards* getInstance() {
         if (instance == nullptr) {
             instance = new Pyramid_Cards();  // Crée l'instance si elle n'existe pas encore
+        }
+        return instance;
+    }
+
+    static Pyramid_Cards* getInstance(const std::string& databaseSavePath) {
+        if (instance == nullptr) {
+            instance = new Pyramid_Cards(databaseSavePath);  // Crée l'instance si elle n'existe pas encore
         }
         return instance;
     }

@@ -366,56 +366,89 @@ bool Player::canbuyreservedcard(){
 
 /* ------------------------------------------------------------------------------------------------------------------ */
 
-Player::Player(const std::string & databaseSavePath, int id) {
-
-    //cout << pathtodatabase << endl;
-    sqlite3* db; //On créer une variable sqlite du nom de db
-
-    int rc = sqlite3_open(databaseSavePath.c_str(), &db); //rc = return code, on ouvre la database
+Player::Player(const std::string &databaseSavePath, int id) {
+    sqlite3* db;
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db);
 
     if (rc) {
-        std::cerr << "Erreur lors de l'ouverture de la base de données: " << sqlite3_errmsg(db) << std::endl;
+        std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
         sqlite3_close(db);
         return;
     }
-/*
+
     std::ostringstream oss;
-
     oss << "SELECT * FROM player WHERE idPlayer = " << id;
-    std::string queryString = oss.str();  // Stocker la chaîne dans une variable
-    const char* query = queryString.c_str();
-    */
-    const char* query = "SELECT * FROM player WHERE idPlayer = 1"; //requete pour chercher carte lvl 3
+    std::string queryString = oss.str();
 
-    // Le pointeur retourné par c_str() reste valide tant que queryString est en vie
-
-    // Préparer la requête
     sqlite3_stmt* stmt;
-    rc = sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+    rc = sqlite3_prepare_v2(db, queryString.c_str(), -1, &stmt, nullptr);
 
     if (rc != SQLITE_OK) {
-        std::cerr << "Erreur lors de la préparation de la requête: " << sqlite3_errmsg(db) << std::endl;
+        std::cerr << "Error preparing query: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_finalize(stmt);
         sqlite3_close(db);
         return;
     }
+    unsigned nb_privileges;
+    if ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        int idpl = sqlite3_column_int(stmt, 0);
+        const unsigned char* nom_uc = sqlite3_column_text(stmt, 1);
+        name = nom_uc ? reinterpret_cast<const char*>(nom_uc) : "";
+        type = toType(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+        nb_privileges = sqlite3_column_int(stmt, 3);
+        prestigePoints = sqlite3_column_int(stmt, 4);
+        nbCrown = sqlite3_column_int(stmt, 5);
 
-    int idpl = sqlite3_column_int(stmt, 0);
-    const char* nom = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-    unsigned int couronnes = sqlite3_column_int(stmt, 5);
+        tokenSummary = {
+            {TokenColor::BLEU, sqlite3_column_int(stmt, 6)},
+            {TokenColor::BLANC, sqlite3_column_int(stmt, 7)},
+            {TokenColor::VERT, sqlite3_column_int(stmt, 8)},
+            {TokenColor::NOIR, sqlite3_column_int(stmt, 9)},
+            {TokenColor::ROUGE, sqlite3_column_int(stmt, 10)},
+            {TokenColor::OR, sqlite3_column_int(stmt, 11)},
+            {TokenColor::PERLE, sqlite3_column_int(stmt, 12)}
+        };
 
-    name = std::to_string(*nom);
-    type = toType(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
-    prestigePoints = sqlite3_column_int(stmt, 4);
-    nbCrown = couronnes;
-    tokenSummary = { {TokenColor::BLEU, sqlite3_column_int(stmt, 4)}, {TokenColor::BLANC, sqlite3_column_int(stmt, 5)}, {TokenColor::VERT, sqlite3_column_int(stmt, 6)}, {TokenColor::NOIR, sqlite3_column_int(stmt, 7)}, {TokenColor::ROUGE, sqlite3_column_int(stmt, 8)}, {TokenColor::OR, sqlite3_column_int(stmt, 10)}, {TokenColor::PERLE, sqlite3_column_int(stmt, 9)} };
-    tokens = { {TokenColor::BLEU, std::vector<const Token*>()}, {TokenColor::BLANC, std::vector<const Token*>()}, {TokenColor::VERT, std::vector<const Token*>()}, {TokenColor::NOIR, std::vector<const Token*>()}, {TokenColor::ROUGE, std::vector<const Token*>()}, {TokenColor::OR, std::vector<const Token*>()}, {TokenColor::PERLE, std::vector<const Token*>()} };
-    blackSummary = SummaryCard(sqlite3_column_int(stmt, 20), sqlite3_column_int(stmt, 19));
-    blueSummary = SummaryCard(sqlite3_column_int(stmt, 14), sqlite3_column_int(stmt, 13));
-    greenSummary = SummaryCard(sqlite3_column_int(stmt, 18), sqlite3_column_int(stmt, 17));
-    redSummary = SummaryCard(sqlite3_column_int(stmt, 22), sqlite3_column_int(stmt, 21));
-    whiteSummary = SummaryCard(sqlite3_column_int(stmt, 16), sqlite3_column_int(stmt, 15));
-    nbTokens = 0;
-    for (auto const& [color, tokens] : getTokenSummary()) {
-        nbTokens += tokens;
+        //create each token in the player
+        for (auto const& [color, count] : tokenSummary) {
+            if (count == 0) {
+                tokens[color] = std::vector<const Token*>();
+            }
+            else {
+                for (int i = 0; i < count; ++i) {
+                    tokens[color].push_back(&Bag::getInstance()->drawToken(color));
+                }
+            }
+        }
+
+        blackSummary = SummaryCard(sqlite3_column_int(stmt, 13), sqlite3_column_int(stmt, 14));
+        blueSummary = SummaryCard(sqlite3_column_int(stmt, 15), sqlite3_column_int(stmt, 16));
+        greenSummary = SummaryCard(sqlite3_column_int(stmt, 17), sqlite3_column_int(stmt, 18));
+        redSummary = SummaryCard(sqlite3_column_int(stmt, 19), sqlite3_column_int(stmt, 20));
+        whiteSummary = SummaryCard(sqlite3_column_int(stmt, 21), sqlite3_column_int(stmt, 22));
+
+        nbTokens = 0;
+        for (auto const& [color, count] : tokenSummary) {
+            nbTokens += count;
+        }
+        if (type == Type::IA) {
+            strategy = new AiStrategy();
+        }
+        else {
+            strategy = new HumanStrategy();
+        }
+    } else {
+        std::cerr << "No player found with id: " << id << std::endl;
     }
+
+    if (rc != SQLITE_DONE) {
+        std::cerr << "Error executing query: " << sqlite3_errmsg(db) << std::endl;
+    }
+    for (size_t i = 0; i < nb_privileges; i++) {
+        privileges[i] = &Board::getInstance()->takePrivilege();
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
 }
+

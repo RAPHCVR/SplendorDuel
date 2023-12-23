@@ -404,7 +404,9 @@ Board::Board(const std::string& databaseSavePath) {
         std::string colorString(colorText);
         TokenColor color = toTokenColor(colorString);
 
-        Token tokendb = Token(color);
+        // On ajoute le jeton avec le sac (draw)
+        const Token& tokendb = Bag::getInstance()->drawToken(color);
+
 
         placeTokenPos(tokendb, x, y);
     }
@@ -427,4 +429,34 @@ void Board::placeTokenPos(const Token &token, size_t posx, size_t posy) {
         throw TokenException("La position spécifiée est en dehors des limites du plateau.");
     }
 }
+
+const Token& Bag::drawToken(TokenColor color) {
+    if (tokens.empty()) {
+        throw TokenException("Le sac est vide");
+    }
+
+    int index = 0;
+    bool found = false;
+    BagIterator it = iterator();
+    const Token* tokenToRemove = nullptr;
+
+    while (it.hasNext() && !found) {
+        const Token* token = it.next();
+        if (token->getColor() == color) {
+            found = true;
+            tokenToRemove = token;
+            break;
+        }
+        index++;
+    }
+
+    if (found) {
+        tokens.erase(tokens.begin() + index);
+        return *tokenToRemove;
+    }
+
+    // Handle the case where no token of the specified color is found
+    throw TokenException("Aucun jeton de la couleur demandée n'a été trouvé dans le sac");
+}
+
 

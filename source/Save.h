@@ -19,6 +19,6 @@ Deck_Royal* retrivedeckroyal();
 Board* retriveboard();
 Player* retriveplayer(int id);
 Bag* retrivebag();
-void retrivereserve();
+void retrivereserve(Player& player, int idPlayer);
 
 #endif //LO21PROJECT_SAVE_H

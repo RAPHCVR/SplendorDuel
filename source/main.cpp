@@ -18,7 +18,7 @@ int main() {
 }
 */
 
-
+/*
 int main(int argc, char *argv[])
 {
 
@@ -27,22 +27,23 @@ int main(int argc, char *argv[])
     game.show();
     return QApplication::exec();
 }
+*/
 
 
-/*
 int main() {
     //Pyramid_Cards* pyra = retrevePyramid();
     //Deck_level_one* dec1 = retrivedeck1();
     //Deck_level_two* dec2 = retrivedeck2();
     //Deck_level_three* dec3 = retrivedeck3();
     //Deck_Royal* deckR = retrivedeckroyal();
-    //Board* boardjp = retriveboard();
-    Player* player0 = retriveplayer(0); // NON FONCTIONNEL
+    Bag* bag = Bag::getInstance();
+    Board* boardjp = retriveboard();
+    Player* player0 = retriveplayer(1);
     //Bag* sac = retrivebag();
-    //void retrivereserve(); // ??
+    //retrivereserve(*player0,0);
     return 0;
 }
-*/
+
 
 /*
 int main() {
