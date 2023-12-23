@@ -104,7 +104,7 @@ public:
     QString getPlayerName2() { return playerNameEdit2->text(); }
     Type getPlayerType1() { return playerTypeCombo1->currentData().value<Type>(); }
     Type getPlayerType2() { return playerTypeCombo2->currentData().value<Type>(); }
-
+    bool isLoad() { return load; }
 private:
     QLineEdit *playerNameEdit1;
     QLineEdit *playerNameEdit2;
@@ -120,7 +120,7 @@ public slots:
         playerName2 = getPlayerName2();
         playerType1 = playerTypeCombo1->currentText();
         playerType2 = playerTypeCombo2->currentText();
-
+        load = false;
         accept();
         qDebug() << "New game with players: " << playerName1 << "(" << playerType1 << ")"
                  << " and " << playerName2 << "(" << playerType2 << ")";
@@ -129,6 +129,7 @@ public slots:
     void loadGame() {
         // Logic to load a saved game
         qDebug() << "Load a saved game";
+        load = true;
     }
 
     void quitGame() {
@@ -140,6 +141,7 @@ private:
     QString playerName2;
     QString playerType1;
     QString playerType2;
+    bool load;
 };
 
 

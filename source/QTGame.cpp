@@ -8,9 +8,27 @@
 #include <string>
 //quand 2 ia, ne pas utiliser qtgame, utiliser controller
 QTGame::QTGame(QWidget* parent) : QWidget(parent) {
-    //QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
-    //startingmenu->exec();
-    controller = new Controller("New", "JACK", "IA", Type::Humain, Type::IA);
+    QTStartingMenu* startingmenu = new QTStartingMenu(nullptr);
+    startingmenu->exec();
+    if (!startingmenu->isLoad()) {
+        controller = new Controller("New", "michia", "mich", Type::IA, Type::Humain);
+    }
+    if (controller->getcurrentPlayer().getType()==controller->getopposingPlayer().getType() && controller->getopposingPlayer().getType()==Type::IA) {
+        controller->play();
+        showVictoryDialog(QString::fromStdString(controller->getopposingPlayer().getName()), nullptr);
+        QString choice = "";
+        std::vector<QString> buttonLabels = {"Rejouer","Quitter"};
+        choice = MBox(buttonLabels, "Choix", "Voulez vous rejouer ou quitter ?");
+        while (choice == "Rejouer") {
+            std::string pseudo1 = controller->getcurrentPlayer().getName();
+            std::string pseudo2 = controller->getopposingPlayer().getName();
+            controller -> reinit();
+            controller = new Controller("New", pseudo1, pseudo2, Type::IA, Type::IA);
+            controller->play();
+            showVictoryDialog(QString::fromStdString(controller->getopposingPlayer().getName()), nullptr);
+            choice = MBox(buttonLabels, "Choix", "Voulez vous rejouer ou quitter ?");
+        }
+    }
     screen = QGuiApplication::primaryScreen();
     size = new QSize(screen->size()/2);
     width = size->width();
@@ -88,6 +106,9 @@ void QTGame::paintEvent(QPaintEvent* event) {
 void QTGame::handleTokenSelection(std::vector<const Token*> tokens) {
     for (auto token : tokens) {
         controller->getcurrentPlayer().addToken(*token);
+    }
+    if (plateView->getStatus()=="privileges") {
+        status = "optionalActions";
     }
     if (plateView->getStatus() == "take3tokens") {
         bool check = true;
@@ -263,8 +284,6 @@ void QTGame::play() {
         MBox({"OK"},"Message", QString::fromStdString(s));
     }
     std::vector<CompulsoryActions> compulsoryActions1 = controller->getCompulsoryActions(controller->getGame(), controller->getcurrentPlayer());
-    unsigned int choice = 0;
-    std::vector<OptionalActions> optionalActions;
     if (compulsoryActions1.empty()) {
         if (controller->getGame().getGameTable().getBag().isEmpty()) {
             throw TokenException("Egalité des IA");
@@ -349,7 +368,6 @@ void QTGame::applyCompulsoryAction(CompulsoryActions action) {
 
 void QTGame::checkEndTurn() {
     if (controller->getcurrentPlayer().getNbTokens() > 10) {
-        qDebug()<<"icitokens+10";
         int nb = -(10 - controller->getcurrentPlayer().getNbTokens());
         if (isCurrentPlayerIA()) {
             while (nb != 0) {
@@ -405,18 +423,16 @@ void QTGame::checkEndTurn() {
         }
     }
 
-
 void QTGame::bookCard(GameTable& gametable) {
     if(!isCurrentPlayerIA()) {
-        pyramid->updateAllCardStatus(Carte::reservable);
-        pioches->updateAllPiocheStatus(QTPioche::reservable);
-
         QMessageBox msgBox;
         msgBox.setText("Sélectionnez la carte que vous voulez réserver");
         msgBox.addButton("Ok", QMessageBox::RejectRole);
         msgBox.exec();
         plateView->updateStatus("gold");
         plateView->updateMaxNbSelectedTokens(1);
+        pyramid->updateAllCardStatus(Carte::reservable);
+        pioches->updateAllPiocheStatus(QTPioche::reservable);
     } else {
         unsigned int choiceDeckOrPyramid;
         unsigned int choiceDeckLevel;
@@ -723,20 +739,32 @@ void QTGame::buyJewelryCard(GameTable& gametable) {
 
 
 void QTGame::buyNobleCard() {
-    qDebug()<<"iciçapuevraiment";
     if (!isCurrentPlayerIA()) {
-        boardRoyal->updateAllCardStatus(QTCardRoyal::buyable);
-        std::cout << "Veuillez choisir une carte" << std::endl;
+        std::cout << "Veuillez choisir une carte de noblesse" << std::endl;
         for (auto card: Deck_Royal::getInstance()->getCards()) {
             std::cout << *card << std::endl;
         }
         MBox({"OK"}, "Message", "Veuillez choisir une carte à acheter");
+        boardRoyal->updateAllCardStatus(QTCardRoyal::buyable);
     } else {
         unsigned int nbCard = 0;
         nbCard = controller->getcurrentPlayer().getStrategy()->choicemaker(1,Deck_Royal::getInstance()->getCards().size());
-        RoyalCard& card = *Deck_Royal::getInstance()->getCards()[nbCard - 1];
-        controller->getcurrentPlayer().addRoyalCard(card, nbCard - 1);
-        applyRoyalCardSkills(controller->getGame(), controller->getcurrentPlayer(), controller->getopposingPlayer(),card);
+        QTCardRoyal* cardclicked = &boardRoyal->getCarte(nbCard-1);
+        int row, col, rowspan, columnspan;
+        boardRoyal->getGrid()->getItemPosition(boardRoyal->getGrid()->indexOf(cardclicked), &row, &col, &rowspan, &columnspan);
+        int position = row + col;
+        controller->getcurrentPlayer().addRoyalCard(*(cardclicked->getRoyalCard()), position);
+        if (cardclicked->getRoyalCard()->getAbility()!= Abilities::None) {
+            boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+            boardRoyal->retirerCarte(cardclicked);
+            applyRoyalCardSkills(controller->getGame(),controller->getcurrentPlayer(),controller->getopposingPlayer(),*(cardclicked->getRoyalCard()));
+        }
+        else {
+            boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+            boardRoyal->retirerCarte(cardclicked);
+            status = "check";
+            handleGameStatus();
+        }
     }
 
 }
@@ -806,17 +834,22 @@ void QTGame::handleBuyingJewelryCard(Carte* cardclicked) {
     int level = cardclicked->getJewelryCard()->getLevel();
     int row, col, rowspan, columnspan;
     pyramid->getgrid()->getItemPosition(pyramid->getgrid()->indexOf(cardclicked), &row, &col, &rowspan, &columnspan);
-    JewelryCard &card = controller->getGame().getGameTable().getPyramid().takeCard(level, col);
-    controller->getGame().getGameTable().getPyramid().drawCard(level);
-    if (controller->getcurrentPlayer().canBuyCard(card)) {
-        controller->getcurrentPlayer().actionBuyCard(card);
-        if (card.getAbility1()!= Abilities::None || card.getAbility2()!= Abilities::None) {
+    JewelryCard * card = controller->getGame().getGameTable().getPyramid().getLevelCards(level)[col];
+    if (controller->getcurrentPlayer().canBuyCard(*card)) {
+        JewelryCard& cardbought = controller->getGame().getGameTable().getPyramid().takeCard(level, col);
+        controller->getGame().getGameTable().getPyramid().drawCard(level);
+        controller->getcurrentPlayer().actionBuyCard(cardbought);
+        if (cardbought.getAbility1()!= Abilities::None || cardbought.getAbility2()!= Abilities::None) {
             pyramid->updateAllCardStatus(Carte::notClickable);
-            applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),card);
+            applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),cardbought);
+            row = pyramid->retirerCarte(cardclicked);
+            pyramid->ajouterCarte(row);
         }
         else {
             pyramid->updateAllCardStatus(Carte::notClickable);
             status = "check";
+            row = pyramid->retirerCarte(cardclicked);
+            pyramid->ajouterCarte(row);
             handleGameStatus();
         }
     }
@@ -835,7 +868,8 @@ void QTGame::handleBookingJewelryCardFromPyramid(Carte* clickedCard) {
         controller->getcurrentPlayer().reserveOneCard(pyramid->getPyramidCard()->takeCard(level , col));
         pyramid->getPyramidCard()->drawCard(level);
     }
-
+    int row = pyramid->retirerCarte(clickedCard);
+    pyramid->ajouterCarte(row);
     //Partie qui gère l'update graphique se trouve dans QTPyramid::carteClicked
     pyramid->updateAllCardStatus(Carte::notClickable);
     pioches->updateAllPiocheStatus(QTPioche::notClickable);
@@ -876,10 +910,12 @@ void QTGame::handleBuyingRoyalCard(QTCardRoyal* cardclicked){
     controller->getcurrentPlayer().addRoyalCard(*(cardclicked->getRoyalCard()), position);
     if (cardclicked->getRoyalCard()->getAbility()!= Abilities::None) {
         boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+        boardRoyal->retirerCarte(cardclicked);
         applyRoyalCardSkills(controller->getGame(),controller->getcurrentPlayer(),controller->getopposingPlayer(),*(cardclicked->getRoyalCard()));
     }
     else {
         boardRoyal->updateAllCardStatus(QTCardRoyal::notClickable);
+        boardRoyal->retirerCarte(cardclicked);
         status = "check";
         handleGameStatus();
     }
@@ -1035,9 +1071,15 @@ void QTGame::handleBuyingReserveCard(JewelryCard* cardClicked){
     if (controller->getcurrentPlayer().canBuyCard(*cardClicked)) {
         controller->getcurrentPlayer().actionBuyReservedCard(*cardClicked);
         getCurrentQTPlayer()->setReserveCardBought(true);
-
-        status = "check";
-        handleGameStatus();
+        if (cardClicked->getAbility1()!= Abilities::None || cardClicked->getAbility2()!= Abilities::None) {
+            pyramid->updateAllCardStatus(Carte::notClickable);
+            applyCardSkills(controller->getGame(),controller->getcurrentPlayer(), controller->getopposingPlayer(),*cardClicked);
+        }
+        else {
+            pyramid->updateAllCardStatus(Carte::notClickable);
+            status = "check";
+            handleGameStatus();
+        }
     } else {
         QMessageBox::information(this, "Non achetable", "Il n'est pas possible d'acheter cette carte. Vous allez être redirigé vers la pyramide.", QMessageBox::Ok);
     }

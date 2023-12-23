@@ -16,10 +16,9 @@ int main() {
         c->reinit();
     }
 }
-
 */
 
-/* main de base
+
 int main(int argc, char *argv[])
 {
 
@@ -28,8 +27,9 @@ int main(int argc, char *argv[])
     game.show();
     return QApplication::exec();
 }
-*/
 
+
+/*
 int main() {
     //Pyramid_Cards* pyra = retrevePyramid();
     //Deck_level_one* dec1 = retrivedeck1();
@@ -42,6 +42,7 @@ int main() {
     //void retrivereserve(); // ??
     return 0;
 }
+*/
 
 /*
 int main() {

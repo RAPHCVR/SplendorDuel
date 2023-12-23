@@ -102,24 +102,38 @@ void Player::spendResources(std::unordered_map<TokenColor, int> tokensToSpend) {
         if (tokensNeeded == 0) {
             continue;
         }
+        if (color!=TokenColor::PERLE) {
+            SummaryCard& bonus = getColorSummary(color);
+            int finalCost = tokensNeeded - bonus.getBonusNumber();
+            int playerTokens = tokenSummary[color];
 
-        SummaryCard& bonus = getColorSummary(color);
-        int finalCost = tokensNeeded - bonus.getBonusNumber();
-        int playerTokens = tokenSummary[color];
-
-        if (finalCost <= 0) {
-            continue; // No need to spend tokens if final cost is zero or negative
-        }
-
-        if (playerTokens < finalCost) {
-            int tokenGap = finalCost - playerTokens;
-            if (goldCounter < tokenGap) {
-                throw std::runtime_error("Not enough tokens to spend");
+            if (finalCost <= 0) {
+                continue; // No need to spend tokens if final cost is zero or negative
             }
-            spendSpecificToken(color, playerTokens);
-            spendGoldTokens(tokenGap);
-        } else {
-            spendSpecificToken(color, finalCost);
+
+            if (playerTokens < finalCost) {
+                int tokenGap = finalCost - playerTokens;
+                if (goldCounter < tokenGap) {
+                    throw std::runtime_error("Not enough tokens to spend");
+                }
+                spendSpecificToken(color, playerTokens);
+                spendGoldTokens(tokenGap);
+            } else {
+                spendSpecificToken(color, finalCost);
+            }
+        }
+        else {
+            int playerTokens = tokenSummary[color];
+            if (playerTokens < tokensNeeded) {
+                int tokenGap = tokensNeeded - playerTokens;
+                if (goldCounter < tokenGap) {
+                    throw std::runtime_error("Not enough tokens to spend");
+                }
+                spendSpecificToken(color, playerTokens);
+                spendGoldTokens(tokenGap);
+            } else {
+                spendSpecificToken(color, tokensNeeded);
+            }
         }
     }
 }
