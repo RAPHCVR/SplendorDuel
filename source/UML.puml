@@ -32,10 +32,10 @@ enum CompulsoryActions{
 namespace JetonsPrivilegePlateau {
 
 class Token {
-   -couleur : TokenColor
+   -color : TokenColor
    +Token(token : const Token)
-   +Token(couleur: TokenColor)
-   +getCouleur() : TokenColor
+   +Token(color: TokenColor)
+   +getColorr() : TokenColor
 }
 
 class Privilege{
@@ -44,12 +44,15 @@ class Privilege{
 class Bag{
   -tokens : Liste[Token]
   -Bag(total : const TotalTokens)
+  -instance : static Bag*
   +getNbToken() : size_t
   +addToken(token : const Token)
   +drawToken() : const Token
-  +isEmpty() : bool
+  +drawToken(TokenColor color) : const Token
+  +isEmpty() const : bool
   +getInstance() : Bag
   +containsOnly(color : TokenColor) : bool
+  + resetInstance():static void 
 }
 note bottom of Bag : Le sac de jeton est unique, pas de duplication
 
@@ -63,10 +66,9 @@ class TotalTokens{
    -max_vert : const size_t
    -max_blanc : const size_t
    {fi+TotalTokens()
-
-   +~TotalTokens
+   - TotalTokens()
+   - ~TotalTokens()
    +getNbToken : size_t
-   +getToken : const Token
    + getToken(size_t i) const : const Token&
    + getInstance() :const static TotalTokens& 
 }
@@ -85,7 +87,6 @@ note bottom of TotalPrivileges: pas de duplication du total
 class Board{
    - tokens : Liste[Liste[Token]]
    - privileges : Liste[Privilege]
-   ' -observers : vecteur[Observer]
    + Board(bag: Bag, privileges: const TotalPrivileges)
    + takeToken(i : size_t, j : size_t) : const Token
    + showBoard()
@@ -129,14 +130,14 @@ enum Abilities <<enumeration >> {
 namespace GestionPartie{
 
 class Controller {
-  - Game : Game
-  - currentPlayer : Player
+  - Game : Game*
+  - currentPlayer : Player*
 
   +Controller(const std::string& statut_partie, std::string pseudo1, std::string pseudo2, Type type1, Type type2)
   +~Controller() 
-  +getGame() : Game
-  +getcurrentPlayer() : Player
-  +getopposingPlayer() : Player
+  +getGame() : Game&
+  +getcurrentPlayer() : Player&
+  +getopposingPlayer() : Player&
   +setCurrentPlayer(unsigned int n): void
   +play(): void
   +playTurn(): void
@@ -162,21 +163,27 @@ class Controller {
   + reinit():void
 }			 
 class Game{
+    - round :  int
     -GameTable : GameTable
-								 
-    -joueur_courant : Player
-    -tour : uint
-						 
-					   
+    - players[2] : Player*
+    + Game() 
+    + ~Game() 
+    + getRound() const : int 
+    + getGameTable() const :GameTable&
+    +  getPlayer(size_t i) const : Player*
+    + setPlayer1(Player *j):void
+    + setPlayer2(Player *j):void
+    + setRound(unsigned int n) : void
+    + roundIncrement() : void
 }
 class GameTable{
-  - deckroyal : Deck_Royal
-  - decklv1 :Deck_level_one 
-  - decklv2 : Deck_level_two
-  - decklv3 :Deck_level_three
-  - pyramid :Pyramid_Cards
-  - bag : Bag
-  - board : Board 
+  - deckroyal : Deck_Royal*
+  - decklv1 :Deck_level_one* 
+  - decklv2 : Deck_level_two*
+  - decklv3 :Deck_level_three*
+  - pyramid :Pyramid_Cards*
+  - bag : Bag*
+  - board : Board *
 
   + GameTable()
   + ~GameTable()
@@ -187,9 +194,6 @@ class GameTable{
   + getDeckLevelOne() const : Deck_level_one
   + getDeckLevelTwo() const :Deck_level_two
   + getDeckLevelThree() const :Deck_level_three
-  + GameTable(const GameTable&) = delete
-  + GameTable& operator=(const GameTable&) = delete
-								  
 }
 
 class QTGame {
@@ -229,6 +233,9 @@ class QTGame {
     + applyRoyalCardSkills(game: Game, cardOwner: Player, opponent: Player, card: RoyalCard): void
     + setBoldCurrentPlayer(): void
     + generateNewGame(): void
+    + getCurrentQTPlayer():PlayerQT* 
+    + isCurrentPlayerIA():bool
+    + handleIATokenSelection():void 
     + handleBuyingJewelryCard(cardclicked: Carte*): void
     + handleBookingJewelryCardFromPyramid(clickedCard: Carte*): void
     + handleBookingJewelryCardFromPioche(piocheclicked: QTPioche*): void
@@ -237,19 +244,21 @@ class QTGame {
 }
 
 class QTStartingMenu {
+    - playerName1: QString
+    - playerName2: QString
     + QTStartingMenu(parent: QWidget = nullptr)
     + getPlayerName1(): QString
     + getPlayerName2(): QString
-
-private:
-    - playerName1: QString
-    - playerName2: QString
-
-public slots:
+    + getPlayerType1() : Type
+    + getPlayerType2() : Type
+    + isLoad() : bool
     + startNewGame(): void
     + loadGame(): void
     + quitGame(): void
+    + showScoreBoard() : void
 }
+
+
 
 }
 namespace JoueurHumainIA {
@@ -352,111 +361,148 @@ class HumanStrategy{
 
 namespace GestionCartes{
 
-class JewelryCard <<abstract>>{
-  - niveau : uint
-  - bonus : Bonus
-  - point_de_prestige : uint
-  - capacite : Abilities
-  - {field} cout : Liste[int]
-  - couronne : int
-  - id : int
-  +JewelryCard(niveau : Niveau, bonus : TokenColor, point_de_prestige : int, capacite : Abilities, cout : Liste[int], couronne : int, id : int)
-  +getNiveau() : int
-  +getBonus() : Bonus
-  +getCompetence1() : Abilities
-  +getCompetence2() : Capactie
-  +getPrestige() : int
-  +getCout() : Liste[int]
-  +getCouronne() : int
-  +getId() : int
+
+class SummaryCard{
+  - unsigned int prestigePoints;
+  - unsigned int bonusNumber;
+  + explicit SummaryCard(unsigned int p = 0, unsigned int b = 0)
+  + getPrestigePoints():unsigned int
+  + getBonusNumber() :unsigned int
+  + addBonusNumber(unsigned int b) :void
+  + addprestigePoints(unsigned int p):void
 }
+
+
+class JewelryCard <<abstract>>{
+  - level : unsigned int 
+  - cost : unordered_map<TokenColor, int>  
+  - prestige_points : unsigned int
+  - crowns :unsigned int
+  - ability1 :Abilities
+  - ability2 :Abilities
+  - bonus:Bonus
+	- id : int 
+
+  + JewelryCard(unsigned int l, unordered_map<TokenColor, int> c, unsigned int pp, unsigned int cr, Abilities a1, Abilities a2, Bonus b, int i)
+  + getLevel() : int
+  + getCost() : unordered_map<TokenColor, int> 
+  + getPrestige() : int
+  + getCrowns() : int
+  + getAbility1()  : Abilities
+  + getAbility2() : Abilities
+  +  getBonus() :Bonus
+	+ getId() : int
+  + operator==(const JewelryCard& other) const : bool 
+
+}
+
 note bottom of JewelryCard : point de prestige entre 0 et 4\ncouronne entre 0 et 2
 
 
 class RoyalCard {
-  - point_de_prestige : uint
-  - capacite : Abilities
-  - id : int
-  + RoyalCard(point_de_prestige : int, capacite : Abilities)
-  + getPrestige() : uint
-  + getCompetence() : Abilities
-  + getId() : int
+  - prestige_points :unsigned int 
+  - ability :Abilities
+  - id :unsigned int
+
+  + RoyalCard(unsigned int pp, Abilities a, unsigned int i)
+  + getPrestige():unsigned int 
+  + getAbility():Abilities 
+  + getId():unsigned int 
+  				
 }
+
 note bottom of RoyalCard :  point de prestige 2 ou 3\ncouronnes nécessaire entre 3 ou 6
 note bottom of RoyalCard : Une classe RoyalCardError est présente pour spécifier les erreurs
 
 class Deck_Royal{
   - Deck_Royal()
-  - instance : Deck_Royal
-  - cards : vecteur[RoyalCard]
+  - instance : static Deck_Royal*
+  - cards : vector[RoyalCard*]
   + getInstance : Deck_Royal
-  + getCards : vecteur[RoyalCard]
-  + addCardToDeck(card : RoyalCard) : void
+  + getInstance(const std::string& databaseSavePath):static Deck_Royal*
+  + getCards : vector[RoyalCard]
+  + addCardToDeck(card : RoyalCard*) : void
   + deleteCard(pos : int) : void
+  + resetInstance() : static void
 }
 note bottom of Deck_Royal : Gère le deck des cartes royales
 
 class Deck_level_one{
   - Deck_level_one()
-  - instance : Deck_level_one 
-  - pioche : Liste[RoyalCard]
-  + getInstance() : Deck_level_one
-  + getPioche() : Liste[RoyalCard]
-  + addCardToDeck(card : RoyalCard) : void
+  - Deck_level_one(const std::string& databaseSavePath)
+  - instance : Deck_level_one *
+  - pioche : Liste[RoyalCard*]
+  + getInstance() : Deck_level_one*
+  + getInstance(const std::string& databaseSavePath) : Deck_level_one*
+  + getPioche() : Liste[RoyalCard*]
+  + addCardToDeck(card : RoyalCard*) : void
   + deleteFirstItem() : void
+  + resetInstance(): static void
 }
 
 class Deck_level_two{
   - Deck_level_two()
-  - instance : Deck_level_two 
-  - pioche : Liste[RoyalCard]
-  + getInstance() : Deck_level_two
-  + getPioche() : Liste[JewelryCard]
-  + addCardToDeck(card : JewelryCard) : void
+  - Deck_level_two(const std::string& databaseSavePath)
+  - instance : Deck_level_two* 
+  - pioche : Liste[RoyalCard*]
+  + getInstance() : Deck_level_two*
+  + getInstance(const std::string& databaseSavePath) : Deck_level_two*
+  + getPioche() : Liste[JewelryCard*]
+  + addCardToDeck(card : JewelryCard*) : void
   + deleteFirstItem() : void
+  + resetInstance(): static void
 }
 
 class Deck_level_three{
   - Deck_level_three()
-  - instance : Deck_level_three
-  - pioche : Liste[JewelryCard]
-  + getInstance() : Deck_level_three
-  + getPioche() : Liste[JewelryCard]
-  + addCardToDeck(card : JewelryCard) : void
+  - Deck_level_three(const std::string& databaseSavePath)
+  - instance : Deck_level_three *
+  - pioche : Liste[RoyalCard*]
+  + getInstance() : Deck_level_three*
+  + getInstance(const std::string& databaseSavePath) : Deck_level_three*
+  + getPioche() : Liste[JewelryCard*]
+  + addCardToDeck(card : JewelryCard*) : void
   + deleteFirstItem() : void
+  + resetInstance(): static void
 }
 
 class Pyramid_Cards{
     - instance : Pyramid_Cards
-    - niveau1 : Liste[JewelryCard]
-    - niveau2 : Liste[JewelryCard]
-    - niveau3 : Liste[JewelryCard]
+    - row_level_one : Liste[JewelryCard]
+    - row_level_two : Liste[JewelryCard]
+    - row_level_three : Liste[JewelryCard]
     - max_level_one : static int
     - max_level_two : static int
     - max_level_three : static int
-    + getInstance() : Pyramid_Cards
-    + Pyramid_Cards(deck1 : Deck_level_one, deck2 : Deck_level_two, deck3 : Deck_level_three)
-    + piocherCarte(niveau : uint) : const JewelryCard
-    + remplirPyramide(deck1 : Deck_level_one, deck2 : Deck_level_two, deck3 : Deck_level_three)
-    + isEmpty(level : int) : bool
-    + getLevelCards(i : int) : vecteur[JewelryCard]
-}
 
+    + Pyramid_Cards(const std::string & databaseSavePath)
+    + getInstance() :static Pyramid_Cards* 
+    + getInstance(const std::string& databaseSavePath) :static Pyramid_Cards* 
+    + resetInstance() :static void 
+    + void drawCard(unsigned int level);
+    + takeCard(unsigned int level, unsigned int position) :JewelryCard& 
+    + getRow1() : vector<JewelryCard*>
+    + getRow2() : vector<JewelryCard*>
+    + getRow3() : vector<JewelryCard*>
+    + isEmpty(unsigned int level) : bool
+    + getLevelCards(unsigned int i) : vector<JewelryCard*> 
+
+}
 class QTCartes {
     + //enum CardStatus {
     //    BUYABLE
     //    RESERVABLE
     //    NOTCLICKABLE
     //}
-    - jewelryCard: JewelryCard
+    - jewelryCard: CarteJoaillerie
     - status: CardStatus
     - getImagePath(): QString
     + getstatus() : CardStatus
     + setStatus(newStatus : CardStatus) : void
-    + QTCartes(JewelryCard : JewelryCard, parent : QWidget)
+    + QTCartes(CarteJoaillerie : CarteJoaillerie, parent : QWidget)
     + ~Carte()
     +afficher() : void
-    + getJewelryCard() : JewelryCard
+    + getJewelryCard() : CarteJoaillerie
     + isCardBuyable(carte : QTCard) : bool
     + isCardReservable(carte : QTCard) : bool
     + mousePressEvent(event : QMouseEvent) : void
