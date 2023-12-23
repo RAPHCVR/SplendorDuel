@@ -156,10 +156,10 @@ public:
     explicit ScoreboardDialog(QWidget *parent = nullptr) : QDialog(parent) {
         tableWidget = new QTableWidget(this);
         tableWidget->setColumnCount(2); // Two columns: Name and Score
-        tableWidget->setHorizontalHeaderLabels({"Name", "Score"});
+        tableWidget->setHorizontalHeaderLabels({"Nom", "Score"});
         tableWidget->horizontalHeader()->setStretchLastSection(true);
 
-        QPushButton* closeButton = new QPushButton("Close", this);
+        QPushButton* closeButton = new QPushButton("Fermer", this);
         connect(closeButton, &QPushButton::clicked, this, &ScoreboardDialog::close);
 
         QVBoxLayout* layout = new QVBoxLayout(this);
