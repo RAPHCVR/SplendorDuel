@@ -20,5 +20,6 @@ Board* retriveboard();
 Player* retriveplayer(int id);
 Bag* retrivebag();
 void retrivereserve(Player& player, int idPlayer);
-
+unsigned retrieveTurn();
+void retrieveCurrentPlayer(Controller& controller);
 #endif //LO21PROJECT_SAVE_H

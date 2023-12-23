@@ -671,3 +671,75 @@ void retrivereserve(Player& player, int idPlayer) {
     sqlite3_finalize(stmt);
     sqlite3_close(db);
 }
+
+void retrieveCurrentPlayer(Controller& controller) {
+    // Get the path to the database
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__).parent_path();
+    std::string databaseSavePath = sourceFilePath.string() + "/Data/save.db";
+
+    sqlite3* db;
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db);
+    if (rc) {
+        std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    std::ostringstream oss;
+    oss << "SELECT * FROM infopartie";
+    std::string queryRes = oss.str();
+
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, queryRes.c_str(), -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing query: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        // Extract data from each column based on the INSERT query structure
+        std::string currentplayer = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        if(controller.getcurrentPlayer().getName()!=currentplayer) {
+            controller.changeCurrentPlayer();
+        }
+    }
+    // Finalize and close database connection
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+unsigned retrieveTurn() {
+    // Get the path to the database
+    std::filesystem::path sourceFilePath = std::filesystem::path(__FILE__).parent_path();
+    std::string databaseSavePath = sourceFilePath.string() + "/Data/save.db";
+
+    sqlite3* db;
+    int rc = sqlite3_open(databaseSavePath.c_str(), &db);
+    if (rc) {
+        std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+    }
+
+    std::ostringstream oss;
+    oss << "SELECT * FROM infopartie";
+    std::string queryRes = oss.str();
+
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, queryRes.c_str(), -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        std::cerr << "Error preparing query: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+    }
+    unsigned turn;
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        // Extract data from each column based on the INSERT query structure
+        turn = reinterpret_cast<unsigned>(sqlite3_column_text(stmt, 0));
+    }
+    // Finalize and close database connection
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return turn;
+}
