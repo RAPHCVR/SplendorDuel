@@ -88,7 +88,7 @@ Pour compiler et lancer le projet, vous aurez besoin de CMake, d'un compilateur 
 
 Ce projet est le fruit du travail de :
 
-*   **Raphaël Chauvier** - Architecture principale, Moteur de jeu (Controller, Game), Logique des jetons, UI/UX (QTGame, QTJeton).
+*   **[Raphaël Chauvier](https://github.com/RAPHCVR)** ([@RAPHCVR](https://github.com/RAPHCVR)) - Architecture principale, Moteur de jeu (Controller, Game), Logique des jetons, UI/UX (QTGame, QTJeton).
 *   **Celine Ozkaya** - Logique Joueur (Back-end) et implémentation du pattern Stratégie.
 *   **Lise Leclef** - Interface Joueur (PlayerQT), co-création de la classe Joueur, intégration IA dans l'IHM et tests.
 *   **Remy Théolier** - Logique des Cartes (Back-end) et système de Sauvegarde/Reprise.
